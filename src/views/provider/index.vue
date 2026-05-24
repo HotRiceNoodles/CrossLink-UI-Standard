@@ -1,0 +1,404 @@
+<template>
+  <div class="provider-page">
+    <!-- 页面标题栏 -->
+    <div class="page-header">
+      <h2>供应商管理</h2>
+      <a-space>
+        <a-button type="primary" @click="openProviderCreate">
+          <template #icon><icon-plus /></template>
+          添加供应商
+        </a-button>
+        <a-tooltip content="刷新">
+          <a-button @click="fetchData">
+            <template #icon><icon-refresh /></template>
+          </a-button>
+        </a-tooltip>
+      </a-space>
+    </div>
+
+    <!-- 筛选栏 -->
+    <a-card class="general-card filter-card">
+      <a-row :gutter="16" align="center">
+        <a-col :span="6">
+          <a-select
+            v-model="filter.status"
+            placeholder="供应商状态"
+            allow-clear
+            style="width: 100%"
+          >
+            <a-option :value="1" label="启用" />
+            <a-option :value="0" label="禁用" />
+          </a-select>
+        </a-col>
+        <a-col :span="10">
+          <a-input
+            v-model="searchInput"
+            placeholder="模型名称搜索"
+            allow-clear
+            @input="debouncedModelSearch"
+            @clear="clearModelSearch"
+          />
+        </a-col>
+        <a-col :span="4">
+          <a-button @click="resetFilter">重置</a-button>
+        </a-col>
+      </a-row>
+    </a-card>
+
+    <!-- 卡片列表 -->
+    <a-spin :loading="loading" style="width: 100%">
+      <div class="card-list">
+        <ProviderCard
+          v-for="provider in displayedProviders"
+          :key="provider.id"
+          :provider="provider"
+          :models="getModelsForProvider(provider.id)"
+          :adapter="getAdapter(provider.adapter_type)"
+          :testing-id="testingId"
+          :probe-status="probeStatusMap[provider.id]"
+          @test="handleTest"
+          @edit-provider="openProviderEdit"
+          @delete-provider="handleDeleteProvider"
+          @add-model="openModelCreate"
+          @edit-model="openModelEdit"
+          @delete-model="handleDeleteModel"
+        />
+      </div>
+      <!-- 无供应商时的引导空状态 -->
+      <div v-if="!loading && filteredProviders.length === 0 && providerList.length === 0" class="empty-guide">
+        <a-empty>
+          <template #description>
+            <span>暂无供应商</span>
+            <p style="color: var(--color-text-4); font-size: 13px; margin-top: 4px;">
+              点击上方「添加供应商」按钮接入第一个 AI 供应商
+            </p>
+          </template>
+        </a-empty>
+      </div>
+      <!-- 有数据但筛选为空的常规空状态 -->
+      <a-empty v-else-if="!loading && filteredProviders.length === 0 && providerList.length > 0" />
+    </a-spin>
+
+    <!-- 底部统计 -->
+    <div class="list-footer" v-if="filteredProviders.length > 0">
+      <span class="list-total">共 {{ filteredProviders.length }} 个供应商</span>
+      <a-pagination
+        v-if="filteredProviders.length > PAGE_SIZE_THRESHOLD"
+        v-model:current="pagination.current"
+        :total="filteredProviders.length"
+        :page-size="pagination.pageSize"
+        show-total
+        @change="onPageChange"
+      />
+    </div>
+
+    <!-- 供应商抽屉 -->
+    <ProviderForm
+      :visible="providerFormVisible"
+      :is-edit="providerFormIsEdit"
+      :provider="providerFormEditTarget"
+      :adapter-list="adapterList"
+      @update:visible="providerFormVisible = $event"
+      @success="fetchData"
+    />
+
+    <!-- 模型抽屉 -->
+    <ModelForm
+      :visible="modelFormVisible"
+      :is-edit="modelFormIsEdit"
+      :model="modelFormEditTarget"
+      :provider-list="providerList"
+      :default-provider-id="modelFormDefaultProviderId"
+      @update:visible="modelFormVisible = $event"
+      @success="onModelFormSuccess"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, reactive, computed, onMounted } from 'vue'
+import { Message, Modal } from '@arco-design/web-vue'
+import { useDebounceFn } from '@vueuse/core'
+import { providerApi } from '@/api/provider'
+import { modelApi } from '@/api/model'
+import { useLoading } from '@/hooks/loading'
+import type { Provider, ProviderModel, Adapter } from '@/types'
+import ProviderCard from './components/provider-card.vue'
+import ProviderForm from './components/provider-form.vue'
+import ModelForm from './components/model-form.vue'
+
+const { loading, setLoading } = useLoading(false)
+
+// ---------- Data ----------
+const providerList = ref<Provider[]>([])
+const modelList = ref<ProviderModel[]>([])
+const adapterList = ref<Adapter[]>([])
+const testingId = ref<number | null>(null)
+
+// ---------- Filter ----------
+const PAGE_SIZE_THRESHOLD = 50
+
+const filter = reactive({
+  status: undefined as number | undefined,
+  modelName: '',
+})
+
+const searchInput = ref('')
+const debouncedModelSearch = useDebounceFn((value: string) => {
+  filter.modelName = value
+  pagination.current = 1
+}, 300)
+
+function clearModelSearch() {
+  filter.modelName = ''
+  pagination.current = 1
+}
+
+function resetFilter() {
+  filter.status = undefined
+  searchInput.value = ''
+  filter.modelName = ''
+  pagination.current = 1
+}
+
+// ---------- Computed ----------
+const modelsByProvider = computed(() => {
+  const map = new Map<number, ProviderModel[]>()
+  for (const model of modelList.value) {
+    const list = map.get(model.provider_id) || []
+    list.push(model)
+    map.set(model.provider_id, list)
+  }
+  return map
+})
+
+const filteredProviders = computed(() => {
+  let list = providerList.value
+  if (filter.status !== undefined && filter.status !== null) {
+    list = list.filter(p => p.status === filter.status)
+  }
+  if (filter.modelName) {
+    const kw = filter.modelName.toLowerCase()
+    list = list.filter(p => {
+      const models = modelsByProvider.value.get(p.id) || []
+      return models.some(m => m.model_name.toLowerCase().includes(kw))
+    })
+  }
+  return list
+})
+
+const pagination = reactive({ current: 1, pageSize: 20 })
+
+const displayedProviders = computed(() => {
+  if (filteredProviders.value.length <= PAGE_SIZE_THRESHOLD) {
+    return filteredProviders.value
+  }
+  const start = (pagination.current - 1) * pagination.pageSize
+  return filteredProviders.value.slice(start, start + pagination.pageSize)
+})
+
+function onPageChange(page: number) {
+  pagination.current = page
+}
+
+// ---------- Probe status ----------
+const probeStatusMap = reactive<Record<number, 'success' | 'fail' | 'testing'>>({})
+
+// ---------- Provider Form ----------
+const providerFormVisible = ref(false)
+const providerFormIsEdit = ref(false)
+const providerFormEditTarget = ref<Provider | undefined>()
+
+function openProviderCreate() {
+  providerFormIsEdit.value = false
+  providerFormEditTarget.value = undefined
+  providerFormVisible.value = true
+}
+
+function openProviderEdit(provider: Provider) {
+  providerFormIsEdit.value = true
+  providerFormEditTarget.value = provider
+  providerFormVisible.value = true
+}
+
+// ---------- Model Form ----------
+const modelFormVisible = ref(false)
+const modelFormIsEdit = ref(false)
+const modelFormEditTarget = ref<ProviderModel | undefined>()
+const modelFormDefaultProviderId = ref<number | undefined>()
+
+function openModelCreate(provider: Provider) {
+  modelFormIsEdit.value = false
+  modelFormEditTarget.value = undefined
+  modelFormDefaultProviderId.value = provider.id
+  modelFormVisible.value = true
+}
+
+function openModelEdit(model: ProviderModel, _provider: Provider) {
+  modelFormIsEdit.value = true
+  modelFormEditTarget.value = model
+  modelFormDefaultProviderId.value = undefined
+  modelFormVisible.value = true
+}
+
+function onModelFormSuccess() {
+  fetchModels()
+}
+
+// ---------- Actions ----------
+async function handleTest(provider: Provider) {
+  testingId.value = provider.id
+  probeStatusMap[provider.id] = 'testing'
+  try {
+    const res = await providerApi.test(provider.id)
+    if (res.data.success) {
+      probeStatusMap[provider.id] = 'success'
+      Message.success(res.data.message || '连接正常')
+    } else {
+      probeStatusMap[provider.id] = 'fail'
+      Message.error(res.data.message || '连接失败')
+    }
+  } catch {
+    probeStatusMap[provider.id] = 'fail'
+    Message.error('连接测试请求失败')
+  } finally {
+    testingId.value = null
+  }
+}
+
+function handleDeleteProvider(provider: Provider) {
+  const models = modelsByProvider.value.get(provider.id) || []
+  if (models.length > 0) {
+    Modal.warning({
+      title: '无法删除',
+      content: `该供应商下还有 ${models.length} 个模型，请先删除所有模型后再删除供应商。`,
+    })
+    return
+  }
+  Modal.confirm({
+    title: '确认删除',
+    content: `确定要删除供应商「${provider.display_name}」吗？`,
+    onOk: async () => {
+      try {
+        await providerApi.delete(provider.id)
+        Message.success('删除成功')
+        await fetchData()
+      } catch {
+        Message.error('删除失败')
+      }
+    },
+  })
+}
+
+function handleDeleteModel(model: ProviderModel) {
+  Modal.confirm({
+    title: '确认删除',
+    content: `确定要删除模型「${model.model_name}」吗？`,
+    onOk: async () => {
+      try {
+        await modelApi.delete(model.id)
+        Message.success('删除成功')
+        await fetchModels()
+      } catch {
+        Message.error('删除失败')
+      }
+    },
+  })
+}
+
+// ---------- Helpers ----------
+function getModelsForProvider(providerId: number): ProviderModel[] {
+  let models = modelsByProvider.value.get(providerId) || []
+  if (filter.modelName) {
+    const kw = filter.modelName.toLowerCase()
+    models = models.filter(m => m.model_name.toLowerCase().includes(kw))
+  }
+  return models
+}
+
+function getAdapter(type: string): Adapter | undefined {
+  return adapterList.value.find(a => a.type === type)
+}
+
+// ---------- Fetch ----------
+async function fetchData() {
+  setLoading(true)
+  try {
+    const [pRes, mRes, aRes] = await Promise.all([
+      providerApi.list(),
+      modelApi.list(),
+      providerApi.adapters(),
+    ])
+    providerList.value = pRes.data ?? []
+    modelList.value = mRes.data ?? []
+    adapterList.value = aRes.data ?? []
+  } catch {
+    Message.error('加载数据失败')
+  } finally {
+    setLoading(false)
+  }
+}
+
+async function fetchModels() {
+  try {
+    const res = await modelApi.list()
+    modelList.value = res.data ?? []
+  } catch {
+    Message.error('获取模型列表失败')
+  }
+}
+
+onMounted(() => {
+  fetchData()
+})
+</script>
+
+<style scoped lang="less">
+.provider-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-1);
+  }
+}
+
+.filter-card {
+  :deep(.arco-card-body) {
+    padding: 16px;
+  }
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.empty-guide {
+  padding: 60px 0;
+  text-align: center;
+}
+
+.list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+
+  .list-total {
+    font-size: 13px;
+    color: var(--color-text-3);
+  }
+}
+</style>

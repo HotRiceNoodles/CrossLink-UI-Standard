@@ -1,0 +1,174 @@
+<template>
+  <div class="login-page">
+    <div class="login-banner">
+      <div class="banner-content">
+        <div class="banner-logo">
+          <div class="logo-icon">CL</div>
+          <span class="logo-text">CrossLink</span>
+        </div>
+        <h1 class="banner-title">企业级大模型</h1>
+        <h1 class="banner-title">API 网关管理平台</h1>
+        <p class="banner-desc">统一管理多家 LLM 供应商，智能路由，降本增效</p>
+        <div class="banner-decoration">
+          <div class="deco-circle deco-circle-1" />
+          <div class="deco-circle deco-circle-2" />
+          <div class="deco-circle deco-circle-3" />
+          <div class="deco-line deco-line-1" />
+          <div class="deco-line deco-line-2" />
+        </div>
+      </div>
+    </div>
+    <div class="login-form-wrapper">
+      <div class="login-form-container">
+        <LoginForm />
+      </div>
+      <div class="login-footer">
+        <span>&copy; 2025 CrossLink</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import LoginForm from './components/login-form.vue'
+</script>
+
+<style scoped lang="less">
+.login-page {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.login-banner {
+  flex: 0 0 60%;
+  background: linear-gradient(135deg, #0e42d2, #165dff, #4080ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner-content {
+  position: relative;
+  z-index: 1;
+  padding: 60px;
+  color: #fff;
+}
+
+.banner-logo {
+  display: flex;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  backdrop-filter: blur(4px);
+}
+
+.logo-text {
+  margin-left: 12px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.banner-title {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.banner-desc {
+  font-size: 16px;
+  opacity: 0.8;
+  margin-top: 16px;
+}
+
+.banner-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.deco-circle-1 {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  right: -100px;
+}
+
+.deco-circle-2 {
+  width: 200px;
+  height: 200px;
+  bottom: 80px;
+  left: 80px;
+}
+
+.deco-circle-3 {
+  width: 100px;
+  height: 100px;
+  top: 40%;
+  right: 20%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.deco-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+.deco-line-1 {
+  width: 300px;
+  top: 30%;
+  left: 10%;
+  transform: rotate(-15deg);
+}
+
+.deco-line-2 {
+  width: 200px;
+  bottom: 25%;
+  right: 15%;
+  transform: rotate(25deg);
+}
+
+.login-form-wrapper {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  position: relative;
+}
+
+.login-form-container {
+  width: 400px;
+  padding: 0 32px;
+}
+
+.login-footer {
+  position: absolute;
+  bottom: 24px;
+  font-size: 12px;
+  color: var(--color-text-4);
+}
+</style>
