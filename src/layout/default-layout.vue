@@ -9,18 +9,37 @@
       </div>
       <a-menu
         :selected-keys="selectedKeys"
+        :open-keys="openKeys"
         :style="{ width: '100%' }"
         @menu-item-click="onMenuItemClick"
+        @sub-menu-click="onSubMenuClick"
       >
-        <a-menu-item
-          v-for="route in menuRoutes"
-          :key="route.name as string"
-        >
-          <template #icon>
-            <component :is="(route.meta?.icon as string)" />
-          </template>
-          {{ route.meta?.locale }}
-        </a-menu-item>
+        <template v-for="route in menuRoutes" :key="route.name as string">
+          <a-sub-menu
+            v-if="route.children?.length && route.meta?.isMenuGroup"
+            :key="route.name as string"
+          >
+            <template #icon>
+              <component :is="(route.meta?.icon as string)" />
+            </template>
+            <template #title>{{ route.meta?.locale }}</template>
+            <a-menu-item
+              v-for="child in route.children"
+              :key="child.name as string"
+            >
+              <template #icon>
+                <component :is="(child.meta?.icon as string)" />
+              </template>
+              {{ child.meta?.locale }}
+            </a-menu-item>
+          </a-sub-menu>
+          <a-menu-item v-else :key="route.name as string">
+            <template #icon>
+              <component :is="(route.meta?.icon as string)" />
+            </template>
+            {{ route.meta?.locale }}
+          </a-menu-item>
+        </template>
       </a-menu>
       <div class="sidebar-footer">
         <span class="version-text" @click="onVersionTap">v1.0.0</span>
@@ -41,7 +60,12 @@
             </template>
           </a-button>
           <a-breadcrumb class="navbar-breadcrumb">
-            <a-breadcrumb-item>{{ currentLocale }}</a-breadcrumb-item>
+            <a-breadcrumb-item
+              v-for="matched in breadcrumbItems"
+              :key="matched.path"
+            >
+              {{ matched.locale }}
+            </a-breadcrumb-item>
           </a-breadcrumb>
         </div>
         <div class="navbar-right">
@@ -76,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
@@ -99,8 +123,40 @@ const selectedKeys = computed(() => {
   return [route.name as string]
 })
 
-const currentLocale = computed(() => {
-  return (route.meta?.locale || '') as string
+const openKeys = ref<string[]>([])
+
+function onSubMenuClick(key: string) {
+  const idx = openKeys.value.indexOf(key)
+  if (idx >= 0) {
+    openKeys.value.splice(idx, 1)
+  } else {
+    openKeys.value.push(key)
+  }
+}
+
+// 路由变化时自动展开对应子菜单
+watch(() => route.name, () => {
+  if (menuCollapse.value) {
+    openKeys.value = []
+    return
+  }
+  const matched = (menuRoutes.value as RouteRecordRaw[])
+    .filter((r) => r.children?.some((c: RouteRecordRaw) => c.name === route.name))
+    .map((r) => r.name as string)
+  if (matched.length && !matched.every((k) => openKeys.value.includes(k))) {
+    openKeys.value = matched
+  }
+}, { immediate: true })
+
+// 折叠时清空
+watch(menuCollapse, (val) => {
+  if (val) openKeys.value = []
+})
+
+const breadcrumbItems = computed(() => {
+  return route.matched
+    .filter((r) => r.meta?.locale)
+    .map((r) => ({ path: r.path, locale: r.meta?.locale as string }))
 })
 
 const tierLabel = computed(() => {

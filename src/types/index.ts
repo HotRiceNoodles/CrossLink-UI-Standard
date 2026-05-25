@@ -206,3 +206,33 @@ export interface LicenseStatus {
   expires_at: string | null
   max_nodes: number | null
 }
+
+// Usage Log
+export interface UsageLog {
+  id: number
+  request_id: string
+  api_key_id?: number | null
+  provider_id?: number | null
+  route_type: string
+  model_requested: string
+  model_used: string
+  input_tokens: number
+  output_tokens: number
+  cost: number
+  latency_ms: number
+  first_token_ms?: number | null
+  status_code: number
+  error_type?: string
+  currency: string
+  team_id?: number | null
+  fallback_count: number
+  retry_count: number
+  guardrail_triggered: boolean
+  guardrail_rule?: string
+  cache_hit: boolean
+  agent_type?: string
+  security_events?: Record<string, unknown>[]
+  user_message?: string
+  model_response?: string
+  created_at: string
+}
