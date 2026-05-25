@@ -81,6 +81,10 @@
               <template #icon><icon-down /></template>
             </a-button>
             <template #content>
+              <a-doption @click="passwordVisible = true">
+                <template #icon><icon-lock /></template>
+                修改密码
+              </a-doption>
               <a-doption @click="handleLogout">
                 <template #icon><icon-export /></template>
                 退出登录
@@ -96,6 +100,8 @@
         </router-view>
       </main>
     </div>
+
+    <change-password-modal v-model:visible="passwordVisible" />
   </div>
 </template>
 
@@ -104,6 +110,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
+import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
 import appRoutes from '@/router/routes'
 import { authApi } from '@/api/auth'
 import { Message, Modal } from '@arco-design/web-vue'
@@ -114,6 +121,7 @@ const appStore = useAppStore()
 const userStore = useUserStore()
 
 const menuCollapse = computed(() => appStore.menuCollapse)
+const passwordVisible = ref(false)
 
 const menuRoutes = computed(() => {
   return (appRoutes.children || []) as RouteRecordRaw[]
