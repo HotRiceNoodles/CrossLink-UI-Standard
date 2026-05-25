@@ -126,7 +126,7 @@
           <a-table-column title="最后使用" data-index="last_used_at" :width="150">
             <template #cell="{ record }">
               <template v-if="record.last_used_at">
-                {{ formatTime(record.last_used_at) }}
+                {{ dayjs(record.last_used_at).format('YYYY-MM-DD') }}
               </template>
               <span v-else style="color: var(--color-text-4); font-style: italic">从未使用</span>
             </template>
