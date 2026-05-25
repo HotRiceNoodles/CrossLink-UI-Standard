@@ -2,7 +2,7 @@
   <a-drawer
     :visible="visible"
     :width="520"
-    :title="isEdit ? '编辑供应商' : '添加供应商'"
+    :title="isEdit ? t('provider.editProvider') : t('provider.addProvider')"
     :mask-closable="false"
     unmount-on-close
     @cancel="handleClose"
@@ -15,25 +15,25 @@
       :rules="formRules"
       layout="vertical"
     >
-      <a-form-item field="name" label="标识">
+      <a-form-item field="name" :label="t('provider.name')">
         <a-input
           v-model="formData.name"
-          placeholder="唯一标识，如 openai-main"
+          :placeholder="t('provider.namePlaceholder')"
           :disabled="isEdit"
         />
       </a-form-item>
 
-      <a-form-item field="display_name" label="显示名称">
+      <a-form-item field="display_name" :label="t('provider.displayName')">
         <a-input
           v-model="formData.display_name"
-          placeholder="供应商显示名称"
+          :placeholder="t('provider.displayNamePlaceholder')"
         />
       </a-form-item>
 
-      <a-form-item field="adapter_type" label="适配器类型">
+      <a-form-item field="adapter_type" :label="t('provider.adapterType')">
         <a-select
           v-model="formData.adapter_type"
-          placeholder="选择适配器类型"
+          :placeholder="t('provider.adapterTypePlaceholder')"
           :disabled="isEdit"
         >
           <a-option
@@ -45,24 +45,24 @@
         </a-select>
       </a-form-item>
 
-      <a-form-item field="base_url" label="Base URL">
+      <a-form-item field="base_url" :label="t('provider.baseUrl')">
         <a-input
           v-model="formData.base_url"
-          placeholder="https://api.example.com/v1"
+          :placeholder="t('provider.baseUrlPlaceholder')"
         />
       </a-form-item>
 
-      <a-form-item field="api_key" label="API Key">
+      <a-form-item field="api_key" :label="t('provider.apiKey')">
         <a-input-password
           v-model="formData.api_key"
-          :placeholder="isEdit ? '留空则不修改' : '输入 API Key'"
+          :placeholder="isEdit ? t('provider.apiKeyEditPlaceholder') : t('provider.apiKeyCreatePlaceholder')"
         />
       </a-form-item>
 
-      <a-form-item field="extra_config" label="扩展配置">
+      <a-form-item field="extra_config" :label="t('provider.extraConfig')">
         <a-textarea
           v-model="extraConfigStr"
-          placeholder='JSON 格式，如 {"timeout": 30}'
+          :placeholder="t('provider.extraConfigPlaceholder')"
           :auto-size="{ minRows: 3, maxRows: 8 }"
         />
       </a-form-item>
@@ -73,8 +73,11 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import { useI18n } from 'vue-i18n'
 import { providerApi } from '@/api/provider'
 import type { Provider, Adapter, ProviderCreateRequest } from '@/types'
+
+const { t } = useI18n()
 
 interface Props {
   visible: boolean
@@ -103,9 +106,9 @@ const formData = reactive<ProviderCreateRequest & { api_key?: string }>({
 })
 
 const formRules = {
-  name: [{ required: true, message: '请输入标识' }],
-  display_name: [{ required: true, message: '请输入显示名称' }],
-  adapter_type: [{ required: true, message: '请选择适配器类型' }],
+  name: [{ required: true, message: t('provider.nameRequired') }],
+  display_name: [{ required: true, message: t('provider.displayNameRequired') }],
+  adapter_type: [{ required: true, message: t('provider.adapterTypeRequired') }],
 }
 
 function resetForm() {
@@ -148,7 +151,7 @@ async function handleSubmit() {
     try {
       extraConfig = JSON.parse(extraConfigStr.value)
     } catch {
-      Message.error('扩展配置不是有效的 JSON 格式')
+      Message.error(t('provider.extraConfigInvalidJson'))
       return
     }
   }
@@ -166,16 +169,16 @@ async function handleSubmit() {
 
     if (props.isEdit && props.provider) {
       await providerApi.update(props.provider.id, payload)
-      Message.success('更新成功')
+      Message.success(t('common.updateSuccess'))
     } else {
       await providerApi.create(payload as ProviderCreateRequest)
-      Message.success('创建成功')
+      Message.success(t('common.createSuccess'))
     }
 
     emit('update:visible', false)
     emit('success')
   } catch {
-    Message.error(props.isEdit ? '更新失败' : '创建失败')
+    Message.error(props.isEdit ? t('common.fail') : t('common.fail'))
   } finally {
     submitLoading.value = false
   }

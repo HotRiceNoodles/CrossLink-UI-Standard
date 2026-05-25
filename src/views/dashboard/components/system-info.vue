@@ -7,7 +7,7 @@
             <icon-settings />
           </div>
           <div class="info-detail">
-            <span class="info-label">系统版本</span>
+            <span class="info-label">{{ t('dashboard.systemVersion') }}</span>
             <span class="info-value">{{ systemInfo.version || '--' }}</span>
           </div>
         </div>
@@ -21,13 +21,13 @@
             <icon-safe />
           </div>
           <div class="info-detail">
-            <span class="info-label">授权状态</span>
+            <span class="info-label">{{ t('dashboard.licenseStatus') }}</span>
             <div class="info-value-with-tag">
               <a-tag
                 :color="license.is_valid ? 'green' : 'red'"
                 size="small"
               >
-                {{ license.is_valid ? '有效' : '无效' }}
+                {{ license.is_valid ? t('dashboard.valid') : t('dashboard.invalid') }}
               </a-tag>
               <span class="info-edition">{{ editionLabel }}</span>
             </div>
@@ -43,13 +43,13 @@
             <icon-storage />
           </div>
           <div class="info-detail">
-            <span class="info-label">数据库状态</span>
+            <span class="info-label">{{ t('dashboard.dbStatus') }}</span>
             <div class="info-value-with-tag">
               <a-tag
                 :color="systemInfo.db_status === 'ok' ? 'green' : 'red'"
                 size="small"
               >
-                {{ systemInfo.db_status === 'ok' ? '正常' : '异常' }}
+                {{ systemInfo.db_status === 'ok' ? t('dashboard.normal') : t('dashboard.abnormal') }}
               </a-tag>
             </div>
           </div>
@@ -61,7 +61,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { SystemInfo, LicenseStatus } from '@/types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   systemInfo: SystemInfo
@@ -70,9 +73,9 @@ const props = defineProps<{
 
 const editionLabel = computed(() => {
   const map: Record<string, string> = {
-    community: '社区版',
-    pro: '专业版',
-    enterprise: '企业版',
+    community: t('tier.community'),
+    pro: t('tier.pro'),
+    enterprise: t('tier.enterprise'),
   }
   return map[props.license.edition] || props.license.edition || '--'
 })

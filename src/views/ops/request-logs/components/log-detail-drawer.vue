@@ -25,20 +25,20 @@
       <!-- 基本信息 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-file-text /> 基本信息</span>
+          <span class="section-title"><icon-file-text /> {{ t('logDetail.basicInfo') }}</span>
         </template>
         <div class="detail-row">
-          <span class="detail-label">路由类型</span>
+          <span class="detail-label">{{ t('logDetail.routeType') }}</span>
           <span class="detail-value">{{ log.route_type }}</span>
         </div>
         <div class="detail-row" v-if="log.error_type">
-          <span class="detail-label">错误类型</span>
+          <span class="detail-label">{{ t('logDetail.errorType') }}</span>
           <span class="detail-value">
             <a-tag color="red" size="small">{{ log.error_type }}</a-tag>
           </span>
         </div>
         <div class="detail-row" v-if="log.agent_type">
-          <span class="detail-label">Agent 类型</span>
+          <span class="detail-label">{{ t('logDetail.agentType') }}</span>
           <span class="detail-value">{{ log.agent_type }}</span>
         </div>
       </a-card>
@@ -46,28 +46,28 @@
       <!-- 用量统计 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-bar-chart /> 用量统计</span>
+          <span class="section-title"><icon-bar-chart /> {{ t('logDetail.usageStats') }}</span>
         </template>
         <div class="usage-overview">
           <div class="usage-metric">
             <span class="usage-metric-value">{{ formatTokens(log.input_tokens + log.output_tokens) }}</span>
-            <span class="usage-metric-label">总 Token</span>
+            <span class="usage-metric-label">{{ t('logDetail.totalTokens') }}</span>
           </div>
           <div class="usage-metric">
             <span class="usage-metric-value">&yen;{{ log.cost != null ? log.cost.toFixed(4) : '-' }}</span>
-            <span class="usage-metric-label">费用 ({{ log.currency }})</span>
+            <span class="usage-metric-label">{{ t('logDetail.costWithCurrency', { currency: log.currency }) }}</span>
           </div>
         </div>
         <div v-if="totalTokens > 0" class="token-bar-group">
           <div class="token-bar-item">
-            <span class="token-bar-label">输入</span>
+            <span class="token-bar-label">{{ t('logDetail.input') }}</span>
             <div class="token-bar-track">
               <div class="token-bar-fill bar-input" :style="{ width: inputPercent + '%' }"></div>
             </div>
             <span class="token-bar-value">{{ formatTokens(log.input_tokens) }} ({{ inputPercent }}%)</span>
           </div>
           <div class="token-bar-item">
-            <span class="token-bar-label">输出</span>
+            <span class="token-bar-label">{{ t('logDetail.output') }}</span>
             <div class="token-bar-track">
               <div class="token-bar-fill bar-output" :style="{ width: outputPercent + '%' }"></div>
             </div>
@@ -79,17 +79,17 @@
       <!-- 模型与路由 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-swap /> 模型与路由</span>
+          <span class="section-title"><icon-swap /> {{ t('logDetail.modelAndRouting') }}</span>
         </template>
         <div class="detail-row">
-          <span class="detail-label">请求模型</span>
+          <span class="detail-label">{{ t('logDetail.requestModel') }}</span>
           <span class="detail-value mono bold">{{ log.model_requested }}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">实际模型</span>
+          <span class="detail-label">{{ t('logDetail.actualModel') }}</span>
           <span class="detail-value">
             <template v-if="log.model_used && log.model_used !== log.model_requested">
-              <a-tooltip content="模型发生 fallback">
+              <a-tooltip :content="t('logDetail.modelFallback')">
                 <a-tag color="orangered" size="small">{{ log.model_used }}</a-tag>
               </a-tooltip>
             </template>
@@ -97,15 +97,15 @@
           </span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Provider</span>
+          <span class="detail-label">{{ t('logDetail.provider') }}</span>
           <span class="detail-value">{{ providerName(log.provider_id) }}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">API Key</span>
+          <span class="detail-label">{{ t('logDetail.apiKey') }}</span>
           <span class="detail-value">{{ keyName(log.api_key_id) }}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Team</span>
+          <span class="detail-label">{{ t('logDetail.team') }}</span>
           <span class="detail-value">{{ log.team_id ?? '-' }}</span>
         </div>
       </a-card>
@@ -113,10 +113,10 @@
       <!-- 性能指标 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-thunderbolt /> 性能指标</span>
+          <span class="section-title"><icon-thunderbolt /> {{ t('logDetail.performanceMetrics') }}</span>
         </template>
         <div class="perf-bar-item">
-          <span class="perf-bar-label">总耗时</span>
+          <span class="perf-bar-label">{{ t('logDetail.totalLatency') }}</span>
           <div class="perf-bar-track">
             <div
               class="perf-bar-fill"
@@ -127,7 +127,7 @@
           <span class="perf-bar-value">{{ formatLatency(log.latency_ms) }}</span>
         </div>
         <div class="perf-bar-item">
-          <span class="perf-bar-label">首 Token</span>
+          <span class="perf-bar-label">{{ t('logDetail.firstToken') }}</span>
           <div class="perf-bar-track">
             <div
               class="perf-bar-fill bar-ttft"
@@ -141,27 +141,27 @@
       <!-- 容错与缓存 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-sync /> 容错与缓存</span>
+          <span class="section-title"><icon-sync /> {{ t('logDetail.faultTolerance') }}</span>
         </template>
         <div class="detail-row">
-          <span class="detail-label">Fallback 次数</span>
+          <span class="detail-label">{{ t('logDetail.fallbackCount') }}</span>
           <span class="detail-value">
             <a-tag v-if="log.fallback_count > 0" color="orangered" size="small">{{ log.fallback_count }}</a-tag>
             <span v-else>0</span>
           </span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">重试次数</span>
+          <span class="detail-label">{{ t('logDetail.retryCount') }}</span>
           <span class="detail-value">
             <a-tag v-if="log.retry_count > 0" color="orangered" size="small">{{ log.retry_count }}</a-tag>
             <span v-else>0</span>
           </span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">缓存命中</span>
+          <span class="detail-label">{{ t('logDetail.cacheHit') }}</span>
           <span class="detail-value">
-            <a-tag v-if="log.cache_hit" color="green" size="small">是</a-tag>
-            <a-tag v-else color="gray" size="small">否</a-tag>
+            <a-tag v-if="log.cache_hit" color="green" size="small">{{ t('common.yes') }}</a-tag>
+            <a-tag v-else color="gray" size="small">{{ t('common.no') }}</a-tag>
           </span>
         </div>
       </a-card>
@@ -169,22 +169,22 @@
       <!-- 安全与内容 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-safe /> 安全与内容</span>
+          <span class="section-title"><icon-safe /> {{ t('logDetail.security') }}</span>
         </template>
         <div class="detail-row">
-          <span class="detail-label">Guardrail 触发</span>
+          <span class="detail-label">{{ t('logDetail.guardrailTriggered') }}</span>
           <span class="detail-value">
-            <a-tag v-if="log.guardrail_triggered" color="red" size="small">是</a-tag>
-            <span v-else>否</span>
+            <a-tag v-if="log.guardrail_triggered" color="red" size="small">{{ t('common.yes') }}</a-tag>
+            <span v-else>{{ t('common.no') }}</span>
           </span>
         </div>
         <div class="detail-row" v-if="log.guardrail_rule">
-          <span class="detail-label">Guardrail 规则</span>
+          <span class="detail-label">{{ t('logDetail.guardrailRule') }}</span>
           <span class="detail-value">{{ log.guardrail_rule }}</span>
         </div>
         <div v-if="log.security_events?.length" class="security-collapse">
           <a-collapse :default-active-key="[]" :bordered="false">
-            <a-collapse-item header="安全事件" key="events">
+            <a-collapse-item :header="t('logDetail.securityEvents')" key="events">
               <pre class="content-block">{{ JSON.stringify(log.security_events, null, 2) }}</pre>
             </a-collapse-item>
           </a-collapse>
@@ -198,10 +198,10 @@
         :bordered="false"
       >
         <template #title>
-          <span class="section-title"><icon-code /> 请求/响应内容</span>
+          <span class="section-title"><icon-code /> {{ t('logDetail.requestResponseContent') }}</span>
         </template>
         <a-collapse :default-active-key="[]" :bordered="false">
-          <a-collapse-item v-if="log.user_message" header="请求内容" key="req">
+          <a-collapse-item v-if="log.user_message" :header="t('logDetail.requestContent')" key="req">
             <template #extra>
               <a-button size="mini" type="text" @click.stop="copyToClipboard(log.user_message!)">
                 <template #icon><icon-copy /></template>
@@ -209,7 +209,7 @@
             </template>
             <pre class="content-block">{{ formatContent(log.user_message) }}</pre>
           </a-collapse-item>
-          <a-collapse-item v-if="log.model_response" header="响应内容（可能不完整）" key="res">
+          <a-collapse-item v-if="log.model_response" :header="t('logDetail.responseContent')" key="res">
             <template #extra>
               <a-button size="mini" type="text" @click.stop="copyToClipboard(log.model_response!)">
                 <template #icon><icon-copy /></template>
@@ -225,6 +225,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
@@ -240,6 +241,8 @@ const emit = defineEmits<{
   'update:visible': [value: boolean]
 }>()
 
+const { t } = useI18n()
+
 // Computed — token usage
 const totalTokens = computed(() => (props.log?.input_tokens ?? 0) + (props.log?.output_tokens ?? 0))
 const inputPercent = computed(() => {
@@ -251,10 +254,10 @@ const outputPercent = computed(() => 100 - inputPercent.value)
 
 // Status
 function statusLabel(code: number): string {
-  if (code >= 200 && code < 300) return '成功'
-  if (code === 429) return '限流'
-  if (code >= 400 && code < 500) return '客户端错误'
-  if (code >= 500) return '服务端错误'
+  if (code >= 200 && code < 300) return t('logDetail.statusSuccess')
+  if (code === 429) return t('logDetail.statusRateLimit')
+  if (code >= 400 && code < 500) return t('logDetail.statusClientError')
+  if (code >= 500) return t('logDetail.statusServerError')
   return ''
 }
 
@@ -270,9 +273,9 @@ function statusCodeColor(code: number): string {
 async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text)
-    Message.success('已复制')
+    Message.success(t('common.copied'))
   } catch {
-    Message.error('复制失败')
+    Message.error(t('common.copyFail'))
   }
 }
 

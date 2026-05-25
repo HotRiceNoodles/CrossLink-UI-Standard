@@ -2,7 +2,7 @@
   <div class="request-logs-page">
     <a-card class="general-card">
       <template #title>
-        <span class="page-title">请求日志</span>
+        <span class="page-title">{{ t('ops.requestLogs') }}</span>
       </template>
 
       <!-- Basic Filters -->
@@ -10,7 +10,7 @@
         <a-row :gutter="12" align="center">
           <a-col :span="7">
             <div class="filter-item">
-              <label class="filter-label">时间范围</label>
+              <label class="filter-label">{{ t('ops.dateRange') }}</label>
               <a-range-picker
                 v-model="dateRange"
                 style="width: 100%"
@@ -21,10 +21,10 @@
           </a-col>
           <a-col :span="4">
             <div class="filter-item">
-              <label class="filter-label">状态码</label>
+              <label class="filter-label">{{ t('ops.statusCode') }}</label>
               <a-select
                 v-model="filter.status"
-                placeholder="全部"
+                :placeholder="t('common.all')"
                 allow-clear
                 style="width: 100%"
               >
@@ -37,10 +37,10 @@
           </a-col>
           <a-col :span="5">
             <div class="filter-item">
-              <label class="filter-label">模型</label>
+              <label class="filter-label">{{ t('ops.model') }}</label>
               <a-select
                 v-model="filter.model"
-                placeholder="全部"
+                :placeholder="t('common.all')"
                 allow-search
                 allow-clear
                 style="width: 100%"
@@ -58,10 +58,10 @@
             <div class="filter-item filter-actions">
               <label class="filter-label">&nbsp;</label>
               <a-space>
-                <a-button type="primary" @click="applyFilter">查询</a-button>
-                <a-button @click="resetFilter">重置</a-button>
+                <a-button type="primary" @click="applyFilter">{{ t('common.search') }}</a-button>
+                <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
                 <a-link @click="advancedVisible = !advancedVisible">
-                  {{ advancedVisible ? '收起筛选' : '高级筛选' }}
+                  {{ advancedVisible ? t('ops.collapseFilter') : t('ops.advancedFilter') }}
                   <template #icon>
                     <icon-up v-if="advancedVisible" />
                     <icon-down v-else />
@@ -77,10 +77,10 @@
           <a-row v-if="advancedVisible" :gutter="12" align="center" class="advanced-row">
             <a-col :span="5">
               <div class="filter-item">
-                <label class="filter-label">Provider</label>
+                <label class="filter-label">{{ t('ops.provider') }}</label>
                 <a-select
                   v-model="filter.provider_id"
-                  placeholder="全部"
+                  :placeholder="t('common.all')"
                   allow-clear
                   style="width: 100%"
                 >
@@ -95,10 +95,10 @@
             </a-col>
             <a-col :span="5">
               <div class="filter-item">
-                <label class="filter-label">API Key</label>
+                <label class="filter-label">{{ t('ops.apiKey') }}</label>
                 <a-select
                   v-model="filter.api_key_id"
-                  placeholder="全部"
+                  :placeholder="t('common.all')"
                   allow-clear
                   allow-search
                   style="width: 100%"
@@ -114,15 +114,15 @@
             </a-col>
             <a-col :span="4">
               <div class="filter-item">
-                <label class="filter-label">Fallback</label>
+                <label class="filter-label">{{ t('ops.fallback') }}</label>
                 <a-select
                   v-model="filter.has_fallback"
-                  placeholder="全部"
+                  :placeholder="t('common.all')"
                   allow-clear
                   style="width: 100%"
                 >
-                  <a-option :value="true" label="是" />
-                  <a-option :value="false" label="否" />
+                  <a-option :value="true" :label="t('common.yes')" />
+                  <a-option :value="false" :label="t('common.no')" />
                 </a-select>
               </div>
             </a-col>
@@ -145,19 +145,19 @@
         @row-click="openDrawer"
       >
         <template #columns>
-          <a-table-column title="时间" data-index="created_at" :width="170">
+          <a-table-column :title="t('ops.tableTime')" data-index="created_at" :width="170">
             <template #cell="{ record }">
               <span class="cell-time">{{ formatTime(record.created_at) }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="模型" data-index="model_requested" :width="160">
+          <a-table-column :title="t('ops.tableModel')" data-index="model_requested" :width="160">
             <template #cell="{ record }">
               <span class="cell-model">{{ record.model_requested }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="实际模型" data-index="model_used" :width="160">
+          <a-table-column :title="t('ops.tableModelUsed')" data-index="model_used" :width="160">
             <template #cell="{ record }">
               <span
                 class="cell-model-used"
@@ -168,7 +168,7 @@
             </template>
           </a-table-column>
 
-          <a-table-column title="状态" data-index="status_code" :width="80" align="center">
+          <a-table-column :title="t('ops.tableStatus')" data-index="status_code" :width="80" align="center">
             <template #cell="{ record }">
               <span class="cell-status" :class="'status-' + statusCodeClass(record.status_code)">
                 {{ record.status_code }}
@@ -176,19 +176,19 @@
             </template>
           </a-table-column>
 
-          <a-table-column title="输入" data-index="input_tokens" :width="90" align="right">
+          <a-table-column :title="t('ops.tableInput')" data-index="input_tokens" :width="90" align="right">
             <template #cell="{ record }">
               <span class="cell-num">{{ formatTokens(record.input_tokens) }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="输出" data-index="output_tokens" :width="90" align="right">
+          <a-table-column :title="t('ops.tableOutput')" data-index="output_tokens" :width="90" align="right">
             <template #cell="{ record }">
               <span class="cell-num">{{ formatTokens(record.output_tokens) }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="耗时" data-index="latency_ms" :width="80" align="right">
+          <a-table-column :title="t('ops.tableLatency')" data-index="latency_ms" :width="80" align="right">
             <template #cell="{ record }">
               <span class="cell-latency" :class="latencyClass(record.latency_ms)">
                 {{ formatLatency(record.latency_ms) }}
@@ -196,19 +196,19 @@
             </template>
           </a-table-column>
 
-          <a-table-column title="TTFT" data-index="first_token_ms" :width="80" align="right">
+          <a-table-column :title="t('ops.tableTtft')" data-index="first_token_ms" :width="80" align="right">
             <template #cell="{ record }">
               <span class="cell-num">{{ record.first_token_ms != null ? `${record.first_token_ms}ms` : '-' }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="费用" data-index="cost" :width="100" align="right">
+          <a-table-column :title="t('ops.tableCost')" data-index="cost" :width="100" align="right">
             <template #cell="{ record }">
               <span class="cell-cost">&yen;{{ record.cost != null ? record.cost.toFixed(4) : '-' }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="标签" :width="120">
+          <a-table-column :title="t('ops.tableTags')" :width="120">
             <template #cell="{ record }">
               <template
                 v-if="
@@ -231,7 +231,7 @@
         <template #empty>
           <div class="empty-state">
             <icon-file class="empty-icon" />
-            <p>暂无请求日志</p>
+            <p>{{ t('ops.noLogs') }}</p>
           </div>
         </template>
       </a-table>
@@ -249,6 +249,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { usageApi } from '@/api/usage'
@@ -259,6 +260,7 @@ import { useLoading } from '@/hooks/loading'
 import LogDetailDrawer from './components/log-detail-drawer.vue'
 import type { UsageLog, UsageQuery, Provider, APIKey } from '@/types'
 
+const { t } = useI18n()
 const { loading, setLoading } = useLoading()
 
 // Data
@@ -326,7 +328,7 @@ async function fetchData() {
       pagination.total = 0
     }
   } catch {
-    Message.error('获取请求日志失败')
+    Message.error(t('ops.fetchLogsFail'))
   } finally {
     setLoading(false)
   }

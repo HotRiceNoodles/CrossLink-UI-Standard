@@ -1,14 +1,14 @@
 <template>
   <div class="model-page">
     <a-card class="general-card">
-      <template #title>模型管理</template>
+      <template #title>{{ t('model.title') }}</template>
 
       <!-- Search / Filter -->
       <a-row :gutter="16" class="search-bar" align="center">
         <a-col :span="6">
           <a-select
             v-model="searchForm.provider_id"
-            placeholder="选择供应商"
+            :placeholder="t('model.selectProvider')"
             allow-clear
             style="width: 100%"
           >
@@ -23,7 +23,7 @@
         <a-col :span="6">
           <a-select
             v-model="searchForm.routing_strategy"
-            placeholder="路由策略"
+            :placeholder="t('model.routingStrategy')"
             allow-clear
             style="width: 100%"
           >
@@ -38,18 +38,18 @@
         <a-col :span="4">
           <a-select
             v-model="searchForm.status"
-            placeholder="状态"
+            :placeholder="t('common.status')"
             allow-clear
             style="width: 100%"
           >
-            <a-option :value="1" label="启用" />
-            <a-option :value="0" label="禁用" />
+            <a-option :value="1" :label="t('common.enabled')" />
+            <a-option :value="0" :label="t('common.disabled')" />
           </a-select>
         </a-col>
         <a-col :span="5">
           <a-input
             v-model="searchForm.model_name"
-            placeholder="搜索模型名称"
+            :placeholder="t('model.searchModelName')"
             allow-clear
             @clear="handleSearch"
             @press-enter="handleSearch"
@@ -57,8 +57,8 @@
         </a-col>
         <a-col :span="3">
           <a-space>
-            <a-button type="primary" @click="handleSearch">查询</a-button>
-            <a-button @click="handleReset">重置</a-button>
+            <a-button type="primary" @click="handleSearch">{{ t('common.search') }}</a-button>
+            <a-button @click="handleReset">{{ t('common.reset') }}</a-button>
           </a-space>
         </a-col>
       </a-row>
@@ -67,13 +67,13 @@
       <a-row class="toolbar" justify="space-between" align="center">
         <a-col>
           <a-space>
-            <span class="table-count">共 {{ filteredList.length }} 条记录</span>
+            <span class="table-count">{{ t('model.totalRecords', [filteredList.length]) }}</span>
           </a-space>
         </a-col>
         <a-col>
           <a-button type="primary" @click="handleCreate">
             <template #icon><icon-plus /></template>
-            新建模型
+            {{ t('model.newModel') }}
           </a-button>
         </a-col>
       </a-row>
@@ -90,7 +90,7 @@
         @page-size-change="onPageSizeChange"
       >
         <template #columns>
-          <a-table-column title="模型名称" data-index="model_name" :width="160">
+          <a-table-column :title="t('model.modelTableName')" data-index="model_name" :width="160">
             <template #cell="{ record }">
               <a-tooltip :content="record.model_name">
                 <span class="model-name">{{ record.model_name }}</span>
@@ -98,35 +98,35 @@
             </template>
           </a-table-column>
 
-          <a-table-column title="供应商" :width="120">
+          <a-table-column :title="t('model.modelTableProvider')" :width="120">
             <template #cell="{ record }">
               {{ record.provider?.display_name ?? '-' }}
             </template>
           </a-table-column>
 
-          <a-table-column title="供应商模型" data-index="provider_model" :width="160">
+          <a-table-column :title="t('model.modelTableProviderModel')" data-index="provider_model" :width="160">
             <template #cell="{ record }">
               <span class="provider-model">{{ record.provider_model }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column title="权重" data-index="weight" :width="70" align="center" />
+          <a-table-column :title="t('model.modelTableWeight')" data-index="weight" :width="70" align="center" />
 
-          <a-table-column title="优先级" data-index="priority" :width="70" align="center" />
+          <a-table-column :title="t('model.modelTablePriority')" data-index="priority" :width="70" align="center" />
 
-          <a-table-column title="输入价格" :width="100" align="right">
+          <a-table-column :title="t('model.modelTableInputPrice')" :width="100" align="right">
             <template #cell="{ record }">
               {{ formatPrice(record.input_price, record.currency) }}
             </template>
           </a-table-column>
 
-          <a-table-column title="输出价格" :width="100" align="right">
+          <a-table-column :title="t('model.modelTableOutputPrice')" :width="100" align="right">
             <template #cell="{ record }">
               {{ formatPrice(record.output_price, record.currency) }}
             </template>
           </a-table-column>
 
-          <a-table-column title="路由策略" data-index="routing_strategy" :width="110" align="center">
+          <a-table-column :title="t('model.modelTableRoutingStrategy')" data-index="routing_strategy" :width="110" align="center">
             <template #cell="{ record }">
               <a-tag :color="getStrategyColor(record.routing_strategy)">
                 {{ getStrategyLabel(record.routing_strategy) }}
@@ -134,15 +134,15 @@
             </template>
           </a-table-column>
 
-          <a-table-column title="状态" data-index="status" :width="80" align="center">
+          <a-table-column :title="t('model.modelTableStatus')" data-index="status" :width="80" align="center">
             <template #cell="{ record }">
               <a-tag :color="record.status === 1 ? 'green' : 'red'">
-                {{ record.status === 1 ? '启用' : '禁用' }}
+                {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
               </a-tag>
             </template>
           </a-table-column>
 
-          <a-table-column title="操作" :width="100" :fixed="'right'">
+          <a-table-column :title="t('common.actions')" :width="100" :fixed="'right'">
             <template #cell="{ record }">
               <a-dropdown @select="(val: string) => handleAction(val, record)">
                 <a-button type="text" size="small">
@@ -150,10 +150,10 @@
                 </a-button>
                 <template #content>
                   <a-doption value="edit">
-                    <icon-edit /> 编辑
+                    <icon-edit /> {{ t('common.edit') }}
                   </a-doption>
                   <a-doption value="delete" class="danger-option">
-                    <icon-delete /> 删除
+                    <icon-delete /> {{ t('common.delete') }}
                   </a-doption>
                 </template>
               </a-dropdown>
@@ -167,7 +167,7 @@
     <a-drawer
       :visible="drawerVisible"
       :width="600"
-      :title="isEdit ? '编辑模型' : '新建模型'"
+      :title="isEdit ? t('model.editModel') : t('model.newModel')"
       :mask-closable="false"
       unmount-on-close
       @cancel="handleDrawerClose"
@@ -179,10 +179,10 @@
         :rules="formRules"
         layout="vertical"
       >
-        <a-form-item field="provider_id" label="供应商" :rules="[{ required: true, message: '请选择供应商' }]">
+        <a-form-item field="provider_id" :label="t('model.providerLabel')" :rules="[{ required: true, message: t('model.providerRequired') }]">
           <a-select
             v-model="formData.provider_id"
-            placeholder="请选择供应商"
+            :placeholder="t('model.providerPlaceholder')"
             :disabled="isEdit"
           >
             <a-option
@@ -196,20 +196,20 @@
 
         <a-grid :cols="24" :col-gap="16">
           <a-grid-item :span="12">
-            <a-form-item field="model_name" label="模型名称" :rules="[{ required: true, message: '请输入模型名称' }]">
-              <a-input v-model="formData.model_name" placeholder="请输入模型名称" />
+            <a-form-item field="model_name" :label="t('model.modelNameLabel')" :rules="[{ required: true, message: t('model.modelNameRequired') }]">
+              <a-input v-model="formData.model_name" :placeholder="t('model.modelNamePlaceholder')" />
             </a-form-item>
           </a-grid-item>
           <a-grid-item :span="12">
-            <a-form-item field="provider_model" label="供应商模型" :rules="[{ required: true, message: '请输入供应商模型' }]">
-              <a-input v-model="formData.provider_model" placeholder="请输入供应商模型" />
+            <a-form-item field="provider_model" :label="t('model.providerModelLabel')" :rules="[{ required: true, message: t('model.providerModelRequired') }]">
+              <a-input v-model="formData.provider_model" :placeholder="t('model.providerModelPlaceholder')" />
             </a-form-item>
           </a-grid-item>
         </a-grid>
 
         <a-grid :cols="24" :col-gap="16">
           <a-grid-item :span="12">
-            <a-form-item field="weight" label="权重">
+            <a-form-item field="weight" :label="t('model.weightLabel')">
               <a-input-number
                 v-model="formData.weight"
                 :min="1"
@@ -220,7 +220,7 @@
             </a-form-item>
           </a-grid-item>
           <a-grid-item :span="12">
-            <a-form-item field="priority" label="优先级">
+            <a-form-item field="priority" :label="t('model.priorityLabel')">
               <a-input-number
                 v-model="formData.priority"
                 :min="1"
@@ -232,18 +232,18 @@
           </a-grid-item>
         </a-grid>
 
-        <a-form-item field="max_context" label="最大上下文">
+        <a-form-item field="max_context" :label="t('model.maxContext')">
           <a-input-number
             v-model="formData.max_context"
             :min="0"
-            placeholder="请输入最大上下文长度"
+            :placeholder="t('model.maxContextPlaceholder')"
             style="width: 100%"
           />
         </a-form-item>
 
         <a-grid :cols="24" :col-gap="16">
           <a-grid-item :span="12">
-            <a-form-item field="input_price" label="输入价格">
+            <a-form-item field="input_price" :label="t('model.inputPriceLabel')">
               <a-input-number
                 v-model="formData.input_price"
                 :min="0"
@@ -255,7 +255,7 @@
             </a-form-item>
           </a-grid-item>
           <a-grid-item :span="12">
-            <a-form-item field="output_price" label="输出价格">
+            <a-form-item field="output_price" :label="t('model.outputPriceLabel')">
               <a-input-number
                 v-model="formData.output_price"
                 :min="0"
@@ -270,16 +270,16 @@
 
         <a-grid :cols="24" :col-gap="16">
           <a-grid-item :span="12">
-            <a-form-item field="currency" label="币种">
-              <a-select v-model="formData.currency" placeholder="请选择币种">
+            <a-form-item field="currency" :label="t('model.currencyLabel')">
+              <a-select v-model="formData.currency" :placeholder="t('model.currencyPlaceholder')">
                 <a-option value="CNY" label="CNY" />
                 <a-option value="USD" label="USD" />
               </a-select>
             </a-form-item>
           </a-grid-item>
           <a-grid-item :span="12">
-            <a-form-item field="routing_strategy" label="路由策略">
-              <a-select v-model="formData.routing_strategy" placeholder="请选择路由策略">
+            <a-form-item field="routing_strategy" :label="t('model.routingStrategyLabel')">
+              <a-select v-model="formData.routing_strategy" :placeholder="t('model.routingStrategyPlaceholder')">
                 <a-option
                   v-for="s in strategyOptions"
                   :key="s.value"
@@ -291,10 +291,10 @@
           </a-grid-item>
         </a-grid>
 
-        <a-form-item v-if="isEdit" field="status" label="状态">
-          <a-select v-model="formData.status" placeholder="请选择状态">
-            <a-option :value="1" label="启用" />
-            <a-option :value="0" label="禁用" />
+        <a-form-item v-if="isEdit" field="status" :label="t('model.statusLabel')">
+          <a-select v-model="formData.status" :placeholder="t('model.statusPlaceholder')">
+            <a-option :value="1" :label="t('common.enabled')" />
+            <a-option :value="0" :label="t('common.disabled')" />
           </a-select>
         </a-form-item>
       </a-form>
@@ -304,6 +304,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
 import { modelApi } from '@/api/model'
@@ -313,6 +314,7 @@ import { useVisible } from '@/hooks/visible'
 import type { ProviderModel, Provider, ModelCreateRequest } from '@/types'
 
 // --- Hooks ---
+const { t } = useI18n()
 const { loading, setLoading } = useLoading(false)
 const { visible: drawerVisible, show: showDrawer, hide: hideDrawer } = useVisible(false)
 
@@ -349,22 +351,24 @@ function onPageSizeChange(pageSize: number) {
 }
 
 // --- Strategy map ---
-const strategyMap: Record<string, { label: string; color: string }> = {
-  weighted_random: { label: '加权随机', color: '#165DFF' },
-  round_robin: { label: '轮询', color: '#00B42A' },
-  least_latency: { label: '最低延迟', color: '#0FC6C2' },
-  least_cost: { label: '最低成本', color: '#FF7D00' },
-  canary: { label: '金丝雀', color: '#722ED1' },
-  least_busy: { label: '最空闲', color: '#F77234' },
+const strategyMap: Record<string, { color: string }> = {
+  weighted_random: { color: '#165DFF' },
+  round_robin: { color: '#00B42A' },
+  least_latency: { color: '#0FC6C2' },
+  least_cost: { color: '#FF7D00' },
+  canary: { color: '#722ED1' },
+  least_busy: { color: '#F77234' },
 }
 
-const strategyOptions = Object.entries(strategyMap).map(([value, { label }]) => ({
-  value,
-  label,
-}))
+const strategyOptions = computed(() =>
+  Object.entries(strategyMap).map(([value]) => ({
+    value,
+    label: t(`strategy.${value}`),
+  }))
+)
 
 function getStrategyLabel(key: string): string {
-  return strategyMap[key]?.label ?? key
+  return t(`strategy.${key}`)
 }
 
 function getStrategyColor(key: string): string {
@@ -422,9 +426,9 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
 const formData = reactive(createEmptyForm())
 
 const formRules = {
-  provider_id: [{ required: true, message: '请选择供应商' }],
-  model_name: [{ required: true, message: '请输入模型名称' }],
-  provider_model: [{ required: true, message: '请输入供应商模型' }],
+  provider_id: [{ required: true, message: t('model.providerRequired') }],
+  model_name: [{ required: true, message: t('model.modelNameRequired') }],
+  provider_model: [{ required: true, message: t('model.providerModelRequired') }],
 }
 
 // --- Fetch data ---
@@ -434,7 +438,7 @@ async function fetchModels() {
     const res = await modelApi.list()
     modelList.value = res.data ?? []
   } catch {
-    Message.error('获取模型列表失败')
+    Message.error(t('model.fetchModelListFail'))
   } finally {
     setLoading(false)
   }
@@ -445,7 +449,7 @@ async function fetchProviders() {
     const res = await providerApi.list()
     providerList.value = res.data ?? []
   } catch {
-    Message.error('获取供应商列表失败')
+    Message.error(t('model.fetchProviderListFail'))
   }
 }
 
@@ -501,16 +505,16 @@ async function handleDelete(record: ProviderModel) {
   const confirmed = await new Promise<boolean>((resolve) => {
     const { confirm } = window as unknown as { confirm: (msg: string) => boolean }
     // Arco doesn't expose Modal.confirm directly in a simple way, use a workaround
-    resolve(confirm(`确定要删除模型「${record.model_name}」吗？`))
+    resolve(confirm(t('model.confirmDeleteModel', { name: record.model_name })))
   })
   if (!confirmed) return
 
   try {
     await modelApi.delete(record.id)
-    Message.success('删除成功')
+    Message.success(t('common.deleteSuccess'))
     await fetchModels()
   } catch {
-    Message.error('删除失败')
+    Message.error(t('common.deleteFail'))
   }
 }
 
@@ -542,16 +546,16 @@ async function handleDrawerOk() {
         ...payload,
         status: formData.status,
       })
-      Message.success('更新成功')
+      Message.success(t('common.updateSuccess'))
     } else {
       await modelApi.create(payload as ModelCreateRequest)
-      Message.success('创建成功')
+      Message.success(t('common.createSuccess'))
     }
 
     hideDrawer()
     await fetchModels()
   } catch {
-    Message.error(isEdit.value ? '更新失败' : '创建失败')
+    Message.error(isEdit.value ? t('common.fail') : t('model.createFail'))
   }
 }
 

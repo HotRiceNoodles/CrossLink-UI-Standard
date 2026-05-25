@@ -1,8 +1,8 @@
 <template>
   <div class="login-form">
     <div class="login-form-header">
-      <h2 class="login-form-title">登录</h2>
-      <p class="login-form-subtitle">搭桥 管理后台</p>
+      <h2 class="login-form-title">{{ t('login.title') }}</h2>
+      <p class="login-form-subtitle">{{ t('login.subtitle') }}</p>
     </div>
 
     <a-alert v-if="errorMsg" type="danger" :closable="false" class="login-error">
@@ -19,7 +19,7 @@
       <a-form-item field="username" hide-label>
         <a-input
           v-model="formData.username"
-          placeholder="用户名"
+          :placeholder="t('login.usernamePlaceholder')"
           size="large"
         >
           <template #prefix>
@@ -31,7 +31,7 @@
       <a-form-item field="password" hide-label>
         <a-input-password
           v-model="formData.password"
-          placeholder="密码"
+          :placeholder="t('login.passwordPlaceholder')"
           size="large"
           @keyup.enter="handleLogin"
         >
@@ -49,7 +49,7 @@
           size="large"
           :loading="loading"
         >
-          登录
+          {{ t('login.title') }}
         </a-button>
       </a-form-item>
     </a-form>
@@ -59,9 +59,12 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
 import { authApi } from '@/api/auth'
 import { Message } from '@arco-design/web-vue'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const route = useRoute()
@@ -77,8 +80,8 @@ const formData = reactive({
 })
 
 const rules = {
-  username: [{ required: true, message: '请输入用户名' }],
-  password: [{ required: true, message: '请输入密码' }],
+  username: [{ required: true, message: t('login.usernameRequired') }],
+  password: [{ required: true, message: t('login.passwordRequired') }],
 }
 
 async function handleLogin() {
@@ -92,13 +95,13 @@ async function handleLogin() {
     })
 
     userStore.setAuth(res.data)
-    Message.success('登录成功')
+    Message.success(t('login.loginSuccess'))
 
     const redirect = (route.query.redirect as string) || '/dashboard'
     router.push(redirect)
   } catch (err: unknown) {
     const error = err as { response?: { data?: { error?: string } } }
-    errorMsg.value = error.response?.data?.error || '登录失败，请检查用户名和密码'
+    errorMsg.value = error.response?.data?.error || t('login.loginFail')
   } finally {
     loading.value = false
   }

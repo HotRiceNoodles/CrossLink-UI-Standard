@@ -2,13 +2,13 @@
   <div class="provider-page">
     <!-- 页面标题栏 -->
     <div class="page-header">
-      <h2>供应商管理</h2>
+      <h2>{{ t('provider.title') }}</h2>
       <a-space>
         <a-button type="primary" @click="openProviderCreate">
           <template #icon><icon-plus /></template>
-          添加供应商
+          {{ t('provider.addProvider') }}
         </a-button>
-        <a-tooltip content="刷新">
+        <a-tooltip :content="t('common.refresh')">
           <a-button @click="fetchData">
             <template #icon><icon-refresh /></template>
           </a-button>
@@ -22,25 +22,25 @@
         <a-col :span="6">
           <a-select
             v-model="filter.status"
-            placeholder="供应商状态"
+            :placeholder="t('provider.providerStatus')"
             allow-clear
             style="width: 100%"
           >
-            <a-option :value="1" label="启用" />
-            <a-option :value="0" label="禁用" />
+            <a-option :value="1" :label="t('common.enabled')" />
+            <a-option :value="0" :label="t('common.disabled')" />
           </a-select>
         </a-col>
         <a-col :span="10">
           <a-input
             v-model="searchInput"
-            placeholder="模型名称搜索"
+            :placeholder="t('provider.modelSearch')"
             allow-clear
             @input="debouncedModelSearch"
             @clear="clearModelSearch"
           />
         </a-col>
         <a-col :span="4">
-          <a-button @click="resetFilter">重置</a-button>
+          <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
         </a-col>
       </a-row>
     </a-card>
@@ -68,9 +68,9 @@
       <div v-if="!loading && filteredProviders.length === 0 && providerList.length === 0" class="empty-guide">
         <a-empty>
           <template #description>
-            <span>暂无供应商</span>
+            <span>{{ t('provider.noProviders') }}</span>
             <p style="color: var(--color-text-4); font-size: 13px; margin-top: 4px;">
-              点击上方「添加供应商」按钮接入第一个 AI 供应商
+              {{ t('provider.noProvidersGuide') }}
             </p>
           </template>
         </a-empty>
@@ -81,7 +81,7 @@
 
     <!-- 底部统计 -->
     <div class="list-footer" v-if="filteredProviders.length > 0">
-      <span class="list-total">共 {{ filteredProviders.length }} 个供应商</span>
+      <span class="list-total">{{ t('provider.totalProviders', [filteredProviders.length]) }}</span>
       <a-pagination
         v-if="filteredProviders.length > PAGE_SIZE_THRESHOLD"
         v-model:current="pagination.current"
@@ -118,6 +118,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { Message, Modal } from '@arco-design/web-vue'
+import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { providerApi } from '@/api/provider'
 import { modelApi } from '@/api/model'
@@ -128,6 +129,7 @@ import ProviderForm from './components/provider-form.vue'
 import ModelForm from './components/model-form.vue'
 
 const { loading, setLoading } = useLoading(false)
+const { t } = useI18n()
 
 // ---------- Data ----------
 const providerList = ref<Provider[]>([])
@@ -253,14 +255,14 @@ async function handleTest(provider: Provider) {
     const res = await providerApi.test(provider.id)
     if (res.data.success) {
       probeStatusMap[provider.id] = 'success'
-      Message.success(res.data.message || '连接正常')
+      Message.success(res.data.message || t('provider.connected'))
     } else {
       probeStatusMap[provider.id] = 'fail'
-      Message.error(res.data.message || '连接失败')
+      Message.error(res.data.message || t('provider.connectFail'))
     }
   } catch {
     probeStatusMap[provider.id] = 'fail'
-    Message.error('连接测试请求失败')
+    Message.error(t('provider.connectTestFail'))
   } finally {
     testingId.value = null
   }
@@ -270,21 +272,21 @@ function handleDeleteProvider(provider: Provider) {
   const models = modelsByProvider.value.get(provider.id) || []
   if (models.length > 0) {
     Modal.warning({
-      title: '无法删除',
-      content: `该供应商下还有 ${models.length} 个模型，请先删除所有模型后再删除供应商。`,
+      title: t('provider.cannotDelete'),
+      content: t('provider.cannotDeleteContent', [models.length]),
     })
     return
   }
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除供应商「${provider.display_name}」吗？`,
+    title: t('common.confirm'),
+    content: t('provider.confirmDeleteProvider', [provider.display_name]),
     onOk: async () => {
       try {
         await providerApi.delete(provider.id)
-        Message.success('删除成功')
+        Message.success(t('common.deleteSuccess'))
         await fetchData()
       } catch {
-        Message.error('删除失败')
+        Message.error(t('common.deleteFail'))
       }
     },
   })
@@ -292,15 +294,15 @@ function handleDeleteProvider(provider: Provider) {
 
 function handleDeleteModel(model: ProviderModel) {
   Modal.confirm({
-    title: '确认删除',
-    content: `确定要删除模型「${model.model_name}」吗？`,
+    title: t('common.confirm'),
+    content: t('provider.confirmDeleteModel', [model.model_name]),
     onOk: async () => {
       try {
         await modelApi.delete(model.id)
-        Message.success('删除成功')
+        Message.success(t('common.deleteSuccess'))
         await fetchModels()
       } catch {
-        Message.error('删除失败')
+        Message.error(t('common.deleteFail'))
       }
     },
   })
@@ -333,7 +335,7 @@ async function fetchData() {
     modelList.value = mRes.data ?? []
     adapterList.value = aRes.data ?? []
   } catch {
-    Message.error('加载数据失败')
+    Message.error(t('provider.loadDataFail'))
   } finally {
     setLoading(false)
   }
@@ -344,7 +346,7 @@ async function fetchModels() {
     const res = await modelApi.list()
     modelList.value = res.data ?? []
   } catch {
-    Message.error('获取模型列表失败')
+    Message.error(t('provider.fetchModelListFail'))
   }
 }
 

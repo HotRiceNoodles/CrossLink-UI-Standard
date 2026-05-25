@@ -2,7 +2,7 @@
   <a-card class="general-card banner-card">
     <div class="banner-content">
       <div class="banner-left">
-        <h1 class="banner-title">欢迎回来，{{ displayName }}</h1>
+        <h1 class="banner-title">{{ t('dashboard.welcomeBack', { name: displayName }) }}</h1>
         <p class="banner-subtitle">
           <a-tag v-if="tier" color="arcoblue" size="small">{{ tierLabel }}</a-tag>
           <span v-if="version" class="banner-version">v{{ version }}</span>
@@ -17,7 +17,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
+
+const { t } = useI18n()
 
 const userStore = useUserStore()
 
@@ -26,25 +29,24 @@ const props = defineProps<{
   tier?: string
 }>()
 
-const displayName = computed(() => userStore.user?.display_name || userStore.user?.username || '管理员')
+const displayName = computed(() => userStore.user?.display_name || userStore.user?.username || t('dashboard.admin'))
 
 const tierLabel = computed(() => {
   const map: Record<string, string> = {
-    community: '社区版',
-    pro: '专业版',
-    enterprise: '企业版',
+    community: t('tier.community'),
+    pro: t('tier.pro'),
+    enterprise: t('tier.enterprise'),
   }
-  return map[props.tier || 'community'] || props.tier || '社区版'
+  return map[props.tier || 'community'] || props.tier || t('tier.community')
 })
 
 const currentDate = computed(() => {
   const now = new Date()
-  const year = now.getFullYear()
+  const year = String(now.getFullYear())
   const month = String(now.getMonth() + 1).padStart(2, '0')
   const day = String(now.getDate()).padStart(2, '0')
-  const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
-  const weekDay = weekDays[now.getDay()]
-  return `${year}年${month}月${day}日 ${weekDay}`
+  const weekDay = t(`dashboard.weekDays.${now.getDay()}`)
+  return t('dashboard.dateTemplate', { year, month, day, weekday: weekDay })
 })
 </script>
 

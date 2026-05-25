@@ -10,7 +10,7 @@
               :animation="true"
               :value-style="{ fontSize: '28px', fontWeight: 700 }"
             />
-            <span class="kpi-label">总请求数</span>
+            <span class="kpi-label">{{ t('dashboard.totalRequests') }}</span>
           </div>
           <div class="kpi-icon">
             <icon-eye />
@@ -30,7 +30,7 @@
               :value-style="{ fontSize: '28px', fontWeight: 700 }"
               :format="formatTokens"
             />
-            <span class="kpi-label">Token 用量</span>
+            <span class="kpi-label">{{ t('dashboard.tokenUsage') }}</span>
           </div>
           <div class="kpi-icon">
             <icon-code />
@@ -51,7 +51,7 @@
               :value-style="{ fontSize: '28px', fontWeight: 700 }"
               :prefix="currencySymbol"
             />
-            <span class="kpi-label">总费用</span>
+            <span class="kpi-label">{{ t('dashboard.totalCost') }}</span>
           </div>
           <div class="kpi-icon">
             <icon-storage />
@@ -72,7 +72,7 @@
               :value-style="{ fontSize: '28px', fontWeight: 700 }"
               suffix="ms"
             />
-            <span class="kpi-label">平均延迟</span>
+            <span class="kpi-label">{{ t('dashboard.avgLatency') }}</span>
           </div>
           <div class="kpi-icon">
             <icon-send />
@@ -85,7 +85,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { UsageStats } from '@/types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   stats: UsageStats

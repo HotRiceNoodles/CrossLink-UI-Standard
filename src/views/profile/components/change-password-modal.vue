@@ -1,7 +1,7 @@
 <template>
   <a-modal
     :visible="visible"
-    title="修改密码"
+    :title="t('profile.changePassword')"
     :mask-closable="false"
     @cancel="handleClose"
     @before-ok="handleSubmit"
@@ -14,24 +14,24 @@
       :rules="rules"
       layout="vertical"
     >
-      <a-form-item field="old_password" label="旧密码">
+      <a-form-item field="old_password" :label="t('profile.oldPassword')">
         <a-input-password
           v-model="formData.old_password"
-          placeholder="请输入旧密码"
+          :placeholder="t('profile.oldPasswordPlaceholder')"
         />
       </a-form-item>
 
-      <a-form-item field="new_password" label="新密码">
+      <a-form-item field="new_password" :label="t('profile.newPassword')">
         <a-input-password
           v-model="formData.new_password"
-          placeholder="至少 8 个字符"
+          :placeholder="t('profile.newPasswordPlaceholder')"
         />
       </a-form-item>
 
-      <a-form-item field="confirm_password" label="确认新密码">
+      <a-form-item field="confirm_password" :label="t('profile.confirmPassword')">
         <a-input-password
           v-model="formData.confirm_password"
-          placeholder="再次输入新密码"
+          :placeholder="t('profile.confirmPasswordPlaceholder')"
         />
       </a-form-item>
     </a-form>
@@ -40,11 +40,14 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { systemApi } from '@/api/system'
 
 defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
+
+const { t } = useI18n()
 
 const formRef = ref()
 const loading = ref(false)
@@ -56,17 +59,17 @@ const formData = reactive({
 })
 
 const rules = {
-  old_password: [{ required: true, message: '请输入旧密码' }],
+  old_password: [{ required: true, message: t('profile.oldPasswordRequired') }],
   new_password: [
-    { required: true, message: '请输入新密码' },
-    { minLength: 8, message: '密码至少 8 个字符' },
+    { required: true, message: t('profile.newPasswordRequired') },
+    { minLength: 8, message: t('profile.passwordMinLength') },
   ],
   confirm_password: [
-    { required: true, message: '请确认新密码' },
+    { required: true, message: t('profile.confirmPasswordRequired') },
     {
       validator: (value: string, cb: (msg?: string) => void) => {
         if (value !== formData.new_password) {
-          cb('两次输入的密码不一致')
+          cb(t('profile.passwordMismatch'))
         }
       },
     },
@@ -90,14 +93,14 @@ async function handleSubmit(done: (closed: boolean) => void) {
       old_password: formData.old_password,
       new_password: formData.new_password,
     })
-    Message.success('密码修改成功')
+    Message.success(t('profile.passwordChangedSuccess'))
     formData.old_password = ''
     formData.new_password = ''
     formData.confirm_password = ''
     done(true)
   } catch (err: unknown) {
     const error = err as { response?: { data?: { error?: string } } }
-    Message.error(error.response?.data?.error || '密码修改失败')
+    Message.error(error.response?.data?.error || t('profile.passwordChangeFail'))
     done(false)
   } finally {
     loading.value = false

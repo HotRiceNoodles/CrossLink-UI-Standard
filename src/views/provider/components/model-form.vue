@@ -2,7 +2,7 @@
   <a-drawer
     :visible="visible"
     :width="600"
-    :title="isEdit ? '编辑模型' : '新建模型'"
+    :title="isEdit ? t('model.editModel') : t('model.newModel')"
     :mask-closable="false"
     unmount-on-close
     @cancel="handleClose"
@@ -15,10 +15,10 @@
       :rules="formRules"
       layout="vertical"
     >
-      <a-form-item field="provider_id" label="供应商" :rules="[{ required: true, message: '请选择供应商' }]">
+      <a-form-item field="provider_id" :label="t('model.providerLabel')" :rules="[{ required: true, message: t('model.providerRequired') }]">
         <a-select
           v-model="formData.provider_id"
-          placeholder="请选择供应商"
+          :placeholder="t('model.providerPlaceholder')"
           :disabled="isProviderLocked"
         >
           <a-option
@@ -32,20 +32,20 @@
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="model_name" label="模型名称" :rules="[{ required: true, message: '请输入模型名称' }]">
-            <a-input v-model="formData.model_name" placeholder="请输入模型名称" />
+          <a-form-item field="model_name" :label="t('model.modelNameLabel')" :rules="[{ required: true, message: t('model.modelNameRequired') }]">
+            <a-input v-model="formData.model_name" :placeholder="t('model.modelNamePlaceholder')" />
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
-          <a-form-item field="provider_model" label="供应商模型" :rules="[{ required: true, message: '请输入供应商模型' }]">
-            <a-input v-model="formData.provider_model" placeholder="请输入供应商模型" />
+          <a-form-item field="provider_model" :label="t('model.providerModelLabel')" :rules="[{ required: true, message: t('model.providerModelRequired') }]">
+            <a-input v-model="formData.provider_model" :placeholder="t('model.providerModelPlaceholder')" />
           </a-form-item>
         </a-grid-item>
       </a-grid>
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="weight" label="权重">
+          <a-form-item field="weight" :label="t('model.weightLabel')">
             <a-input-number
               v-model="formData.weight"
               :min="1"
@@ -56,7 +56,7 @@
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
-          <a-form-item field="priority" label="优先级">
+          <a-form-item field="priority" :label="t('model.priorityLabel')">
             <a-input-number
               v-model="formData.priority"
               :min="1"
@@ -68,18 +68,18 @@
         </a-grid-item>
       </a-grid>
 
-      <a-form-item field="max_context" label="最大上下文">
+      <a-form-item field="max_context" :label="t('model.maxContext')">
         <a-input-number
           v-model="formData.max_context"
           :min="0"
-          placeholder="请输入最大上下文长度"
+          :placeholder="t('model.maxContextPlaceholder')"
           style="width: 100%"
         />
       </a-form-item>
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="input_price" label="输入价格">
+          <a-form-item field="input_price" :label="t('model.inputPriceLabel')">
             <a-input-number
               v-model="formData.input_price"
               :min="0"
@@ -91,7 +91,7 @@
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
-          <a-form-item field="output_price" label="输出价格">
+          <a-form-item field="output_price" :label="t('model.outputPriceLabel')">
             <a-input-number
               v-model="formData.output_price"
               :min="0"
@@ -106,16 +106,16 @@
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="currency" label="币种">
-            <a-select v-model="formData.currency" placeholder="请选择币种">
+          <a-form-item field="currency" :label="t('model.currencyLabel')">
+            <a-select v-model="formData.currency" :placeholder="t('model.currencyPlaceholder')">
               <a-option value="CNY" label="CNY" />
               <a-option value="USD" label="USD" />
             </a-select>
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
-          <a-form-item field="routing_strategy" label="路由策略">
-            <a-select v-model="formData.routing_strategy" placeholder="请选择路由策略">
+          <a-form-item field="routing_strategy" :label="t('model.routingStrategyLabel')">
+            <a-select v-model="formData.routing_strategy" :placeholder="t('model.routingStrategyPlaceholder')">
               <a-option
                 v-for="s in strategyOptions"
                 :key="s.value"
@@ -127,10 +127,10 @@
         </a-grid-item>
       </a-grid>
 
-      <a-form-item v-if="isEdit" field="status" label="状态">
-        <a-select v-model="formData.status" placeholder="请选择状态">
-          <a-option :value="1" label="启用" />
-          <a-option :value="0" label="禁用" />
+      <a-form-item v-if="isEdit" field="status" :label="t('model.statusLabel')">
+        <a-select v-model="formData.status" :placeholder="t('model.statusPlaceholder')">
+          <a-option :value="1" :label="t('common.enabled')" />
+          <a-option :value="0" :label="t('common.disabled')" />
         </a-select>
       </a-form-item>
     </a-form>
@@ -140,21 +140,24 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import { useI18n } from 'vue-i18n'
 import { modelApi } from '@/api/model'
 import type { ProviderModel, Provider, ModelCreateRequest } from '@/types'
 
+const { t } = useI18n()
+
 const strategyMap: Record<string, { label: string; color: string }> = {
-  weighted_random: { label: '加权随机', color: '#165DFF' },
-  round_robin: { label: '轮询', color: '#00B42A' },
-  least_latency: { label: '最低延迟', color: '#0FC6C2' },
-  least_cost: { label: '最低成本', color: '#FF7D00' },
-  canary: { label: '金丝雀', color: '#722ED1' },
-  least_busy: { label: '最空闲', color: '#F77234' },
+  weighted_random: { label: 'strategy.weighted_random', color: '#165DFF' },
+  round_robin: { label: 'strategy.round_robin', color: '#00B42A' },
+  least_latency: { label: 'strategy.least_latency', color: '#0FC6C2' },
+  least_cost: { label: 'strategy.least_cost', color: '#FF7D00' },
+  canary: { label: 'strategy.canary', color: '#722ED1' },
+  least_busy: { label: 'strategy.least_busy', color: '#F77234' },
 }
 
 const strategyOptions = Object.entries(strategyMap).map(([value, { label }]) => ({
   value,
-  label,
+  label: t(label),
 }))
 
 interface Props {
@@ -195,9 +198,9 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
 const formData = reactive(createEmptyForm())
 
 const formRules = {
-  provider_id: [{ required: true, message: '请选择供应商' }],
-  model_name: [{ required: true, message: '请输入模型名称' }],
-  provider_model: [{ required: true, message: '请输入供应商模型' }],
+  provider_id: [{ required: true, message: t('model.providerRequired') }],
+  model_name: [{ required: true, message: t('model.modelNameRequired') }],
+  provider_model: [{ required: true, message: t('model.providerModelRequired') }],
 }
 
 watch(() => props.visible, (val) => {
@@ -249,16 +252,16 @@ async function handleSubmit() {
         ...payload,
         status: formData.status,
       })
-      Message.success('更新成功')
+      Message.success(t('common.updateSuccess'))
     } else {
       await modelApi.create(payload as ModelCreateRequest)
-      Message.success('创建成功')
+      Message.success(t('common.createSuccess'))
     }
 
     emit('update:visible', false)
     emit('success')
   } catch {
-    Message.error(props.isEdit ? '更新失败' : '创建失败')
+    Message.error(props.isEdit ? t('common.fail') : t('common.fail'))
   } finally {
     submitLoading.value = false
   }

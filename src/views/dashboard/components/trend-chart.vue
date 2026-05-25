@@ -1,13 +1,16 @@
 <template>
-  <a-card class="general-card" title="请求趋势（近7天）">
+  <a-card class="general-card" :title="t('dashboard.requestTrend')">
     <Chart :option="chartOption" height="320px" width="100%" />
   </a-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { EChartsOption } from 'echarts'
 import type { DailyTrend } from '@/types'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   data: DailyTrend[]
@@ -30,7 +33,7 @@ const chartOption = computed<EChartsOption>(() => {
       axisPointer: { type: 'cross' },
     },
     legend: {
-      data: ['请求数', 'Token 数'],
+      data: [t('dashboard.requestCount'), t('dashboard.tokenCount')],
       bottom: 0,
       itemWidth: 16,
       itemHeight: 8,
@@ -53,7 +56,7 @@ const chartOption = computed<EChartsOption>(() => {
     yAxis: [
       {
         type: 'value',
-        name: '请求数',
+        name: t('dashboard.requestCount'),
         nameTextStyle: { color: '#86909c', fontSize: 11 },
         axisLine: { show: false },
         axisTick: { show: false },
@@ -62,7 +65,7 @@ const chartOption = computed<EChartsOption>(() => {
       },
       {
         type: 'value',
-        name: 'Token 数',
+        name: t('dashboard.tokenCount'),
         nameTextStyle: { color: '#86909c', fontSize: 11 },
         axisLine: { show: false },
         axisTick: { show: false },
@@ -72,7 +75,7 @@ const chartOption = computed<EChartsOption>(() => {
     ],
     series: [
       {
-        name: '请求数',
+        name: t('dashboard.requestCount'),
         type: 'line',
         yAxisIndex: 0,
         smooth: true,
@@ -96,7 +99,7 @@ const chartOption = computed<EChartsOption>(() => {
         data: counts,
       },
       {
-        name: 'Token 数',
+        name: t('dashboard.tokenCount'),
         type: 'line',
         yAxisIndex: 1,
         smooth: true,

@@ -22,7 +22,7 @@
             <template #icon>
               <component :is="(route.meta?.icon as string)" />
             </template>
-            <template #title>{{ route.meta?.locale }}</template>
+            <template #title>{{ t(`menu.${route.meta?.menuKey}`) }}</template>
             <a-menu-item
               v-for="child in route.children"
               :key="child.name as string"
@@ -30,14 +30,14 @@
               <template #icon>
                 <component :is="(child.meta?.icon as string)" />
               </template>
-              {{ child.meta?.locale }}
+              {{ t(`menu.${child.meta?.menuKey}`) }}
             </a-menu-item>
           </a-sub-menu>
           <a-menu-item v-else :key="route.name as string">
             <template #icon>
               <component :is="(route.meta?.icon as string)" />
             </template>
-            {{ route.meta?.locale }}
+            {{ t(`menu.${route.meta?.menuKey}`) }}
           </a-menu-item>
         </template>
       </a-menu>
@@ -69,6 +69,20 @@
           </a-breadcrumb>
         </div>
         <div class="navbar-right">
+          <a-dropdown trigger="hover" @select="onLanguageSelect">
+            <a-button type="text" size="small">
+              <icon-language />
+              <icon-down />
+            </a-button>
+            <template #content>
+              <a-doption value="zh-CN" :class="{ 'lang-active': currentLocale === 'zh-CN' }">
+                简体中文
+              </a-doption>
+              <a-doption value="en-US" :class="{ 'lang-active': currentLocale === 'en-US' }">
+                English
+              </a-doption>
+            </template>
+          </a-dropdown>
           <a-tag
             :color="userStore.tier === 'community' ? 'arcoblue' : 'green'"
             size="small"
@@ -77,17 +91,17 @@
           </a-tag>
           <a-dropdown trigger="hover">
             <a-button type="text" size="small">
-              {{ userStore.user?.display_name || '用户' }}
+              {{ userStore.user?.display_name || t('login.user') }}
               <template #icon><icon-down /></template>
             </a-button>
             <template #content>
               <a-doption @click="passwordVisible = true">
                 <template #icon><icon-lock /></template>
-                修改密码
+                {{ t('profile.changePassword') }}
               </a-doption>
               <a-doption @click="handleLogout">
                 <template #icon><icon-export /></template>
-                退出登录
+                {{ t('login.logout') }}
               </a-doption>
             </template>
           </a-dropdown>
@@ -109,7 +123,9 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAppStore, useUserStore } from '@/store'
+import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
 import appRoutes from '@/router/routes'
 import { authApi } from '@/api/auth'
@@ -119,6 +135,9 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { t } = useI18n()
+
+const currentLocale = ref(getCurrentLocale())
 
 const menuCollapse = computed(() => appStore.menuCollapse)
 const passwordVisible = ref(false)
@@ -142,7 +161,6 @@ function onSubMenuClick(key: string) {
   }
 }
 
-// 路由变化时自动展开对应子菜单
 watch(() => route.name, () => {
   if (menuCollapse.value) {
     openKeys.value = []
@@ -156,36 +174,41 @@ watch(() => route.name, () => {
   }
 }, { immediate: true })
 
-// 折叠时清空
 watch(menuCollapse, (val) => {
   if (val) openKeys.value = []
 })
 
 const breadcrumbItems = computed(() => {
   return route.matched
-    .filter((r) => r.meta?.locale)
-    .map((r) => ({ path: r.path, locale: r.meta?.locale as string }))
+    .filter((r) => r.meta?.menuKey)
+    .map((r) => ({ path: r.path, locale: t(`menu.${r.meta?.menuKey}`) as string }))
 })
 
 const tierLabel = computed(() => {
   const map: Record<string, string> = {
-    community: '社区版',
-    pro: '专业版',
-    enterprise: '企业版',
+    community: t('tier.community'),
+    pro: t('tier.pro'),
+    enterprise: t('tier.enterprise'),
   }
-  return map[userStore.tier] || '社区版'
+  return map[userStore.tier] || t('tier.community')
 })
 
 function onMenuItemClick(key: string) {
   router.push({ name: key })
 }
 
+function onLanguageSelect(value: string | number | boolean | Record<string, unknown> | undefined) {
+  const lang = String(value)
+  changeLanguage(lang)
+  currentLocale.value = lang
+}
+
 async function handleLogout() {
   Modal.confirm({
-    title: '确认退出',
-    content: '确定要退出登录吗？',
-    okText: '退出',
-    cancelText: '取消',
+    title: t('login.logoutConfirm'),
+    content: t('login.logoutContent'),
+    okText: t('login.logoutOk'),
+    cancelText: t('common.cancel'),
     onOk: async () => {
       try {
         await authApi.logout()
@@ -194,7 +217,7 @@ async function handleLogout() {
       }
       userStore.logout()
       router.push({ name: 'login' })
-      Message.success('已退出登录')
+      Message.success(t('login.loggedOut'))
     },
   })
 }
@@ -316,6 +339,10 @@ function onVersionTap() {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.lang-active {
+  font-weight: 600;
 }
 
 .layout-content {

@@ -6,9 +6,9 @@
           <div class="logo-icon">CL</div>
           <span class="logo-text">CrossLink</span>
         </div>
-        <h1 class="banner-title">企业级大模型</h1>
-        <h1 class="banner-title">API 网关管理平台</h1>
-        <p class="banner-desc">统一管理多家 LLM 供应商，智能路由，降本增效</p>
+        <h1 class="banner-title">{{ t('login.bannerTitle1') }}</h1>
+        <h1 class="banner-title">{{ t('login.bannerTitle2') }}</h1>
+        <p class="banner-desc">{{ t('login.bannerDesc') }}</p>
         <div class="banner-decoration">
           <div class="deco-circle deco-circle-1" />
           <div class="deco-circle deco-circle-2" />
@@ -30,7 +30,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import LoginForm from './components/login-form.vue'
+
+const { t } = useI18n()
 </script>
 
 <style scoped lang="less">

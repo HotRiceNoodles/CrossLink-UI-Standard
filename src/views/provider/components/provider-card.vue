@@ -10,16 +10,16 @@
         <span class="provider-name">{{ provider.display_name }}</span>
         <a-tag size="small">{{ adapter?.display_name || provider.adapter_type }}</a-tag>
         <a-tag :color="provider.status === 1 ? 'green' : 'red'" size="small">
-          {{ provider.status === 1 ? '启用' : '禁用' }}
+          {{ provider.status === 1 ? t('common.enabled') : t('common.disabled') }}
         </a-tag>
         <icon-check-circle-fill v-if="probeStatus === 'success'" class="probe-icon probe-ok" />
         <icon-close-circle-fill v-else-if="probeStatus === 'fail'" class="probe-icon probe-fail" />
-        <span class="model-count">接入 {{ models.length }} 个模型</span>
+        <span class="model-count">{{ t('provider.connectedModels', [models.length]) }}</span>
       </div>
       <div class="card-header-right">
         <a-button type="text" size="small" @click="emit('add-model', provider)">
           <template #icon><icon-plus /></template>
-          添加模型
+          {{ t('provider.addModel') }}
         </a-button>
         <a-button
           type="text"
@@ -27,10 +27,10 @@
           :loading="testingId === provider.id"
           @click="emit('test', provider)"
         >
-          探测连通性
+          {{ t('provider.probeConnectivity') }}
         </a-button>
         <a-button type="text" size="small" @click="emit('edit-provider', provider)">
-          编辑
+          {{ t('common.edit') }}
         </a-button>
         <a-dropdown trigger="hover">
           <a-button type="text" size="small">
@@ -38,7 +38,7 @@
           </a-button>
           <template #content>
             <a-doption @click="emit('delete-provider', provider)">
-              <span style="color: rgb(var(--danger-6))">删除供应商</span>
+              <span style="color: rgb(var(--danger-6))">{{ t('provider.deleteProvider') }}</span>
             </a-doption>
           </template>
         </a-dropdown>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="card-meta" v-if="provider.base_url">
-      <span class="meta-label">API 地址</span>
+      <span class="meta-label">{{ t('provider.apiUrl') }}</span>
       <span class="meta-value">{{ provider.base_url }}</span>
     </div>
 
@@ -60,42 +60,42 @@
       :bordered="false"
     >
       <template #columns>
-        <a-table-column title="模型名称" :width="160">
+        <a-table-column :title="t('provider.modelTableName')" :width="160">
           <template #cell="{ record }">
             <span style="font-weight: 600">{{ record.model_name }}</span>
           </template>
         </a-table-column>
 
-        <a-table-column title="调用名" :width="140">
+        <a-table-column :title="t('provider.modelTableCallName')" :width="140">
           <template #cell="{ record }">
             <span class="mono-text">{{ record.provider_model }}</span>
           </template>
         </a-table-column>
 
-        <a-table-column title="状态" :width="70" align="center">
+        <a-table-column :title="t('common.status')" :width="70" align="center">
           <template #cell="{ record }">
             <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
-              {{ record.status === 1 ? '启用' : '禁用' }}
+              {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
             </a-tag>
           </template>
         </a-table-column>
 
-        <a-table-column title="权重" :width="70" align="center" data-index="weight" />
-        <a-table-column title="优先级" :width="70" align="center" data-index="priority" />
+        <a-table-column :title="t('provider.modelTableWeight')" :width="70" align="center" data-index="weight" />
+        <a-table-column :title="t('provider.modelTablePriority')" :width="70" align="center" data-index="priority" />
 
-        <a-table-column title="输入价格" :width="110" align="right">
+        <a-table-column :title="t('provider.modelTableInputPrice')" :width="110" align="right">
           <template #cell="{ record }">
             {{ formatPrice(record.input_price, record.currency) }}
           </template>
         </a-table-column>
 
-        <a-table-column title="输出价格" :width="110" align="right">
+        <a-table-column :title="t('provider.modelTableOutputPrice')" :width="110" align="right">
           <template #cell="{ record }">
             {{ formatPrice(record.output_price, record.currency) }}
           </template>
         </a-table-column>
 
-        <a-table-column title="路由策略" :width="100" align="center">
+        <a-table-column :title="t('provider.modelTableRoutingStrategy')" :width="100" align="center">
           <template #cell="{ record }">
             <a-tag :color="getStrategyColor(record.routing_strategy)" size="small">
               {{ getStrategyLabel(record.routing_strategy) }}
@@ -103,25 +103,28 @@
           </template>
         </a-table-column>
 
-        <a-table-column title="操作" :width="100">
+        <a-table-column :title="t('common.actions')" :width="100">
           <template #cell="{ record }">
             <a-space :size="8">
-              <a-link @click="emit('edit-model', record, provider)">编辑</a-link>
-              <a-link status="danger" @click="emit('delete-model', record)">删除</a-link>
+              <a-link @click="emit('edit-model', record, provider)">{{ t('common.edit') }}</a-link>
+              <a-link status="danger" @click="emit('delete-model', record)">{{ t('common.delete') }}</a-link>
             </a-space>
           </template>
         </a-table-column>
       </template>
     </a-table>
 
-    <a-empty v-else description="暂无模型" :style="{ padding: '16px 0' }" />
+    <a-empty v-else :description="t('provider.noModels')" :style="{ padding: '16px 0' }" />
     </div>
   </a-card>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { Provider, ProviderModel, Adapter } from '@/types'
+
+const { t } = useI18n()
 
 interface Props {
   provider: Provider
@@ -161,21 +164,29 @@ const providerColor = computed(() => {
   return colors[Math.abs(hash) % colors.length]
 })
 
-const strategyMap: Record<string, { label: string; color: string }> = {
-  weighted_random: { label: '加权随机', color: '#165DFF' },
-  round_robin: { label: '轮询', color: '#00B42A' },
-  least_latency: { label: '最低延迟', color: '#0FC6C2' },
-  least_cost: { label: '最低成本', color: '#FF7D00' },
-  canary: { label: '金丝雀', color: '#722ED1' },
-  least_busy: { label: '最空闲', color: '#F77234' },
+const strategyColorMap: Record<string, string> = {
+  weighted_random: '#165DFF',
+  round_robin: '#00B42A',
+  least_latency: '#0FC6C2',
+  least_cost: '#FF7D00',
+  canary: '#722ED1',
+  least_busy: '#F77234',
 }
 
 function getStrategyLabel(key: string): string {
-  return strategyMap[key]?.label ?? key
+  const strategyKeys: Record<string, string> = {
+    weighted_random: 'strategy.weighted_random',
+    round_robin: 'strategy.round_robin',
+    least_latency: 'strategy.least_latency',
+    least_cost: 'strategy.least_cost',
+    canary: 'strategy.canary',
+    least_busy: 'strategy.least_busy',
+  }
+  return strategyKeys[key] ? t(strategyKeys[key]) : key
 }
 
 function getStrategyColor(key: string): string {
-  return strategyMap[key]?.color ?? '#86909C'
+  return strategyColorMap[key] ?? '#86909C'
 }
 
 function formatPrice(price: number | null | undefined, currency?: string): string {

@@ -1,13 +1,16 @@
 <template>
-  <a-card class="general-card" title="模型分布（近7天）">
+  <a-card class="general-card" :title="t('dashboard.modelDistribution')">
     <Chart :option="chartOption" height="320px" width="100%" />
   </a-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { EChartsOption } from 'echarts'
 import type { ModelDistribution } from '@/types'
+
+const { t } = useI18n()
 
 const COLORS = [
   '#165DFF',
@@ -38,7 +41,7 @@ const chartOption = computed<EChartsOption>(() => {
       className: 'echarts-tooltip-diy',
       formatter(params: any) {
         const { name, value, percent } = params
-        return `<strong>${name}</strong><br/>请求数：${value}<br/>占比：${percent}%`
+        return `<strong>${name}</strong><br/>${t('dashboard.requestCount')}：${value}<br/>${t('dashboard.proportion')}：${percent}%`
       },
     },
     legend: {

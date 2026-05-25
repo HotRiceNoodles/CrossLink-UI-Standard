@@ -4,6 +4,7 @@ import ArcoVueIcon from '@arco-design/web-vue/es/icon'
 import '@arco-design/web-vue/dist/arco.css'
 import router from './router'
 import store from './store'
+import i18n from './locale'
 import globalComponents from './components'
 import './api/interceptor'
 import '@/assets/style/global.less'
@@ -21,6 +22,7 @@ installVueErrorPlugin(app)
 
 app.use(ArcoVue)
 app.use(ArcoVueIcon)
+app.use(i18n)
 app.use(router)
 app.use(store)
 app.use(globalComponents)
