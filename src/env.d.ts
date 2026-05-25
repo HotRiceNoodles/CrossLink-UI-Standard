@@ -5,3 +5,12 @@ declare module '*.vue' {
   const component: DefineComponent<object, object, unknown>
   export default component
 }
+
+interface Window {
+  __logs__?: {
+    list: () => unknown[]
+    errors: () => unknown[]
+    clear: () => void
+    export: () => void
+  }
+}

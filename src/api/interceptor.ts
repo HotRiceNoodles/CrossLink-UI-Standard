@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { clearToken } from '@/utils/auth'
 import type { ApiResponse } from '@/types'
+import { logger } from '@/logger/core'
 
 const request = axios.create({
   baseURL: '/admin/api',
@@ -25,6 +26,22 @@ request.interceptors.response.use(
       import('@/router').then(({ default: router }) => {
         router.push({ name: 'login' })
       })
+    }
+    // Logger: API 错误日志
+    const status = error.response?.status
+    const method = error.config?.method?.toUpperCase()
+    const url = error.config?.url
+
+    if (status === 401) {
+      logger.warn(`API 认证失败: ${method} ${url}`, { status }, 'axios')
+    } else if (status && status >= 500) {
+      logger.error(`API 服务端错误: ${method} ${url} ${status}`, {
+        error: error, status, data: error.response?.data
+      }, 'axios')
+    } else if (status && status >= 400) {
+      logger.warn(`API 客户端错误: ${method} ${url} ${status}`, { error: error, status }, 'axios')
+    } else {
+      logger.error(`API 网络错误: ${method} ${url}`, { error: error }, 'axios')
     }
     return Promise.reject(error)
   }

@@ -22,6 +22,9 @@
           {{ route.meta?.locale }}
         </a-menu-item>
       </a-menu>
+      <div class="sidebar-footer">
+        <span class="version-text" @click="onVersionTap">v1.0.0</span>
+      </div>
     </aside>
 
     <div class="layout-main" :class="{ 'sider-collapsed': menuCollapse }">
@@ -73,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
@@ -130,6 +133,25 @@ async function handleLogout() {
       Message.success('已退出登录')
     },
   })
+}
+
+const tapCount = ref(0)
+let tapTimer: ReturnType<typeof setTimeout> | null = null
+
+function onVersionTap() {
+  tapCount.value++
+  if (tapTimer) clearTimeout(tapTimer)
+  tapTimer = setTimeout(() => { tapCount.value = 0 }, 1500)
+
+  if (tapCount.value >= 5) {
+    tapCount.value = 0
+    router.addRoute('root', {
+      path: 'dev/logs',
+      name: 'DevLogs',
+      component: () => import('@/logger/views/log-viewer.vue'),
+    })
+    router.push('/dev/logs')
+  }
 }
 </script>
 
@@ -237,5 +259,19 @@ async function handleLogout() {
   padding: 20px;
   background: var(--color-fill-2);
   overflow: auto;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px;
+  border-top: 1px solid var(--color-fill-2);
+  text-align: center;
+}
+
+.version-text {
+  font-size: 11px;
+  color: var(--color-text-4);
+  cursor: default;
+  user-select: none;
 }
 </style>
