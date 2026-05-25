@@ -238,145 +238,12 @@
     </a-card>
 
     <!-- Detail Drawer -->
-    <a-drawer
-      :visible="drawerVisible"
-      :width="640"
-      unmount-on-close
-      @cancel="drawerVisible = false"
-    >
-      <template v-if="currentLog">
-        <!-- 基本信息 -->
-        <a-card title="基本信息" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">请求 ID</span>
-            <span class="detail-value mono">{{ currentLog.request_id }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">路由类型</span>
-            <span class="detail-value">{{ currentLog.route_type }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">状态码</span>
-            <span class="detail-value">
-              <a-tag :color="statusCodeColor(currentLog.status_code)" size="small">
-                {{ currentLog.status_code }}
-              </a-tag>
-            </span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">错误类型</span>
-            <span class="detail-value">{{ currentLog.error_type || '-' }}</span>
-          </div>
-        </a-card>
-
-        <!-- 模型与路由 -->
-        <a-card title="模型与路由" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">请求模型</span>
-            <span class="detail-value">{{ currentLog.model_requested }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">实际模型</span>
-            <span
-              class="detail-value"
-              :style="{
-                color:
-                  currentLog.model_used && currentLog.model_used !== currentLog.model_requested
-                    ? 'rgb(var(--warning-6))'
-                    : undefined,
-              }"
-            >
-              {{ currentLog.model_used || '-' }}
-            </span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Provider</span>
-            <span class="detail-value">{{ currentLog.provider_id ?? '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">API Key</span>
-            <span class="detail-value">{{ currentLog.api_key_id ?? '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Team</span>
-            <span class="detail-value">{{ currentLog.team_id ?? '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Agent 类型</span>
-            <span class="detail-value">{{ currentLog.agent_type || '-' }}</span>
-          </div>
-        </a-card>
-
-        <!-- 用量与费用 -->
-        <a-card title="用量与费用" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">输入 Token</span>
-            <span class="detail-value">{{ formatTokens(currentLog.input_tokens) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">输出 Token</span>
-            <span class="detail-value">{{ formatTokens(currentLog.output_tokens) }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">费用</span>
-            <span class="detail-value">&yen;{{ currentLog.cost != null ? currentLog.cost.toFixed(4) : '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">货币</span>
-            <span class="detail-value">{{ currentLog.currency }}</span>
-          </div>
-        </a-card>
-
-        <!-- 性能指标 -->
-        <a-card title="性能指标" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">总耗时</span>
-            <span class="detail-value">{{ currentLog.latency_ms }} ms</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">首 Token</span>
-            <span class="detail-value">{{ currentLog.first_token_ms != null ? `${currentLog.first_token_ms} ms` : '-' }}</span>
-          </div>
-        </a-card>
-
-        <!-- 容错与缓存 -->
-        <a-card title="容错与缓存" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">Fallback 次数</span>
-            <span class="detail-value">{{ currentLog.fallback_count }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">重试次数</span>
-            <span class="detail-value">{{ currentLog.retry_count }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">缓存命中</span>
-            <span class="detail-value">{{ currentLog.cache_hit ? '是' : '否' }}</span>
-          </div>
-        </a-card>
-
-        <!-- 安全与内容 -->
-        <a-card title="安全与内容" class="detail-section" :bordered="false">
-          <div class="detail-row">
-            <span class="detail-label">Guardrail 触发</span>
-            <span class="detail-value">{{ currentLog.guardrail_triggered ? '是' : '否' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Guardrail 规则</span>
-            <span class="detail-value">{{ currentLog.guardrail_rule || '-' }}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">安全事件</span>
-            <span class="detail-value">
-              <template v-if="currentLog.security_events?.length">
-                <pre class="security-json">{{ JSON.stringify(currentLog.security_events, null, 2) }}</pre>
-              </template>
-              <template v-else>-</template>
-            </span>
-          </div>
-        </a-card>
-      </template>
-    </a-drawer>
+    <log-detail-drawer
+      v-model:visible="drawerVisible"
+      :log="currentLog"
+      :provider-options="providerOptions"
+      :key-options="keyOptions"
+    />
   </div>
 </template>
 
@@ -389,7 +256,8 @@ import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
 import { useLoading } from '@/hooks/loading'
-import type { UsageLog, UsageQuery, ProviderModel, Provider, APIKey } from '@/types'
+import LogDetailDrawer from './components/log-detail-drawer.vue'
+import type { UsageLog, UsageQuery, Provider, APIKey } from '@/types'
 
 const { loading, setLoading } = useLoading()
 
@@ -547,14 +415,6 @@ function openDrawer(record: UsageLog) {
 // Formatters
 function formatTime(val: string) {
   return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
-}
-
-function statusCodeColor(code: number): string {
-  if (code >= 200 && code < 300) return 'green'
-  if (code === 429) return 'purple'
-  if (code >= 400 && code < 500) return 'orange'
-  if (code >= 500) return 'red'
-  return 'gray'
 }
 
 function statusCodeClass(code: number): string {
@@ -759,57 +619,6 @@ onMounted(() => {
       margin: 0;
       font-size: 13px;
     }
-  }
-
-  // --- Detail Sections ---
-  .detail-section {
-    margin-bottom: 12px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  .detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-size: 13px;
-
-    & + .detail-row {
-      border-top: 1px solid var(--color-fill-2);
-    }
-  }
-
-  .detail-label {
-    color: var(--color-text-3);
-    flex-shrink: 0;
-  }
-
-  .detail-value {
-    color: var(--color-text-1);
-    text-align: right;
-    word-break: break-all;
-
-    &.mono {
-      font-family: monospace;
-      font-size: 12px;
-    }
-  }
-
-  .security-json {
-    margin: 0;
-    padding: 8px;
-    background: var(--color-fill-2);
-    border-radius: 4px;
-    font-size: 11px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    word-break: break-all;
-    text-align: left;
-    max-height: 200px;
-    overflow-y: auto;
   }
 }
 </style>
