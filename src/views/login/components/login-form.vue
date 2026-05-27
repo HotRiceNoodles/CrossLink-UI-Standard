@@ -42,13 +42,7 @@
       </a-form-item>
 
       <a-form-item>
-        <a-button
-          type="primary"
-          html-type="submit"
-          long
-          size="large"
-          :loading="loading"
-        >
+        <a-button type="primary" html-type="submit" long size="large" :loading="loading">
           {{ t('login.title') }}
         </a-button>
       </a-form-item>

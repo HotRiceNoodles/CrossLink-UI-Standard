@@ -6,7 +6,7 @@
     @cancel="emit('update:visible', false)"
   >
     <template #title>
-      <div class="drawer-title-row" v-if="log">
+      <div v-if="log" class="drawer-title-row">
         <div class="drawer-title-left">
           <span class="drawer-request-id">{{ log.request_id }}</span>
           <a-button size="mini" type="text" @click="copyToClipboard(log.request_id)">
@@ -25,19 +25,22 @@
       <!-- 基本信息 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-file /> {{ t('logDetail.basicInfo') }}</span>
+          <span class="section-title">
+            <icon-file />
+            {{ t('logDetail.basicInfo') }}
+          </span>
         </template>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.routeType') }}</span>
           <span class="detail-value">{{ log.route_type }}</span>
         </div>
-        <div class="detail-row" v-if="log.error_type">
+        <div v-if="log.error_type" class="detail-row">
           <span class="detail-label">{{ t('logDetail.errorType') }}</span>
           <span class="detail-value">
             <a-tag color="red" size="small">{{ log.error_type }}</a-tag>
           </span>
         </div>
-        <div class="detail-row" v-if="log.agent_type">
+        <div v-if="log.agent_type" class="detail-row">
           <span class="detail-label">{{ t('logDetail.agentType') }}</span>
           <span class="detail-value">{{ log.agent_type }}</span>
         </div>
@@ -46,16 +49,25 @@
       <!-- 用量统计 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-bar-chart /> {{ t('logDetail.usageStats') }}</span>
+          <span class="section-title">
+            <icon-bar-chart />
+            {{ t('logDetail.usageStats') }}
+          </span>
         </template>
         <div class="usage-overview">
           <div class="usage-metric">
-            <span class="usage-metric-value">{{ formatTokens(log.input_tokens + log.output_tokens) }}</span>
+            <span class="usage-metric-value">
+              {{ formatTokens(log.input_tokens + log.output_tokens) }}
+            </span>
             <span class="usage-metric-label">{{ t('logDetail.totalTokens') }}</span>
           </div>
           <div class="usage-metric">
-            <span class="usage-metric-value">&yen;{{ log.cost != null ? log.cost.toFixed(4) : '-' }}</span>
-            <span class="usage-metric-label">{{ t('logDetail.costWithCurrency', { currency: log.currency }) }}</span>
+            <span class="usage-metric-value">
+              &yen;{{ log.cost != null ? log.cost.toFixed(4) : '-' }}
+            </span>
+            <span class="usage-metric-label">
+              {{ t('logDetail.costWithCurrency', { currency: log.currency }) }}
+            </span>
           </div>
         </div>
         <div v-if="totalTokens > 0" class="token-bar-group">
@@ -64,14 +76,18 @@
             <div class="token-bar-track">
               <div class="token-bar-fill bar-input" :style="{ width: inputPercent + '%' }"></div>
             </div>
-            <span class="token-bar-value">{{ formatTokens(log.input_tokens) }} ({{ inputPercent }}%)</span>
+            <span class="token-bar-value">
+              {{ formatTokens(log.input_tokens) }} ({{ inputPercent }}%)
+            </span>
           </div>
           <div class="token-bar-item">
             <span class="token-bar-label">{{ t('logDetail.output') }}</span>
             <div class="token-bar-track">
               <div class="token-bar-fill bar-output" :style="{ width: outputPercent + '%' }"></div>
             </div>
-            <span class="token-bar-value">{{ formatTokens(log.output_tokens) }} ({{ outputPercent }}%)</span>
+            <span class="token-bar-value">
+              {{ formatTokens(log.output_tokens) }} ({{ outputPercent }}%)
+            </span>
           </div>
         </div>
       </a-card>
@@ -79,7 +95,10 @@
       <!-- 模型与路由 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-swap /> {{ t('logDetail.modelAndRouting') }}</span>
+          <span class="section-title">
+            <icon-swap />
+            {{ t('logDetail.modelAndRouting') }}
+          </span>
         </template>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.requestModel') }}</span>
@@ -113,7 +132,10 @@
       <!-- 性能指标 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-thunderbolt /> {{ t('logDetail.performanceMetrics') }}</span>
+          <span class="section-title">
+            <icon-thunderbolt />
+            {{ t('logDetail.performanceMetrics') }}
+          </span>
         </template>
         <div class="perf-bar-item">
           <span class="perf-bar-label">{{ t('logDetail.totalLatency') }}</span>
@@ -134,26 +156,35 @@
               :style="{ width: latencyPercent(log.first_token_ms ?? 0) + '%' }"
             ></div>
           </div>
-          <span class="perf-bar-value">{{ log.first_token_ms != null ? `${log.first_token_ms}ms` : '-' }}</span>
+          <span class="perf-bar-value">
+            {{ log.first_token_ms != null ? `${log.first_token_ms}ms` : '-' }}
+          </span>
         </div>
       </a-card>
 
       <!-- 容错与缓存 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-sync /> {{ t('logDetail.faultTolerance') }}</span>
+          <span class="section-title">
+            <icon-sync />
+            {{ t('logDetail.faultTolerance') }}
+          </span>
         </template>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.fallbackCount') }}</span>
           <span class="detail-value">
-            <a-tag v-if="log.fallback_count > 0" color="orangered" size="small">{{ log.fallback_count }}</a-tag>
+            <a-tag v-if="log.fallback_count > 0" color="orangered" size="small">
+              {{ log.fallback_count }}
+            </a-tag>
             <span v-else>0</span>
           </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.retryCount') }}</span>
           <span class="detail-value">
-            <a-tag v-if="log.retry_count > 0" color="orangered" size="small">{{ log.retry_count }}</a-tag>
+            <a-tag v-if="log.retry_count > 0" color="orangered" size="small">
+              {{ log.retry_count }}
+            </a-tag>
             <span v-else>0</span>
           </span>
         </div>
@@ -169,22 +200,27 @@
       <!-- 安全与内容 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-safe /> {{ t('logDetail.security') }}</span>
+          <span class="section-title">
+            <icon-safe />
+            {{ t('logDetail.security') }}
+          </span>
         </template>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.guardrailTriggered') }}</span>
           <span class="detail-value">
-            <a-tag v-if="log.guardrail_triggered" color="red" size="small">{{ t('common.yes') }}</a-tag>
+            <a-tag v-if="log.guardrail_triggered" color="red" size="small">
+              {{ t('common.yes') }}
+            </a-tag>
             <span v-else>{{ t('common.no') }}</span>
           </span>
         </div>
-        <div class="detail-row" v-if="log.guardrail_rule">
+        <div v-if="log.guardrail_rule" class="detail-row">
           <span class="detail-label">{{ t('logDetail.guardrailRule') }}</span>
           <span class="detail-value">{{ log.guardrail_rule }}</span>
         </div>
         <div v-if="log.security_events?.length" class="security-collapse">
           <a-collapse :default-active-key="[]" :bordered="false">
-            <a-collapse-item :header="t('logDetail.securityEvents')" key="events">
+            <a-collapse-item key="events" :header="t('logDetail.securityEvents')">
               <pre class="content-block">{{ JSON.stringify(log.security_events, null, 2) }}</pre>
             </a-collapse-item>
           </a-collapse>
@@ -198,10 +234,17 @@
         :bordered="false"
       >
         <template #title>
-          <span class="section-title"><icon-code /> {{ t('logDetail.requestResponseContent') }}</span>
+          <span class="section-title">
+            <icon-code />
+            {{ t('logDetail.requestResponseContent') }}
+          </span>
         </template>
         <a-collapse :default-active-key="[]" :bordered="false">
-          <a-collapse-item v-if="log.user_message" :header="t('logDetail.requestContent')" key="req">
+          <a-collapse-item
+            v-if="log.user_message"
+            key="req"
+            :header="t('logDetail.requestContent')"
+          >
             <template #extra>
               <a-button size="mini" type="text" @click.stop="copyToClipboard(log.user_message!)">
                 <template #icon><icon-copy /></template>
@@ -209,7 +252,11 @@
             </template>
             <pre class="content-block">{{ formatContent(log.user_message) }}</pre>
           </a-collapse-item>
-          <a-collapse-item v-if="log.model_response" :header="t('logDetail.responseContent')" key="res">
+          <a-collapse-item
+            v-if="log.model_response"
+            key="res"
+            :header="t('logDetail.responseContent')"
+          >
             <template #extra>
               <a-button size="mini" type="text" @click.stop="copyToClipboard(log.model_response!)">
                 <template #icon><icon-copy /></template>

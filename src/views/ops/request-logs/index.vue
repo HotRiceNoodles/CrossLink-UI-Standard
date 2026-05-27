@@ -45,12 +45,7 @@
                 allow-clear
                 style="width: 100%"
               >
-                <a-option
-                  v-for="m in modelOptions"
-                  :key="m"
-                  :value="m"
-                  :label="m"
-                />
+                <a-option v-for="m in modelOptions" :key="m" :value="m" :label="m" />
               </a-select>
             </div>
           </a-col>
@@ -161,14 +156,22 @@
             <template #cell="{ record }">
               <span
                 class="cell-model-used"
-                :class="{ 'model-mismatch': record.model_used && record.model_used !== record.model_requested }"
+                :class="{
+                  'model-mismatch':
+                    record.model_used && record.model_used !== record.model_requested,
+                }"
               >
                 {{ record.model_used || '-' }}
               </span>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('ops.tableStatus')" data-index="status_code" :width="80" align="center">
+          <a-table-column
+            :title="t('ops.tableStatus')"
+            data-index="status_code"
+            :width="80"
+            align="center"
+          >
             <template #cell="{ record }">
               <span class="cell-status" :class="'status-' + statusCodeClass(record.status_code)">
                 {{ record.status_code }}
@@ -176,19 +179,34 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('ops.tableInput')" data-index="input_tokens" :width="90" align="right">
+          <a-table-column
+            :title="t('ops.tableInput')"
+            data-index="input_tokens"
+            :width="90"
+            align="right"
+          >
             <template #cell="{ record }">
               <span class="cell-num">{{ formatTokens(record.input_tokens) }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('ops.tableOutput')" data-index="output_tokens" :width="90" align="right">
+          <a-table-column
+            :title="t('ops.tableOutput')"
+            data-index="output_tokens"
+            :width="90"
+            align="right"
+          >
             <template #cell="{ record }">
               <span class="cell-num">{{ formatTokens(record.output_tokens) }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('ops.tableLatency')" data-index="latency_ms" :width="80" align="right">
+          <a-table-column
+            :title="t('ops.tableLatency')"
+            data-index="latency_ms"
+            :width="80"
+            align="right"
+          >
             <template #cell="{ record }">
               <span class="cell-latency" :class="latencyClass(record.latency_ms)">
                 {{ formatLatency(record.latency_ms) }}
@@ -196,32 +214,38 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('ops.tableTtft')" data-index="first_token_ms" :width="80" align="right">
+          <a-table-column
+            :title="t('ops.tableTtft')"
+            data-index="first_token_ms"
+            :width="80"
+            align="right"
+          >
             <template #cell="{ record }">
-              <span class="cell-num">{{ record.first_token_ms != null ? `${record.first_token_ms}ms` : '-' }}</span>
+              <span class="cell-num">
+                {{ record.first_token_ms != null ? `${record.first_token_ms}ms` : '-' }}
+              </span>
             </template>
           </a-table-column>
 
           <a-table-column :title="t('ops.tableCost')" data-index="cost" :width="100" align="right">
             <template #cell="{ record }">
-              <span class="cell-cost">{{ getCurrencySymbol(record.currency) }}{{ record.cost != null ? record.cost.toFixed(4) : '-' }}</span>
+              <span class="cell-cost">
+                {{ getCurrencySymbol(record.currency)
+                }}{{ record.cost != null ? record.cost.toFixed(4) : '-' }}
+              </span>
             </template>
           </a-table-column>
 
           <a-table-column :title="t('ops.tableTags')" :width="120">
             <template #cell="{ record }">
               <template
-                v-if="
-                  record.fallback_count > 0 || record.cache_hit || record.guardrail_triggered
-                "
+                v-if="record.fallback_count > 0 || record.cache_hit || record.guardrail_triggered"
               >
                 <a-tag v-if="record.fallback_count > 0" color="orangered" size="small">
                   fallback
                 </a-tag>
                 <a-tag v-if="record.cache_hit" color="arcoblue" size="small">cache</a-tag>
-                <a-tag v-if="record.guardrail_triggered" color="red" size="small">
-                  guardrail
-                </a-tag>
+                <a-tag v-if="record.guardrail_triggered" color="red" size="small">guardrail</a-tag>
               </template>
               <span v-else class="cell-dash">-</span>
             </template>
@@ -250,6 +274,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { usageApi } from '@/api/usage'
 import { modelApi } from '@/api/model'
@@ -352,13 +377,13 @@ async function loadFilterOptions() {
     modelOptions.value = Array.from(modelSet).sort()
 
     // Map providers
-    providerOptions.value = (providersRes.data as Provider[] ?? []).map((p) => ({
+    providerOptions.value = ((providersRes.data as Provider[]) ?? []).map((p) => ({
       label: p.display_name || p.name,
       value: p.id,
     }))
 
     // Map keys
-    keyOptions.value = (keysRes.data as APIKey[] ?? []).map((k) => ({
+    keyOptions.value = ((keysRes.data as APIKey[]) ?? []).map((k) => ({
       label: k.name,
       value: k.id,
     }))

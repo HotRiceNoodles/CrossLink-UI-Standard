@@ -17,11 +17,7 @@
           </a-select>
         </a-col>
         <a-col :span="6">
-          <a-input
-            v-model="filter.keyword"
-            :placeholder="t('key.searchName')"
-            allow-clear
-          />
+          <a-input v-model="filter.keyword" :placeholder="t('key.searchName')" allow-clear />
         </a-col>
         <a-col :span="6">
           <a-space>
@@ -73,13 +69,25 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tablePrefix')" data-index="key_prefix" :width="120" align="center">
+          <a-table-column
+            :title="t('key.tablePrefix')"
+            data-index="key_prefix"
+            :width="120"
+            align="center"
+          >
             <template #cell="{ record }">
-              <a-tag color="arcoblue" style="font-family: monospace">{{ record.key_prefix }}...</a-tag>
+              <a-tag color="arcoblue" style="font-family: monospace">
+                {{ record.key_prefix }}...
+              </a-tag>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableStatus')" data-index="status" :width="80" align="center">
+          <a-table-column
+            :title="t('key.tableStatus')"
+            data-index="status"
+            :width="80"
+            align="center"
+          >
             <template #cell="{ record }">
               <a-tag :color="record.status === 1 ? 'green' : 'red'">
                 {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
@@ -87,7 +95,12 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableAllowedModels')" :width="200" :ellipsis="true" :tooltip="true">
+          <a-table-column
+            :title="t('key.tableAllowedModels')"
+            :width="200"
+            :ellipsis="true"
+            :tooltip="true"
+          >
             <template #cell="{ record }">
               <template v-if="record.allowed_models?.length">
                 {{ record.allowed_models.join(', ') }}
@@ -96,13 +109,23 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableTpm')" data-index="tpm_limit" :width="80" align="right">
+          <a-table-column
+            :title="t('key.tableTpm')"
+            data-index="tpm_limit"
+            :width="80"
+            align="right"
+          >
             <template #cell="{ record }">
               {{ record.tpm_limit || t('common.unlimited') }}
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableRpm')" data-index="rpm_limit" :width="80" align="right">
+          <a-table-column
+            :title="t('key.tableRpm')"
+            data-index="rpm_limit"
+            :width="80"
+            align="right"
+          >
             <template #cell="{ record }">
               {{ record.rpm_limit || t('common.unlimited') }}
             </template>
@@ -128,27 +151,35 @@
               <template v-if="record.last_used_at">
                 {{ dayjs(record.last_used_at).format('YYYY-MM-DD') }}
               </template>
-              <span v-else style="color: var(--color-text-4); font-style: italic">{{ t('key.neverUsed') }}</span>
+              <span v-else style="color: var(--color-text-4); font-style: italic">
+                {{ t('key.neverUsed') }}
+              </span>
             </template>
           </a-table-column>
 
           <a-table-column :title="t('common.actions')" :width="240" fixed="right">
             <template #cell="{ record }">
               <a-space :size="4">
-                <a-button type="text" size="small" @click="handleEdit(record)">{{ t('common.edit') }}</a-button>
+                <a-button type="text" size="small" @click="handleEdit(record)">
+                  {{ t('common.edit') }}
+                </a-button>
                 <a-popconfirm
                   :content="t('key.regenerateConfirm')"
                   type="warning"
                   @ok="handleRegenerate(record)"
                 >
-                  <a-button type="text" size="small" style="color: rgb(var(--warning-6))">{{ t('key.regenerate') }}</a-button>
+                  <a-button type="text" size="small" style="color: rgb(var(--warning-6))">
+                    {{ t('key.regenerate') }}
+                  </a-button>
                 </a-popconfirm>
                 <a-popconfirm
                   :content="t('key.deleteConfirm')"
                   type="warning"
                   @ok="handleDelete(record)"
                 >
-                  <a-button type="text" size="small" status="danger">{{ t('common.delete') }}</a-button>
+                  <a-button type="text" size="small" status="danger">
+                    {{ t('common.delete') }}
+                  </a-button>
                 </a-popconfirm>
               </a-space>
             </template>
@@ -164,16 +195,11 @@
       :title="isEdit ? t('key.editKey') : t('key.createKey')"
       :mask-closable="false"
       unmount-on-close
+      :ok-loading="submitLoading"
       @cancel="handleDrawerClose"
       @ok="handleDrawerSubmit"
-      :ok-loading="submitLoading"
     >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item field="name" :label="t('key.nameLabel')">
           <a-input v-model="formData.name" :placeholder="t('key.namePlaceholder')" />
         </a-form-item>
@@ -187,12 +213,7 @@
             allow-clear
             :filterable="true"
           >
-            <a-option
-              v-for="name in modelOptions"
-              :key="name"
-              :value="name"
-              :label="name"
-            />
+            <a-option v-for="name in modelOptions" :key="name" :value="name" :label="name" />
           </a-select>
         </a-form-item>
 
@@ -245,7 +266,10 @@
           </a-grid-item>
           <a-grid-item :span="12">
             <a-form-item field="budget_period" :label="t('key.budgetPeriodLabel')">
-              <a-select v-model="formData.budget_period" :placeholder="t('key.budgetPeriodPlaceholder')">
+              <a-select
+                v-model="formData.budget_period"
+                :placeholder="t('key.budgetPeriodPlaceholder')"
+              >
                 <a-option value="daily" :label="t('key.periodDaily')" />
                 <a-option value="weekly" :label="t('key.periodWeekly')" />
                 <a-option value="monthly" :label="t('key.periodMonthly')" />
@@ -275,11 +299,7 @@
       <a-alert type="warning" :closable="false" style="margin-bottom: 16px">
         {{ t('key.keyCreatedWarning') }}
       </a-alert>
-      <a-input
-        :model-value="createdKey"
-        readonly
-        style="font-family: monospace"
-      />
+      <a-input :model-value="createdKey" readonly style="font-family: monospace" />
       <div style="margin-top: 16px; text-align: right">
         <a-button type="primary" @click="copyAndClose">{{ t('key.copyAndClose') }}</a-button>
       </div>
@@ -509,7 +529,11 @@ async function copyAndClose() {
 
 // Helpers
 function budgetPeriodLabel(period: string) {
-  const map: Record<string, string> = { daily: t('key.periodDay'), weekly: t('key.periodWeek'), monthly: t('key.periodMonth') }
+  const map: Record<string, string> = {
+    daily: t('key.periodDay'),
+    weekly: t('key.periodWeek'),
+    monthly: t('key.periodMonth'),
+  }
   return map[period] || period
 }
 

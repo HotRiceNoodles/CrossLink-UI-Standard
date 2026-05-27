@@ -31,7 +31,9 @@ const props = defineProps<{
   tier?: string
 }>()
 
-const displayName = computed(() => userStore.user?.display_name || userStore.user?.username || t('dashboard.admin'))
+const displayName = computed(
+  () => userStore.user?.display_name || userStore.user?.username || t('dashboard.admin'),
+)
 
 const tierLabel = computed(() => tierLabelFn(props.tier || 'community'))
 

@@ -12,12 +12,7 @@
             allow-clear
             style="width: 100%"
           >
-            <a-option
-              v-for="p in providerList"
-              :key="p.id"
-              :value="p.id"
-              :label="p.display_name"
-            />
+            <a-option v-for="p in providerList" :key="p.id" :value="p.id" :label="p.display_name" />
           </a-select>
         </a-col>
         <a-col :span="6">
@@ -104,15 +99,29 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('model.modelTableProviderModel')" data-index="provider_model" :width="160">
+          <a-table-column
+            :title="t('model.modelTableProviderModel')"
+            data-index="provider_model"
+            :width="160"
+          >
             <template #cell="{ record }">
               <span class="provider-model">{{ record.provider_model }}</span>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('model.modelTableWeight')" data-index="weight" :width="70" align="center" />
+          <a-table-column
+            :title="t('model.modelTableWeight')"
+            data-index="weight"
+            :width="70"
+            align="center"
+          />
 
-          <a-table-column :title="t('model.modelTablePriority')" data-index="priority" :width="70" align="center" />
+          <a-table-column
+            :title="t('model.modelTablePriority')"
+            data-index="priority"
+            :width="70"
+            align="center"
+          />
 
           <a-table-column :title="t('model.modelTableInputPrice')" :width="100" align="right">
             <template #cell="{ record }">
@@ -126,7 +135,12 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('model.modelTableRoutingStrategy')" data-index="routing_strategy" :width="110" align="center">
+          <a-table-column
+            :title="t('model.modelTableRoutingStrategy')"
+            data-index="routing_strategy"
+            :width="110"
+            align="center"
+          >
             <template #cell="{ record }">
               <a-tag :color="getStrategyColor(record.routing_strategy)">
                 {{ getStrategyLabel(record.routing_strategy) }}
@@ -134,7 +148,12 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('model.modelTableStatus')" data-index="status" :width="80" align="center">
+          <a-table-column
+            :title="t('model.modelTableStatus')"
+            data-index="status"
+            :width="80"
+            align="center"
+          >
             <template #cell="{ record }">
               <a-tag :color="record.status === 1 ? 'green' : 'red'">
                 {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
@@ -150,10 +169,12 @@
                 </a-button>
                 <template #content>
                   <a-doption value="edit">
-                    <icon-edit /> {{ t('common.edit') }}
+                    <icon-edit />
+                    {{ t('common.edit') }}
                   </a-doption>
                   <a-doption value="delete" class="danger-option">
-                    <icon-delete /> {{ t('common.delete') }}
+                    <icon-delete />
+                    {{ t('common.delete') }}
                   </a-doption>
                 </template>
               </a-dropdown>
@@ -173,36 +194,44 @@
       @cancel="handleDrawerClose"
       @ok="handleDrawerOk"
     >
-      <a-form
-        ref="formRef"
-        :model="formData"
-        :rules="formRules"
-        layout="vertical"
-      >
-        <a-form-item field="provider_id" :label="t('model.providerLabel')" :rules="[{ required: true, message: t('model.providerRequired') }]">
+      <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
+        <a-form-item
+          field="provider_id"
+          :label="t('model.providerLabel')"
+          :rules="[{ required: true, message: t('model.providerRequired') }]"
+        >
           <a-select
             v-model="formData.provider_id"
             :placeholder="t('model.providerPlaceholder')"
             :disabled="isEdit"
           >
-            <a-option
-              v-for="p in providerList"
-              :key="p.id"
-              :value="p.id"
-              :label="p.display_name"
-            />
+            <a-option v-for="p in providerList" :key="p.id" :value="p.id" :label="p.display_name" />
           </a-select>
         </a-form-item>
 
         <a-grid :cols="24" :col-gap="16">
           <a-grid-item :span="12">
-            <a-form-item field="model_name" :label="t('model.modelNameLabel')" :rules="[{ required: true, message: t('model.modelNameRequired') }]">
-              <a-input v-model="formData.model_name" :placeholder="t('model.modelNamePlaceholder')" />
+            <a-form-item
+              field="model_name"
+              :label="t('model.modelNameLabel')"
+              :rules="[{ required: true, message: t('model.modelNameRequired') }]"
+            >
+              <a-input
+                v-model="formData.model_name"
+                :placeholder="t('model.modelNamePlaceholder')"
+              />
             </a-form-item>
           </a-grid-item>
           <a-grid-item :span="12">
-            <a-form-item field="provider_model" :label="t('model.providerModelLabel')" :rules="[{ required: true, message: t('model.providerModelRequired') }]">
-              <a-input v-model="formData.provider_model" :placeholder="t('model.providerModelPlaceholder')" />
+            <a-form-item
+              field="provider_model"
+              :label="t('model.providerModelLabel')"
+              :rules="[{ required: true, message: t('model.providerModelRequired') }]"
+            >
+              <a-input
+                v-model="formData.provider_model"
+                :placeholder="t('model.providerModelPlaceholder')"
+              />
             </a-form-item>
           </a-grid-item>
         </a-grid>
@@ -279,7 +308,10 @@
           </a-grid-item>
           <a-grid-item :span="12">
             <a-form-item field="routing_strategy" :label="t('model.routingStrategyLabel')">
-              <a-select v-model="formData.routing_strategy" :placeholder="t('model.routingStrategyPlaceholder')">
+              <a-select
+                v-model="formData.routing_strategy"
+                :placeholder="t('model.routingStrategyPlaceholder')"
+              >
                 <a-option
                   v-for="s in strategyOptions"
                   :key="s.value"
@@ -363,7 +395,7 @@ const strategyOptions = computed(() =>
   Object.entries(strategyMap).map(([value]) => ({
     value,
     label: t(`strategy.${value}`),
-  }))
+  })),
 )
 
 function getStrategyLabel(key: string): string {

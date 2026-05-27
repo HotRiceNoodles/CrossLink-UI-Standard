@@ -19,9 +19,10 @@ interface CrudOptions<T, F extends Record<string, unknown> = Record<string, unkn
   idField?: keyof T & string
 }
 
-export function useCrud<T extends Record<string, unknown>, F extends Record<string, unknown> = Record<string, unknown>>(
-  options: CrudOptions<T, F>,
-) {
+export function useCrud<
+  T extends Record<string, unknown>,
+  F extends Record<string, unknown> = Record<string, unknown>,
+>(options: CrudOptions<T, F>) {
   const { t } = useI18n()
   const { loading, setLoading } = useLoading()
   const { visible: drawerVisible, show: showDrawer, hide: hideDrawer } = useVisible()
@@ -40,7 +41,7 @@ export function useCrud<T extends Record<string, unknown>, F extends Record<stri
 
   const filteredList = computed(() => {
     if (!options.filterFn) return list.value
-    return list.value.filter(item => options.filterFn!(item, { ...appliedFilter } as F))
+    return list.value.filter((item) => options.filterFn!(item, { ...appliedFilter } as F))
   })
 
   // Pagination (client-side)
@@ -61,13 +62,11 @@ export function useCrud<T extends Record<string, unknown>, F extends Record<stri
   }
 
   // Form
-  const formData = reactive<Partial<T>>(
-    options.defaultForm ? options.defaultForm() : {},
-  )
+  const formData = reactive<Partial<T>>(options.defaultForm ? options.defaultForm() : {})
 
   function resetForm() {
     const defaults = options.defaultForm ? options.defaultForm() : {}
-    Object.keys(formData).forEach(key => delete (formData as Record<string, unknown>)[key])
+    Object.keys(formData).forEach((key) => delete (formData as Record<string, unknown>)[key])
     Object.assign(formData, defaults)
   }
 
@@ -90,8 +89,10 @@ export function useCrud<T extends Record<string, unknown>, F extends Record<stri
   }
 
   function resetFilter() {
-    Object.keys(filter).forEach(key => delete (filter as Record<string, unknown>)[key])
-    Object.keys(appliedFilter).forEach(key => delete (appliedFilter as Record<string, unknown>)[key])
+    Object.keys(filter).forEach((key) => delete (filter as Record<string, unknown>)[key])
+    Object.keys(appliedFilter).forEach(
+      (key) => delete (appliedFilter as Record<string, unknown>)[key],
+    )
     pagination.current = 1
   }
 

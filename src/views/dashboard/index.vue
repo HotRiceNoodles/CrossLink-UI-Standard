@@ -19,11 +19,7 @@
         </a-grid>
 
         <!-- System Info -->
-        <SystemInfoCard
-          v-if="systemInfo && license"
-          :system-info="systemInfo"
-          :license="license"
-        />
+        <SystemInfoCard v-if="systemInfo && license" :system-info="systemInfo" :license="license" />
       </div>
     </a-spin>
   </div>
@@ -34,7 +30,13 @@ import { ref, onMounted } from 'vue'
 import { usageApi } from '@/api/usage'
 import { systemApi } from '@/api/system'
 import { licenseApi } from '@/api/license'
-import type { UsageStats, DailyTrend, ModelDistribution, SystemInfo as SystemInfoType, LicenseStatus } from '@/types'
+import type {
+  UsageStats,
+  DailyTrend,
+  ModelDistribution,
+  SystemInfo as SystemInfoType,
+  LicenseStatus,
+} from '@/types'
 import Banner from './components/banner.vue'
 import DataPanel from './components/data-panel.vue'
 import TrendChart from './components/trend-chart.vue'

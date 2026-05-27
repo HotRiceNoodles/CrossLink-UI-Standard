@@ -1,21 +1,14 @@
 <template>
   <header class="navbar">
     <div class="navbar-left">
-      <a-button
-        type="text"
-        size="small"
-        @click="appStore.toggleMenuCollapse()"
-      >
+      <a-button type="text" size="small" @click="appStore.toggleMenuCollapse()">
         <template #icon>
           <icon-menu-fold v-if="!menuCollapse" />
           <icon-menu-unfold v-else />
         </template>
       </a-button>
       <a-breadcrumb class="navbar-breadcrumb">
-        <a-breadcrumb-item
-          v-for="matched in breadcrumbItems"
-          :key="matched.path"
-        >
+        <a-breadcrumb-item v-for="matched in breadcrumbItems" :key="matched.path">
           {{ matched.locale }}
         </a-breadcrumb-item>
       </a-breadcrumb>
@@ -95,13 +88,17 @@ const breadcrumbItems = computed(() => {
 
 const tierLabel = computed(() => tierLabelFn(userStore.tier))
 
-watch(() => appStore.theme, (theme) => {
-  if (theme === 'dark') {
-    document.body.setAttribute('arco-theme', 'dark')
-  } else {
-    document.body.removeAttribute('arco-theme')
-  }
-}, { immediate: true })
+watch(
+  () => appStore.theme,
+  (theme) => {
+    if (theme === 'dark') {
+      document.body.setAttribute('arco-theme', 'dark')
+    } else {
+      document.body.removeAttribute('arco-theme')
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <style scoped lang="less">

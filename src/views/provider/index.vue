@@ -65,11 +65,14 @@
         />
       </div>
       <!-- 无供应商时的引导空状态 -->
-      <div v-if="!loading && filteredProviders.length === 0 && providerList.length === 0" class="empty-guide">
+      <div
+        v-if="!loading && filteredProviders.length === 0 && providerList.length === 0"
+        class="empty-guide"
+      >
         <a-empty>
           <template #description>
             <span>{{ t('provider.noProviders') }}</span>
-            <p style="color: var(--color-text-4); font-size: 13px; margin-top: 4px;">
+            <p style="color: var(--color-text-4); font-size: 13px; margin-top: 4px">
               {{ t('provider.noProvidersGuide') }}
             </p>
           </template>
@@ -80,7 +83,7 @@
     </a-spin>
 
     <!-- 底部统计 -->
-    <div class="list-footer" v-if="filteredProviders.length > 0">
+    <div v-if="filteredProviders.length > 0" class="list-footer">
       <span class="list-total">{{ t('provider.totalProviders', [filteredProviders.length]) }}</span>
       <a-pagination
         v-if="filteredProviders.length > PAGE_SIZE_THRESHOLD"
@@ -177,13 +180,13 @@ const modelsByProvider = computed(() => {
 const filteredProviders = computed(() => {
   let list = providerList.value
   if (filter.status !== undefined && filter.status !== null) {
-    list = list.filter(p => p.status === filter.status)
+    list = list.filter((p) => p.status === filter.status)
   }
   if (filter.modelName) {
     const kw = filter.modelName.toLowerCase()
-    list = list.filter(p => {
+    list = list.filter((p) => {
       const models = modelsByProvider.value.get(p.id) || []
-      return models.some(m => m.model_name.toLowerCase().includes(kw))
+      return models.some((m) => m.model_name.toLowerCase().includes(kw))
     })
   }
   return list
@@ -313,13 +316,13 @@ function getModelsForProvider(providerId: number): ProviderModel[] {
   let models = modelsByProvider.value.get(providerId) || []
   if (filter.modelName) {
     const kw = filter.modelName.toLowerCase()
-    models = models.filter(m => m.model_name.toLowerCase().includes(kw))
+    models = models.filter((m) => m.model_name.toLowerCase().includes(kw))
   }
   return models
 }
 
 function getAdapter(type: string): Adapter | undefined {
-  return adapterList.value.find(a => a.type === type)
+  return adapterList.value.find((a) => a.type === type)
 }
 
 // ---------- Fetch ----------

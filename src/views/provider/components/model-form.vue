@@ -5,40 +5,45 @@
     :title="isEdit ? t('model.editModel') : t('model.newModel')"
     :mask-closable="false"
     unmount-on-close
+    :ok-loading="submitLoading"
     @cancel="handleClose"
     @ok="handleSubmit"
-    :ok-loading="submitLoading"
   >
-    <a-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      layout="vertical"
-    >
-      <a-form-item field="provider_id" :label="t('model.providerLabel')" :rules="[{ required: true, message: t('model.providerRequired') }]">
+    <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
+      <a-form-item
+        field="provider_id"
+        :label="t('model.providerLabel')"
+        :rules="[{ required: true, message: t('model.providerRequired') }]"
+      >
         <a-select
           v-model="formData.provider_id"
           :placeholder="t('model.providerPlaceholder')"
           :disabled="isProviderLocked"
         >
-          <a-option
-            v-for="p in providerList"
-            :key="p.id"
-            :value="p.id"
-            :label="p.display_name"
-          />
+          <a-option v-for="p in providerList" :key="p.id" :value="p.id" :label="p.display_name" />
         </a-select>
       </a-form-item>
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="model_name" :label="t('model.modelNameLabel')" :rules="[{ required: true, message: t('model.modelNameRequired') }]">
+          <a-form-item
+            field="model_name"
+            :label="t('model.modelNameLabel')"
+            :rules="[{ required: true, message: t('model.modelNameRequired') }]"
+          >
             <a-input v-model="formData.model_name" :placeholder="t('model.modelNamePlaceholder')" />
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
-          <a-form-item field="provider_model" :label="t('model.providerModelLabel')" :rules="[{ required: true, message: t('model.providerModelRequired') }]">
-            <a-input v-model="formData.provider_model" :placeholder="t('model.providerModelPlaceholder')" />
+          <a-form-item
+            field="provider_model"
+            :label="t('model.providerModelLabel')"
+            :rules="[{ required: true, message: t('model.providerModelRequired') }]"
+          >
+            <a-input
+              v-model="formData.provider_model"
+              :placeholder="t('model.providerModelPlaceholder')"
+            />
           </a-form-item>
         </a-grid-item>
       </a-grid>
@@ -115,7 +120,10 @@
         </a-grid-item>
         <a-grid-item :span="12">
           <a-form-item field="routing_strategy" :label="t('model.routingStrategyLabel')">
-            <a-select v-model="formData.routing_strategy" :placeholder="t('model.routingStrategyPlaceholder')">
+            <a-select
+              v-model="formData.routing_strategy"
+              :placeholder="t('model.routingStrategyPlaceholder')"
+            >
               <a-option
                 v-for="s in strategyOptions"
                 :key="s.value"
@@ -203,26 +211,29 @@ const formRules = {
   provider_model: [{ required: true, message: t('model.providerModelRequired') }],
 }
 
-watch(() => props.visible, (val) => {
-  if (!val) return
-  if (props.isEdit && props.model) {
-    Object.assign(formData, {
-      provider_id: props.model.provider_id,
-      model_name: props.model.model_name,
-      provider_model: props.model.provider_model,
-      weight: props.model.weight,
-      priority: props.model.priority,
-      max_context: props.model.max_context,
-      input_price: props.model.input_price,
-      output_price: props.model.output_price,
-      currency: props.model.currency,
-      routing_strategy: props.model.routing_strategy,
-      status: props.model.status,
-    })
-  } else {
-    Object.assign(formData, createEmptyForm())
-  }
-})
+watch(
+  () => props.visible,
+  (val) => {
+    if (!val) return
+    if (props.isEdit && props.model) {
+      Object.assign(formData, {
+        provider_id: props.model.provider_id,
+        model_name: props.model.model_name,
+        provider_model: props.model.provider_model,
+        weight: props.model.weight,
+        priority: props.model.priority,
+        max_context: props.model.max_context,
+        input_price: props.model.input_price,
+        output_price: props.model.output_price,
+        currency: props.model.currency,
+        routing_strategy: props.model.routing_strategy,
+        status: props.model.status,
+      })
+    } else {
+      Object.assign(formData, createEmptyForm())
+    }
+  },
+)
 
 function handleClose() {
   emit('update:visible', false)

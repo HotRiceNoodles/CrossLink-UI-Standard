@@ -23,10 +23,7 @@
           <div class="info-detail">
             <span class="info-label">{{ t('dashboard.licenseStatus') }}</span>
             <div class="info-value-with-tag">
-              <a-tag
-                :color="license.is_valid ? 'green' : 'red'"
-                size="small"
-              >
+              <a-tag :color="license.is_valid ? 'green' : 'red'" size="small">
                 {{ license.is_valid ? t('dashboard.valid') : t('dashboard.invalid') }}
               </a-tag>
               <span class="info-edition">{{ editionLabel }}</span>
@@ -45,11 +42,10 @@
           <div class="info-detail">
             <span class="info-label">{{ t('dashboard.dbStatus') }}</span>
             <div class="info-value-with-tag">
-              <a-tag
-                :color="systemInfo.db_status === 'ok' ? 'green' : 'red'"
-                size="small"
-              >
-                {{ systemInfo.db_status === 'ok' ? t('dashboard.normal') : t('dashboard.abnormal') }}
+              <a-tag :color="systemInfo.db_status === 'ok' ? 'green' : 'red'" size="small">
+                {{
+                  systemInfo.db_status === 'ok' ? t('dashboard.normal') : t('dashboard.abnormal')
+                }}
               </a-tag>
             </div>
           </div>

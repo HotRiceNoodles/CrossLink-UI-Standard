@@ -5,16 +5,11 @@
     :title="isEdit ? t('provider.editProvider') : t('provider.addProvider')"
     :mask-closable="false"
     unmount-on-close
+    :ok-loading="submitLoading"
     @cancel="handleClose"
     @ok="handleSubmit"
-    :ok-loading="submitLoading"
   >
-    <a-form
-      ref="formRef"
-      :model="formData"
-      :rules="formRules"
-      layout="vertical"
-    >
+    <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
       <a-form-item field="name" :label="t('provider.name')">
         <a-input
           v-model="formData.name"
@@ -46,16 +41,15 @@
       </a-form-item>
 
       <a-form-item field="base_url" :label="t('provider.baseUrl')">
-        <a-input
-          v-model="formData.base_url"
-          :placeholder="t('provider.baseUrlPlaceholder')"
-        />
+        <a-input v-model="formData.base_url" :placeholder="t('provider.baseUrlPlaceholder')" />
       </a-form-item>
 
       <a-form-item field="api_key" :label="t('provider.apiKey')">
         <a-input-password
           v-model="formData.api_key"
-          :placeholder="isEdit ? t('provider.apiKeyEditPlaceholder') : t('provider.apiKeyCreatePlaceholder')"
+          :placeholder="
+            isEdit ? t('provider.apiKeyEditPlaceholder') : t('provider.apiKeyCreatePlaceholder')
+          "
         />
       </a-form-item>
 
@@ -121,22 +115,25 @@ function resetForm() {
   extraConfigStr.value = ''
 }
 
-watch(() => props.visible, (val) => {
-  if (!val) return
-  if (props.isEdit && props.provider) {
-    formData.name = props.provider.name
-    formData.display_name = props.provider.display_name
-    formData.adapter_type = props.provider.adapter_type
-    formData.base_url = props.provider.base_url || ''
-    formData.api_key = ''
-    formData.extra_config = props.provider.extra_config
-    extraConfigStr.value = props.provider.extra_config
-      ? JSON.stringify(props.provider.extra_config, null, 2)
-      : ''
-  } else {
-    resetForm()
-  }
-})
+watch(
+  () => props.visible,
+  (val) => {
+    if (!val) return
+    if (props.isEdit && props.provider) {
+      formData.name = props.provider.name
+      formData.display_name = props.provider.display_name
+      formData.adapter_type = props.provider.adapter_type
+      formData.base_url = props.provider.base_url || ''
+      formData.api_key = ''
+      formData.extra_config = props.provider.extra_config
+      extraConfigStr.value = props.provider.extra_config
+        ? JSON.stringify(props.provider.extra_config, null, 2)
+        : ''
+    } else {
+      resetForm()
+    }
+  },
+)
 
 function handleClose() {
   emit('update:visible', false)

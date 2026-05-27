@@ -19,22 +19,19 @@
           :key="route.name as string"
         >
           <template #icon>
-            <component :is="(route.meta?.icon as string)" />
+            <component :is="route.meta?.icon as string" />
           </template>
           <template #title>{{ t(`menu.${route.meta?.menuKey}`) }}</template>
-          <a-menu-item
-            v-for="child in route.children"
-            :key="child.name as string"
-          >
+          <a-menu-item v-for="child in route.children" :key="child.name as string">
             <template #icon>
-              <component :is="(child.meta?.icon as string)" />
+              <component :is="child.meta?.icon as string" />
             </template>
             {{ t(`menu.${child.meta?.menuKey}`) }}
           </a-menu-item>
         </a-sub-menu>
         <a-menu-item v-else :key="route.name as string">
           <template #icon>
-            <component :is="(route.meta?.icon as string)" />
+            <component :is="route.meta?.icon as string" />
           </template>
           {{ t(`menu.${route.meta?.menuKey}`) }}
         </a-menu-item>

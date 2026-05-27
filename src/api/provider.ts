@@ -4,7 +4,8 @@ import type { Provider, ProviderCreateRequest, Adapter } from '@/types'
 export const providerApi = {
   list: () => get<Provider[]>('/providers'),
   create: (data: ProviderCreateRequest) => post<Provider>('/providers', data),
-  update: (id: number, data: Partial<ProviderCreateRequest>) => put<Provider>(`/providers/${id}`, data),
+  update: (id: number, data: Partial<ProviderCreateRequest>) =>
+    put<Provider>(`/providers/${id}`, data),
   delete: (id: number) => del<void>(`/providers/${id}`),
   test: (id: number) => post<{ success: boolean; message: string }>(`/providers/${id}/test`),
   adapters: async () => {

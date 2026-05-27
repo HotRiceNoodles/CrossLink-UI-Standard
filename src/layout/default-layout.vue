@@ -86,10 +86,14 @@ const passwordVisible = ref(false)
 const breakpoints = useBreakpoints({ mobile: 768 })
 const isMobile = breakpoints.smaller('mobile')
 
-watch(isMobile, (mobile) => {
-  appStore.device = mobile ? 'mobile' : 'desktop'
-  if (mobile) appStore.menuCollapse = true
-}, { immediate: true })
+watch(
+  isMobile,
+  (mobile) => {
+    appStore.device = mobile ? 'mobile' : 'desktop'
+    if (mobile) appStore.menuCollapse = true
+  },
+  { immediate: true },
+)
 
 const menuRoutes = computed(() => {
   return (appRoutes.children || []) as RouteRecordRaw[]
@@ -110,18 +114,22 @@ function onSubMenuClick(key: string) {
   }
 }
 
-watch(() => route.name, () => {
-  if (menuCollapse.value) {
-    openKeys.value = []
-    return
-  }
-  const matched = (menuRoutes.value as RouteRecordRaw[])
-    .filter((r) => r.children?.some((c: RouteRecordRaw) => c.name === route.name))
-    .map((r) => r.name as string)
-  if (matched.length && !matched.every((k) => openKeys.value.includes(k))) {
-    openKeys.value = matched
-  }
-}, { immediate: true })
+watch(
+  () => route.name,
+  () => {
+    if (menuCollapse.value) {
+      openKeys.value = []
+      return
+    }
+    const matched = (menuRoutes.value as RouteRecordRaw[])
+      .filter((r) => r.children?.some((c: RouteRecordRaw) => c.name === route.name))
+      .map((r) => r.name as string)
+    if (matched.length && !matched.every((k) => openKeys.value.includes(k))) {
+      openKeys.value = matched
+    }
+  },
+  { immediate: true },
+)
 
 watch(menuCollapse, (val) => {
   if (val) openKeys.value = []
@@ -166,7 +174,9 @@ let tapTimer: ReturnType<typeof setTimeout> | null = null
 function onVersionTap() {
   tapCount.value++
   if (tapTimer) clearTimeout(tapTimer)
-  tapTimer = setTimeout(() => { tapCount.value = 0 }, 1500)
+  tapTimer = setTimeout(() => {
+    tapCount.value = 0
+  }, 1500)
 
   if (tapCount.value >= 5) {
     tapCount.value = 0

@@ -20,18 +20,23 @@ export const useAppStore = defineStore('app', () => {
     menuCollapse.value = !menuCollapse.value
   }
 
-  function updateSettings(settings: Partial<{
-    theme: 'light' | 'dark'
-    navbar: boolean
-    menu: boolean
-    menuCollapse: boolean
-    menuWidth: number
-    footer: boolean
-    device: 'desktop' | 'mobile'
-  }>) {
+  function updateSettings(
+    settings: Partial<{
+      theme: 'light' | 'dark'
+      navbar: boolean
+      menu: boolean
+      menuCollapse: boolean
+      menuWidth: number
+      footer: boolean
+      device: 'desktop' | 'mobile'
+    }>,
+  ) {
     Object.entries(settings).forEach(([key, value]) => {
-      if (value !== undefined && key in { theme, navbar, menu, menuCollapse, menuWidth, footer, device }) {
-        (this as any)[key].value = value
+      if (
+        value !== undefined &&
+        key in { theme, navbar, menu, menuCollapse, menuWidth, footer, device }
+      ) {
+        ;(this as any)[key].value = value
       }
     })
   }

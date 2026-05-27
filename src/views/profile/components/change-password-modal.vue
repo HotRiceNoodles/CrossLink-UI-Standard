@@ -3,17 +3,12 @@
     :visible="visible"
     :title="t('profile.changePassword')"
     :mask-closable="false"
-    @cancel="handleClose"
-    @before-ok="handleSubmit"
     :ok-loading="loading"
     unmount-on-close
+    @cancel="handleClose"
+    @before-ok="handleSubmit"
   >
-    <a-form
-      ref="formRef"
-      :model="formData"
-      :rules="rules"
-      layout="vertical"
-    >
+    <a-form ref="formRef" :model="formData" :rules="rules" layout="vertical">
       <a-form-item field="old_password" :label="t('profile.oldPassword')">
         <a-input-password
           v-model="formData.old_password"

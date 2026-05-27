@@ -14,7 +14,11 @@ const SENSITIVE_KEYS = /token|password|secret|cookie|authorization|api[_-]?key/i
 const MAX_DATA_DEPTH = 3
 const MAX_STRING_LENGTH = 1024
 
-function sanitize(value: unknown, depth: number = 0, seen: WeakSet<object> = new WeakSet()): unknown {
+function sanitize(
+  value: unknown,
+  depth: number = 0,
+  seen: WeakSet<object> = new WeakSet(),
+): unknown {
   if (depth > MAX_DATA_DEPTH) return '[MaxDepth]'
   if (value == null || typeof value !== 'object') {
     if (typeof value === 'string' && value.length > MAX_STRING_LENGTH) {
@@ -49,7 +53,7 @@ class Logger {
   }
 
   private notify() {
-    this.listeners.forEach(fn => fn())
+    this.listeners.forEach((fn) => fn())
   }
 
   setLevel(level: LogLevel): void {
@@ -87,12 +91,18 @@ class Logger {
   export(): void {
     const logs = this.buffer.getAll()
     const blob = new Blob(
-      [JSON.stringify(logs, (_, value) => {
-        if (value instanceof Error) {
-          return { name: value.name, message: value.message, stack: value.stack }
-        }
-        return value
-      }, 2)],
+      [
+        JSON.stringify(
+          logs,
+          (_, value) => {
+            if (value instanceof Error) {
+              return { name: value.name, message: value.message, stack: value.stack }
+            }
+            return value
+          },
+          2,
+        ),
+      ],
       { type: 'application/json' },
     )
     const url = URL.createObjectURL(blob)

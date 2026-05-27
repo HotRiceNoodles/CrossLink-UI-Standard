@@ -8,18 +8,26 @@ export function installVueErrorPlugin(app: App): void {
   }
 
   window.addEventListener('error', (event) => {
-    logger.error('全局 JS 错误', {
-      error: event.error || new Error(event.message),
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-    }, 'vue')
+    logger.error(
+      '全局 JS 错误',
+      {
+        error: event.error || new Error(event.message),
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      },
+      'vue',
+    )
   })
 
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason
-    logger.error('未捕获的 Promise 异常', {
-      error: reason instanceof Error ? reason : new Error(String(reason)),
-    }, 'vue')
+    logger.error(
+      '未捕获的 Promise 异常',
+      {
+        error: reason instanceof Error ? reason : new Error(String(reason)),
+      },
+      'vue',
+    )
   })
 }

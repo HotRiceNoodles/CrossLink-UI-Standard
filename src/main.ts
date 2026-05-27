@@ -48,13 +48,38 @@ import {
 } from '@arco-design/web-vue/es/icon'
 
 const icons = [
-  IconMenuFold, IconMenuUnfold, IconLanguage, IconDown, IconLock,
-  IconExport, IconPlus, IconRefresh, IconMore, IconEdit, IconDelete,
-  IconEye, IconCode, IconStorage, IconSend, IconUser, IconSettings,
-  IconSafe, IconUp, IconFile, IconCopy, IconBarChart,
-  IconSwap, IconThunderbolt, IconSync, IconCheckCircleFill,
-  IconCloseCircleFill, IconDashboard, IconMindMapping, IconTool,
-  IconMoon, IconSun,
+  IconMenuFold,
+  IconMenuUnfold,
+  IconLanguage,
+  IconDown,
+  IconLock,
+  IconExport,
+  IconPlus,
+  IconRefresh,
+  IconMore,
+  IconEdit,
+  IconDelete,
+  IconEye,
+  IconCode,
+  IconStorage,
+  IconSend,
+  IconUser,
+  IconSettings,
+  IconSafe,
+  IconUp,
+  IconFile,
+  IconCopy,
+  IconBarChart,
+  IconSwap,
+  IconThunderbolt,
+  IconSync,
+  IconCheckCircleFill,
+  IconCloseCircleFill,
+  IconDashboard,
+  IconMindMapping,
+  IconTool,
+  IconMoon,
+  IconSun,
 ]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')
@@ -78,7 +103,11 @@ if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.__logs__ = {
     list: () => logger.getBuffer(),
     errors: () => logger.getBuffer().filter((e: LogEntry) => e.level === 'error'),
-    clear: () => { logger.clear() },
-    export: () => { logger.export() },
+    clear: () => {
+      logger.clear()
+    },
+    export: () => {
+      logger.export()
+    },
   }
 }

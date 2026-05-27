@@ -229,7 +229,8 @@ export default {
     periodMonthly: 'Monthly',
     budgetDisplay: '¥{amount} / {period}',
     keyCreatedTitle: 'Key Created',
-    keyCreatedWarning: 'Please save this key immediately. You won\'t be able to see it again after closing.',
+    keyCreatedWarning:
+      "Please save this key immediately. You won't be able to see it again after closing.",
     copyAndClose: 'Copy & Close',
     keyUpdateSuccess: 'Key updated successfully',
     fetchKeyListFail: 'Failed to fetch key list',

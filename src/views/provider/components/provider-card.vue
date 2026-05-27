@@ -45,76 +45,94 @@
       </div>
     </div>
 
-    <div class="card-meta" v-if="provider.base_url">
+    <div v-if="provider.base_url" class="card-meta">
       <span class="meta-label">{{ t('provider.apiUrl') }}</span>
       <span class="meta-value">{{ provider.base_url }}</span>
     </div>
 
     <div v-show="expanded">
-    <a-table
-      v-if="models.length > 0"
-      :data="models"
-      :pagination="false"
-      row-key="id"
-      size="small"
-      :bordered="false"
-    >
-      <template #columns>
-        <a-table-column :title="t('provider.modelTableName')" :width="160">
-          <template #cell="{ record }">
-            <span style="font-weight: 600">{{ record.model_name }}</span>
-          </template>
-        </a-table-column>
+      <a-table
+        v-if="models.length > 0"
+        :data="models"
+        :pagination="false"
+        row-key="id"
+        size="small"
+        :bordered="false"
+      >
+        <template #columns>
+          <a-table-column :title="t('provider.modelTableName')" :width="160">
+            <template #cell="{ record }">
+              <span style="font-weight: 600">{{ record.model_name }}</span>
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('provider.modelTableCallName')" :width="140">
-          <template #cell="{ record }">
-            <span class="mono-text">{{ record.provider_model }}</span>
-          </template>
-        </a-table-column>
+          <a-table-column :title="t('provider.modelTableCallName')" :width="140">
+            <template #cell="{ record }">
+              <span class="mono-text">{{ record.provider_model }}</span>
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('common.status')" :width="70" align="center">
-          <template #cell="{ record }">
-            <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
-              {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
-            </a-tag>
-          </template>
-        </a-table-column>
+          <a-table-column :title="t('common.status')" :width="70" align="center">
+            <template #cell="{ record }">
+              <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
+                {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
+              </a-tag>
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('provider.modelTableWeight')" :width="70" align="center" data-index="weight" />
-        <a-table-column :title="t('provider.modelTablePriority')" :width="70" align="center" data-index="priority" />
+          <a-table-column
+            :title="t('provider.modelTableWeight')"
+            :width="70"
+            align="center"
+            data-index="weight"
+          />
+          <a-table-column
+            :title="t('provider.modelTablePriority')"
+            :width="70"
+            align="center"
+            data-index="priority"
+          />
 
-        <a-table-column :title="t('provider.modelTableInputPrice')" :width="110" align="right">
-          <template #cell="{ record }">
-            {{ formatPrice(record.input_price, record.currency) }}
-          </template>
-        </a-table-column>
+          <a-table-column :title="t('provider.modelTableInputPrice')" :width="110" align="right">
+            <template #cell="{ record }">
+              {{ formatPrice(record.input_price, record.currency) }}
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('provider.modelTableOutputPrice')" :width="110" align="right">
-          <template #cell="{ record }">
-            {{ formatPrice(record.output_price, record.currency) }}
-          </template>
-        </a-table-column>
+          <a-table-column :title="t('provider.modelTableOutputPrice')" :width="110" align="right">
+            <template #cell="{ record }">
+              {{ formatPrice(record.output_price, record.currency) }}
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('provider.modelTableRoutingStrategy')" :width="100" align="center">
-          <template #cell="{ record }">
-            <a-tag :color="getStrategyColor(record.routing_strategy)" size="small">
-              {{ getStrategyLabel(record.routing_strategy) }}
-            </a-tag>
-          </template>
-        </a-table-column>
+          <a-table-column
+            :title="t('provider.modelTableRoutingStrategy')"
+            :width="100"
+            align="center"
+          >
+            <template #cell="{ record }">
+              <a-tag :color="getStrategyColor(record.routing_strategy)" size="small">
+                {{ getStrategyLabel(record.routing_strategy) }}
+              </a-tag>
+            </template>
+          </a-table-column>
 
-        <a-table-column :title="t('common.actions')" :width="100">
-          <template #cell="{ record }">
-            <a-space :size="8">
-              <a-link @click="emit('edit-model', record, provider)">{{ t('common.edit') }}</a-link>
-              <a-link status="danger" @click="emit('delete-model', record)">{{ t('common.delete') }}</a-link>
-            </a-space>
-          </template>
-        </a-table-column>
-      </template>
-    </a-table>
+          <a-table-column :title="t('common.actions')" :width="100">
+            <template #cell="{ record }">
+              <a-space :size="8">
+                <a-link @click="emit('edit-model', record, provider)">
+                  {{ t('common.edit') }}
+                </a-link>
+                <a-link status="danger" @click="emit('delete-model', record)">
+                  {{ t('common.delete') }}
+                </a-link>
+              </a-space>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
 
-    <a-empty v-else :description="t('provider.noModels')" :style="{ padding: '16px 0' }" />
+      <a-empty v-else :description="t('provider.noModels')" :style="{ padding: '16px 0' }" />
     </div>
   </a-card>
 </template>
@@ -154,8 +172,14 @@ function toggleExpand() {
 
 const providerColor = computed(() => {
   const colors = [
-    '#165DFF', '#00B42A', '#FF7D00', '#722ED1',
-    '#0FC6C2', '#F77234', '#3491FA', '#9FDB1D',
+    '#165DFF',
+    '#00B42A',
+    '#FF7D00',
+    '#722ED1',
+    '#0FC6C2',
+    '#F77234',
+    '#3491FA',
+    '#9FDB1D',
   ]
   let hash = 0
   for (const ch of props.provider.display_name) {
@@ -215,7 +239,9 @@ function formatPrice(price: number | null | undefined, currency?: string): strin
     align-items: center;
     padding: 2px;
     border-radius: 2px;
-    transition: color 0.2s, background-color 0.2s;
+    transition:
+      color 0.2s,
+      background-color 0.2s;
 
     &:hover {
       color: var(--color-text-1);
@@ -249,11 +275,11 @@ function formatPrice(price: number | null | undefined, currency?: string): strin
   }
 
   .probe-ok {
-    color: #00B42A;
+    color: #00b42a;
   }
 
   .probe-fail {
-    color: #F53F3F;
+    color: #f53f3f;
   }
 
   .model-count {

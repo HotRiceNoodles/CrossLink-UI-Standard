@@ -55,7 +55,7 @@ watch(
       chartInstance.setOption(newOption, true)
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 onMounted(() => {

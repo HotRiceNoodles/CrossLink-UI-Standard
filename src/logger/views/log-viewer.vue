@@ -5,7 +5,9 @@
       <template #extra>
         <a-space>
           <a-button size="small" @click="handleExport">{{ t('logger.export') }}</a-button>
-          <a-button size="small" status="danger" @click="handleClear">{{ t('logger.clear') }}</a-button>
+          <a-button size="small" status="danger" @click="handleClear">
+            {{ t('logger.clear') }}
+          </a-button>
         </a-space>
       </template>
 
@@ -21,7 +23,13 @@
           </a-radio-group>
         </a-col>
         <a-col :span="4">
-          <a-select v-model="sourceFilter" placeholder="来源" allow-clear size="small" style="width: 100%">
+          <a-select
+            v-model="sourceFilter"
+            placeholder="来源"
+            allow-clear
+            size="small"
+            style="width: 100%"
+          >
             <a-option value="vue" label="Vue" />
             <a-option value="axios" label="Axios" />
             <a-option value="router" label="Router" />
@@ -29,7 +37,12 @@
           </a-select>
         </a-col>
         <a-col :span="6">
-          <a-input v-model="keyword" :placeholder="t('logger.searchPlaceholder')" allow-clear size="small" />
+          <a-input
+            v-model="keyword"
+            :placeholder="t('logger.searchPlaceholder')"
+            allow-clear
+            size="small"
+          />
         </a-col>
         <a-col :span="4" style="text-align: right">
           <span style="color: var(--color-text-3); font-size: 12px">
@@ -48,7 +61,11 @@
           @click="toggleExpand(log.id)"
         >
           <div class="log-header">
-            <a-tag :color="levelColor(log.level)" size="small" style="width: 52px; text-align: center">
+            <a-tag
+              :color="levelColor(log.level)"
+              size="small"
+              style="width: 52px; text-align: center"
+            >
               {{ log.level.toUpperCase() }}
             </a-tag>
             <span class="log-source">{{ log.source || '-' }}</span>
@@ -58,7 +75,9 @@
           <div v-show="expandedId === log.id" class="log-detail">
             <div v-if="getError(log.data)" class="log-section">
               <div class="log-section-title">错误堆栈</div>
-              <pre class="log-stack">{{ getError(log.data)?.stack || getError(log.data)?.message }}</pre>
+              <pre class="log-stack">{{
+                getError(log.data)?.stack || getError(log.data)?.message
+              }}</pre>
             </div>
             <div v-if="getCleanData(log.data)" class="log-section">
               <div class="log-section-title">数据</div>
@@ -113,7 +132,9 @@ function refreshLogs() {
   const wasAtBottom = el ? el.scrollTop + el.clientHeight >= el.scrollHeight - 50 : true
   logs.value = logger.getBuffer()
   if (wasAtBottom) {
-    nextTick(() => { el?.scrollTo({ top: el.scrollHeight }) })
+    nextTick(() => {
+      el?.scrollTo({ top: el.scrollHeight })
+    })
   }
 }
 
@@ -131,7 +152,12 @@ function handleExport() {
 }
 
 function levelColor(level: LogLevel): string {
-  const map: Record<LogLevel, string> = { debug: 'gray', info: 'arcoblue', warn: 'orange', error: 'red' }
+  const map: Record<LogLevel, string> = {
+    debug: 'gray',
+    info: 'arcoblue',
+    warn: 'orange',
+    error: 'red',
+  }
   return map[level]
 }
 
