@@ -9,8 +9,11 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { EChartsOption } from 'echarts'
 import type { ModelDistribution } from '@/types'
+import { cssVar } from '@/utils/css-vars'
+import { useAppStore } from '@/store'
 
 const { t } = useI18n()
+const appStore = useAppStore()
 
 const COLORS = [
   '#165DFF',
@@ -35,6 +38,10 @@ const chartOption = computed<EChartsOption>(() => {
     value: item.count,
   }))
 
+  const textColor = cssVar('--color-text-2') || '#4e5969'
+  // Depend on theme to re-evaluate when toggled
+  void appStore.theme
+
   return {
     tooltip: {
       trigger: 'item',
@@ -52,7 +59,7 @@ const chartOption = computed<EChartsOption>(() => {
       icon: 'circle',
       itemWidth: 8,
       itemHeight: 8,
-      textStyle: { color: 'var(--color-text-2)', fontSize: 12 },
+      textStyle: { color: textColor, fontSize: 12 },
       formatter(name: string) {
         return name.length > 16 ? `${name.slice(0, 16)}...` : name
       },
