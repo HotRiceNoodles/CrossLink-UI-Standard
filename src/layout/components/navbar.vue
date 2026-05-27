@@ -109,7 +109,7 @@ watch(
   justify-content: space-between;
   height: 60px;
   padding: 0 20px;
-  background: #fff;
+  background: var(--color-bg-2);
   border-bottom: 1px solid var(--color-border);
 }
 

@@ -52,7 +52,7 @@ const chartOption = computed<EChartsOption>(() => {
       icon: 'circle',
       itemWidth: 8,
       itemHeight: 8,
-      textStyle: { color: '#4e5969', fontSize: 12 },
+      textStyle: { color: 'var(--color-text-2)', fontSize: 12 },
       formatter(name: string) {
         return name.length > 16 ? `${name.slice(0, 16)}...` : name
       },

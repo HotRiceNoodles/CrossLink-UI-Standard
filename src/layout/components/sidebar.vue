@@ -69,7 +69,7 @@ const emit = defineEmits<{
   flex-shrink: 0;
   width: 240px;
   height: 100vh;
-  background: #fff;
+  background: var(--color-bg-2);
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
