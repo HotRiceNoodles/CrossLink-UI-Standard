@@ -2,7 +2,7 @@
   <div class="layout">
     <aside class="layout-sider" :class="{ collapsed: menuCollapse }">
       <div class="logo-area">
-        <div class="logo-icon">CL</div>
+        <img src="@/assets/images/CrossLinkLogo.png" alt="CrossLink" class="logo-img" />
         <transition name="fade">
           <span v-show="!menuCollapse" class="logo-text">CrossLink</span>
         </transition>
@@ -274,17 +274,10 @@ function onVersionTap() {
   flex-shrink: 0;
 }
 
-.logo-icon {
+.logo-img {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #165dff, #4080ff);
   border-radius: 6px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 

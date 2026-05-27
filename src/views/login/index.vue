@@ -3,7 +3,7 @@
     <div class="login-banner">
       <div class="banner-content">
         <div class="banner-logo">
-          <div class="logo-icon">CL</div>
+          <img src="@/assets/images/CrossLinkLogo.png" alt="CrossLink" class="logo-img" />
           <span class="logo-text">CrossLink</span>
         </div>
         <h1 class="banner-title">{{ t('login.bannerTitle1') }}</h1>
@@ -66,18 +66,10 @@ const { t } = useI18n()
   margin-bottom: 48px;
 }
 
-.logo-icon {
+.logo-img {
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.2);
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  backdrop-filter: blur(4px);
 }
 
 .logo-text {
