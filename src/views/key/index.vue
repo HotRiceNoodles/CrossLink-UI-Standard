@@ -132,7 +132,7 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('common.actions')" :width="140" fixed="right">
+          <a-table-column :title="t('common.actions')" :width="240" fixed="right">
             <template #cell="{ record }">
               <a-space :size="4">
                 <a-button type="text" size="small" @click="handleEdit(record)">{{ t('common.edit') }}</a-button>
