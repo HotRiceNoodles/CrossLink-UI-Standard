@@ -70,6 +70,10 @@ const { t } = useI18n()
   width: 40px;
   height: 40px;
   border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  padding: 4px;
+  box-sizing: content-box;
 }
 
 .logo-text {
