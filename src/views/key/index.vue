@@ -296,6 +296,7 @@ import { keyApi } from '@/api/key'
 import { modelApi } from '@/api/model'
 import { useLoading } from '@/hooks/loading'
 import { useVisible } from '@/hooks/visible'
+import { formatTime } from '@/utils/format'
 import type { APIKey, KeyCreateRequest } from '@/types'
 
 const { t } = useI18n()
@@ -507,10 +508,6 @@ async function copyAndClose() {
 }
 
 // Helpers
-function formatTime(time: string) {
-  return dayjs(time).format('YYYY-MM-DD HH:mm')
-}
-
 function budgetPeriodLabel(period: string) {
   const map: Record<string, string> = { daily: t('key.periodDay'), weekly: t('key.periodWeek'), monthly: t('key.periodMonth') }
   return map[period] || period

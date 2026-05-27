@@ -63,22 +63,17 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { SystemInfo, LicenseStatus } from '@/types'
+import { useTierLabel } from '@/utils/license'
 
 const { t } = useI18n()
+const tierLabelFn = useTierLabel()
 
 const props = defineProps<{
   systemInfo: SystemInfo
   license: LicenseStatus
 }>()
 
-const editionLabel = computed(() => {
-  const map: Record<string, string> = {
-    community: t('tier.community'),
-    pro: t('tier.pro'),
-    enterprise: t('tier.enterprise'),
-  }
-  return map[props.license.edition] || props.license.edition || '--'
-})
+const editionLabel = computed(() => tierLabelFn(props.license.edition))
 </script>
 
 <style scoped lang="less">

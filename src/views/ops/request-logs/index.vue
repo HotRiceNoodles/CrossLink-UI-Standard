@@ -250,13 +250,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { usageApi } from '@/api/usage'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
 import { useLoading } from '@/hooks/loading'
+import { formatTime } from '@/utils/format'
 import LogDetailDrawer from './components/log-detail-drawer.vue'
 import type { UsageLog, UsageQuery, Provider, APIKey } from '@/types'
 
@@ -415,10 +415,6 @@ function openDrawer(record: UsageLog) {
 }
 
 // Formatters
-function formatTime(val: string) {
-  return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
-}
-
 function statusCodeClass(code: number): string {
   if (code >= 200 && code < 300) return 'success'
   if (code === 429) return 'rate-limit'

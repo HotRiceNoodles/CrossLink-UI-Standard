@@ -1,11 +1,11 @@
 <template>
   <div class="log-viewer">
     <a-card class="general-card">
-      <template #title>系统日志</template>
+      <template #title>{{ t('logger.title') }}</template>
       <template #extra>
         <a-space>
-          <a-button size="small" @click="handleExport">导出</a-button>
-          <a-button size="small" status="danger" @click="handleClear">清空</a-button>
+          <a-button size="small" @click="handleExport">{{ t('logger.export') }}</a-button>
+          <a-button size="small" status="danger" @click="handleClear">{{ t('logger.clear') }}</a-button>
         </a-space>
       </template>
 
@@ -13,7 +13,7 @@
       <a-row :gutter="12" align="center" style="margin-bottom: 12px">
         <a-col :span="8">
           <a-radio-group v-model="levelFilter" type="button" size="small">
-            <a-radio value="all">全部</a-radio>
+            <a-radio value="all">{{ t('logger.all') }}</a-radio>
             <a-radio value="debug">Debug</a-radio>
             <a-radio value="info">Info</a-radio>
             <a-radio value="warn">Warn</a-radio>
@@ -29,11 +29,11 @@
           </a-select>
         </a-col>
         <a-col :span="6">
-          <a-input v-model="keyword" placeholder="搜索关键词" allow-clear size="small" />
+          <a-input v-model="keyword" :placeholder="t('logger.searchPlaceholder')" allow-clear size="small" />
         </a-col>
         <a-col :span="4" style="text-align: right">
           <span style="color: var(--color-text-3); font-size: 12px">
-            {{ filteredLogs.length }} 条记录
+            {{ t('logger.totalCount', [filteredLogs.length]) }}
           </span>
         </a-col>
       </a-row>
@@ -70,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div v-if="filteredLogs.length === 0" class="log-empty">暂无日志记录</div>
+        <div v-if="filteredLogs.length === 0" class="log-empty">{{ t('logger.empty') }}</div>
       </div>
     </a-card>
   </div>
@@ -78,8 +78,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { logger } from '../core'
 import type { LogEntry, LogLevel } from '../types'
+
+const { t } = useI18n()
 
 const levelFilter = ref<string>('all')
 const sourceFilter = ref<string>()

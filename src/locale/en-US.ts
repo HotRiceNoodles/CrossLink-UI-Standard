@@ -328,4 +328,16 @@ export default {
     canary: 'Canary',
     least_busy: 'Least Busy',
   },
+  logger: {
+    title: 'System Logs',
+    export: 'Export',
+    clear: 'Clear',
+    searchPlaceholder: 'Search keywords...',
+    totalCount: '{0} entries',
+    level: 'Level',
+    time: 'Time',
+    message: 'Message',
+    empty: 'No logs',
+    all: 'All',
+  },
 }

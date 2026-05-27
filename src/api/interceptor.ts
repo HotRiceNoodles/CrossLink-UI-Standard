@@ -67,4 +67,12 @@ export async function del<T>(url: string): Promise<ApiResponse<T>> {
   return res.data
 }
 
+export function createCancellableRequest<T>(apiCall: (signal: AbortSignal) => Promise<T>) {
+  const controller = new AbortController()
+  return {
+    request: apiCall(controller.signal),
+    cancel: () => controller.abort(),
+  }
+}
+
 export default request

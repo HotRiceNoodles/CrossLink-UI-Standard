@@ -19,10 +19,12 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
+import { useTierLabel } from '@/utils/license'
 
 const { t } = useI18n()
 
 const userStore = useUserStore()
+const tierLabelFn = useTierLabel()
 
 const props = defineProps<{
   version?: string
@@ -31,14 +33,7 @@ const props = defineProps<{
 
 const displayName = computed(() => userStore.user?.display_name || userStore.user?.username || t('dashboard.admin'))
 
-const tierLabel = computed(() => {
-  const map: Record<string, string> = {
-    community: t('tier.community'),
-    pro: t('tier.pro'),
-    enterprise: t('tier.enterprise'),
-  }
-  return map[props.tier || 'community'] || props.tier || t('tier.community')
-})
+const tierLabel = computed(() => tierLabelFn(props.tier || 'community'))
 
 const currentDate = computed(() => {
   const now = new Date()

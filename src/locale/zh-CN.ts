@@ -328,4 +328,16 @@ export default {
     canary: '金丝雀',
     least_busy: '最空闲',
   },
+  logger: {
+    title: '系统日志',
+    export: '导出',
+    clear: '清空',
+    searchPlaceholder: '搜索关键词...',
+    totalCount: '共 {0} 条',
+    level: '级别',
+    time: '时间',
+    message: '消息',
+    empty: '暂无日志',
+    all: '全部',
+  },
 }

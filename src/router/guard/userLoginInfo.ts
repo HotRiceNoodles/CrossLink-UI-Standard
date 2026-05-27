@@ -10,6 +10,8 @@ function safeRedirect(redirect: string | undefined): string | undefined {
   return redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : undefined
 }
 
+let permissionPromise: Promise<void> | null = null
+
 function createLoginGuard(router: Router) {
   router.beforeEach(async (to, _from, next) => {
     if (isLogin()) {
@@ -18,13 +20,20 @@ function createLoginGuard(router: Router) {
         next()
       } else {
         try {
-          const res = await authApi.permissions()
-          userStore.setPermissions(res.data.permissions)
-          userStore.setTier(res.data.tier)
+          if (!permissionPromise) {
+            permissionPromise = (async () => {
+              const res = await authApi.permissions()
+              userStore.setPermissions(res.data.permissions)
+              userStore.setTier(res.data.tier)
+            })()
+          }
+          await permissionPromise
           next()
         } catch {
           userStore.logout()
-          next({ name: 'login', query: { redirect: to.fullPath } })
+          next({ name: 'login', query: { redirect: safeRedirect(to.fullPath) || to.fullPath } })
+        } finally {
+          permissionPromise = null
         }
       }
     } else if (WHITE_LIST.some((item) => item.name === to.name)) {

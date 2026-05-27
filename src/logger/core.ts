@@ -96,6 +96,13 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: unknown, source?: LogSource): void {
+    const isProd = typeof import.meta !== 'undefined' && !import.meta.env?.DEV
+
+    // In production, skip buffer storage for debug/info levels (below warn)
+    if (isProd && LEVEL_ORDER[level] < LEVEL_ORDER['warn']) {
+      return
+    }
+
     const entry: LogEntry = {
       id: ++this.counter,
       level,
