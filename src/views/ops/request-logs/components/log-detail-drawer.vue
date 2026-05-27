@@ -25,7 +25,7 @@
       <!-- 基本信息 -->
       <a-card class="detail-section" :bordered="false">
         <template #title>
-          <span class="section-title"><icon-file-text /> {{ t('logDetail.basicInfo') }}</span>
+          <span class="section-title"><icon-file /> {{ t('logDetail.basicInfo') }}</span>
         </template>
         <div class="detail-row">
           <span class="detail-label">{{ t('logDetail.routeType') }}</span>

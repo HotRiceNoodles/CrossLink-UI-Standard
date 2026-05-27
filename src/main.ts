@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import ArcoVue from '@arco-design/web-vue'
-import ArcoVueIcon from '@arco-design/web-vue/es/icon'
 import '@arco-design/web-vue/dist/arco.css'
 import router from './router'
 import store from './store'
@@ -13,6 +12,47 @@ import { logger } from '@/logger'
 import { installVueErrorPlugin } from '@/logger/plugins/vue-error'
 import { installRouterPlugin } from '@/logger/plugins/router'
 import type { LogEntry } from '@/logger/types'
+import {
+  IconMenuFold,
+  IconMenuUnfold,
+  IconLanguage,
+  IconDown,
+  IconLock,
+  IconExport,
+  IconPlus,
+  IconRefresh,
+  IconMore,
+  IconEdit,
+  IconDelete,
+  IconEye,
+  IconCode,
+  IconStorage,
+  IconSend,
+  IconUser,
+  IconSettings,
+  IconSafe,
+  IconUp,
+  IconFile,
+  IconCopy,
+  IconBarChart,
+  IconSwap,
+  IconThunderbolt,
+  IconSync,
+  IconCheckCircleFill,
+  IconCloseCircleFill,
+  IconDashboard,
+  IconMindMapping,
+  IconTool,
+} from '@arco-design/web-vue/es/icon'
+
+const icons = [
+  IconMenuFold, IconMenuUnfold, IconLanguage, IconDown, IconLock,
+  IconExport, IconPlus, IconRefresh, IconMore, IconEdit, IconDelete,
+  IconEye, IconCode, IconStorage, IconSend, IconUser, IconSettings,
+  IconSafe, IconUp, IconFile, IconCopy, IconBarChart,
+  IconSwap, IconThunderbolt, IconSync, IconCheckCircleFill,
+  IconCloseCircleFill, IconDashboard, IconMindMapping, IconTool,
+]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')
 
@@ -21,7 +61,7 @@ const app = createApp(App)
 installVueErrorPlugin(app)
 
 app.use(ArcoVue)
-app.use(ArcoVueIcon)
+icons.forEach((icon) => app.component(icon.name, icon))
 app.use(i18n)
 app.use(router)
 app.use(store)
@@ -31,7 +71,7 @@ installRouterPlugin(router)
 
 app.mount('#app')
 
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   window.__logs__ = {
     list: () => logger.getBuffer(),
     errors: () => logger.getBuffer().filter((e: LogEntry) => e.level === 'error'),

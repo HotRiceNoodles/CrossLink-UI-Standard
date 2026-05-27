@@ -23,7 +23,11 @@ export const useAppStore = defineStore('app', () => {
     footer: boolean
     device: 'desktop' | 'mobile'
   }>) {
-    Object.assign({ theme, navbar, menu, menuCollapse, menuWidth, footer, device }, settings)
+    Object.entries(settings).forEach(([key, value]) => {
+      if (value !== undefined && key in { theme, navbar, menu, menuCollapse, menuWidth, footer, device }) {
+        (this as any)[key].value = value
+      }
+    })
   }
 
   return {

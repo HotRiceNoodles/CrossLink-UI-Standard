@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { clearToken } from '@/utils/auth'
+import { clearToken, getToken } from '@/utils/auth'
 import type { ApiResponse } from '@/types'
 import { logger } from '@/logger/core'
 
@@ -10,7 +10,7 @@ const request = axios.create({
 })
 
 request.interceptors.request.use((config) => {
-  const token = localStorage.getItem('lgw_token') || ''
+  const token = getToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

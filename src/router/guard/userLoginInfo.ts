@@ -5,6 +5,11 @@ import { authApi } from '@/api/auth'
 
 const WHITE_LIST = [{ name: 'login' }]
 
+function safeRedirect(redirect: string | undefined): string | undefined {
+  if (!redirect) return undefined
+  return redirect.startsWith('/') && !redirect.startsWith('//') ? redirect : undefined
+}
+
 function createLoginGuard(router: Router) {
   router.beforeEach(async (to, _from, next) => {
     if (isLogin()) {
@@ -25,7 +30,7 @@ function createLoginGuard(router: Router) {
     } else if (WHITE_LIST.some((item) => item.name === to.name)) {
       next()
     } else {
-      next({ name: 'login', query: { redirect: to.fullPath } })
+      next({ name: 'login', query: { redirect: safeRedirect(to.fullPath) || to.fullPath } })
     }
   })
 }

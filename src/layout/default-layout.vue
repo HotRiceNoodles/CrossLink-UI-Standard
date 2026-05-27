@@ -129,6 +129,8 @@ import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
 import appRoutes from '@/router/routes'
 import { authApi } from '@/api/auth'
+
+let devLogsAdded = false
 import { Message, Modal } from '@arco-design/web-vue'
 
 const route = useRoute()
@@ -232,11 +234,16 @@ function onVersionTap() {
 
   if (tapCount.value >= 5) {
     tapCount.value = 0
+    if (devLogsAdded) {
+      router.push('/dev/logs')
+      return
+    }
     router.addRoute('root', {
       path: 'dev/logs',
       name: 'DevLogs',
       component: () => import('@/logger/views/log-viewer.vue'),
     })
+    devLogsAdded = true
     router.push('/dev/logs')
   }
 }

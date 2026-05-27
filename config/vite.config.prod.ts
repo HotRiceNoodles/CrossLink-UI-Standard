@@ -10,7 +10,7 @@ export default mergeConfig(
           manualChunks: {
             vue: ['vue', 'vue-router', 'pinia'],
             arco: ['@arco-design/web-vue'],
-            echarts: ['echarts', 'vue-echarts'],
+            echarts: ['echarts'],
           },
         },
       },
