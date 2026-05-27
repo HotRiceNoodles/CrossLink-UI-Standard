@@ -9,11 +9,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { EChartsOption } from 'echarts'
 import type { DailyTrend } from '@/types'
-import { cssVar } from '@/utils/css-vars'
-import { useAppStore } from '@/store'
 
 const { t } = useI18n()
-const appStore = useAppStore()
 
 const props = defineProps<{
   data: DailyTrend[]
@@ -29,12 +26,6 @@ const chartOption = computed<EChartsOption>(() => {
   const counts = (props.data || []).map((item) => item.count)
   const tokens = (props.data || []).map((item) => item.tokens)
 
-  const textColor = cssVar('--color-text-3') || '#86909c'
-  const borderColor = cssVar('--color-border') || '#e5e6eb'
-  const splitColor = cssVar('--color-fill-3') || '#f2f3f5'
-  // Depend on theme to re-evaluate when toggled
-  void appStore.theme
-
   return {
     tooltip: {
       trigger: 'axis',
@@ -46,7 +37,7 @@ const chartOption = computed<EChartsOption>(() => {
       bottom: 0,
       itemWidth: 16,
       itemHeight: 8,
-      textStyle: { color: textColor, fontSize: 12 },
+      textStyle: { color: '#86909c', fontSize: 12 },
     },
     grid: {
       top: 16,
@@ -58,28 +49,28 @@ const chartOption = computed<EChartsOption>(() => {
       type: 'category',
       data: dates,
       boundaryGap: false,
-      axisLine: { lineStyle: { color: borderColor } },
+      axisLine: { lineStyle: { color: '#e5e6eb' } },
       axisTick: { show: false },
-      axisLabel: { color: textColor, fontSize: 11 },
+      axisLabel: { color: '#86909c', fontSize: 11 },
     },
     yAxis: [
       {
         type: 'value',
         name: t('dashboard.requestCount'),
-        nameTextStyle: { color: textColor, fontSize: 11 },
+        nameTextStyle: { color: '#86909c', fontSize: 11 },
         axisLine: { show: false },
         axisTick: { show: false },
-        splitLine: { lineStyle: { color: splitColor } },
-        axisLabel: { color: textColor, fontSize: 11 },
+        splitLine: { lineStyle: { color: '#f2f3f5' } },
+        axisLabel: { color: '#86909c', fontSize: 11 },
       },
       {
         type: 'value',
         name: t('dashboard.tokenCount'),
-        nameTextStyle: { color: textColor, fontSize: 11 },
+        nameTextStyle: { color: '#86909c', fontSize: 11 },
         axisLine: { show: false },
         axisTick: { show: false },
         splitLine: { show: false },
-        axisLabel: { color: textColor, fontSize: 11 },
+        axisLabel: { color: '#86909c', fontSize: 11 },
       },
     ],
     series: [
