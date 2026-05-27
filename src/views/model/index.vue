@@ -7,7 +7,7 @@
       <a-row :gutter="16" class="search-bar" align="center">
         <a-col :span="6">
           <a-select
-            v-model="searchForm.provider_id"
+            v-model="filter.provider_id"
             :placeholder="t('model.selectProvider')"
             allow-clear
             style="width: 100%"
@@ -17,7 +17,7 @@
         </a-col>
         <a-col :span="6">
           <a-select
-            v-model="searchForm.routing_strategy"
+            v-model="filter.routing_strategy"
             :placeholder="t('model.routingStrategy')"
             allow-clear
             style="width: 100%"
@@ -32,7 +32,7 @@
         </a-col>
         <a-col :span="4">
           <a-select
-            v-model="searchForm.status"
+            v-model="filter.status"
             :placeholder="t('common.status')"
             allow-clear
             style="width: 100%"
@@ -43,17 +43,17 @@
         </a-col>
         <a-col :span="5">
           <a-input
-            v-model="searchForm.model_name"
+            v-model="filter.model_name"
             :placeholder="t('model.searchModelName')"
             allow-clear
-            @clear="handleSearch"
-            @press-enter="handleSearch"
+            @clear="applyFilter"
+            @press-enter="applyFilter"
           />
         </a-col>
         <a-col :span="3">
           <a-space>
-            <a-button type="primary" @click="handleSearch">{{ t('common.search') }}</a-button>
-            <a-button @click="handleReset">{{ t('common.reset') }}</a-button>
+            <a-button type="primary" @click="applyFilter">{{ t('common.search') }}</a-button>
+            <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
           </a-space>
         </a-col>
       </a-row>
@@ -191,8 +191,9 @@
       :title="isEdit ? t('model.editModel') : t('model.newModel')"
       :mask-closable="false"
       unmount-on-close
+      :ok-loading="submitLoading"
       @cancel="handleDrawerClose"
-      @ok="handleDrawerOk"
+      @ok="handleDrawerSubmit"
     >
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item
@@ -335,53 +336,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message, Modal } from '@arco-design/web-vue'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
-import { useLoading } from '@/hooks/loading'
-import { useVisible } from '@/hooks/visible'
-import type { ProviderModel, Provider, ModelCreateRequest } from '@/types'
+import { useCrud } from '@/composables/use-crud'
+import type { ProviderModel, Provider } from '@/types'
 
-// --- Hooks ---
 const { t } = useI18n()
-const { loading, setLoading } = useLoading(false)
-const { visible: drawerVisible, show: showDrawer, hide: hideDrawer } = useVisible(false)
 
-// --- Data ---
-const modelList = ref<ProviderModel[]>([])
+// Auxiliary data
 const providerList = ref<Provider[]>([])
-const formRef = ref()
-const isEdit = ref(false)
-const editingId = ref<number | null>(null)
 
-// --- Search ---
-const searchForm = reactive({
-  provider_id: undefined as number | undefined,
-  routing_strategy: undefined as string | undefined,
-  status: undefined as number | undefined,
-  model_name: '',
-})
-
-// --- Pagination ---
-const pagination = reactive({
-  current: 1,
-  pageSize: 20,
-  showTotal: true,
-  showPageSize: true,
-})
-
-function onPageChange(page: number) {
-  pagination.current = page
-}
-
-function onPageSizeChange(pageSize: number) {
-  pagination.pageSize = pageSize
-  pagination.current = 1
-}
-
-// --- Strategy map ---
+// Strategy map (unique to model view)
 const strategyMap: Record<string, { color: string }> = {
   weighted_random: { color: '#165DFF' },
   round_robin: { color: '#00B42A' },
@@ -406,40 +374,55 @@ function getStrategyColor(key: string): string {
   return strategyMap[key]?.color ?? '#86909C'
 }
 
-// --- Price formatting ---
 function formatPrice(price: number | null | undefined, currency: string | undefined): string {
   if (price === null || price === undefined) return '-'
   const prefix = currency === 'CNY' ? '¥' : '$'
   return `${prefix}${price.toFixed(6)}`
 }
 
-// --- Filtered list ---
-const filteredList = computed(() => {
-  let list = [...modelList.value]
-
-  if (searchForm.provider_id !== undefined && searchForm.provider_id !== null) {
-    list = list.filter((m) => m.provider_id === searchForm.provider_id)
+const {
+  loading,
+  filteredList,
+  drawerVisible,
+  isEdit,
+  submitLoading,
+  formRef,
+  formData,
+  filter,
+  pagination,
+  fetchData,
+  applyFilter,
+  resetFilter,
+  handleCreate,
+  handleEdit,
+  handleDrawerClose,
+  handleDrawerSubmit,
+  handleDelete,
+  onPageChange,
+  onPageSizeChange,
+} = useCrud<
+  ProviderModel,
+  {
+    provider_id?: number
+    routing_strategy?: string
+    status?: number
+    model_name?: string
   }
-
-  if (searchForm.routing_strategy) {
-    list = list.filter((m) => m.routing_strategy === searchForm.routing_strategy)
-  }
-
-  if (searchForm.status !== undefined && searchForm.status !== null) {
-    list = list.filter((m) => m.status === searchForm.status)
-  }
-
-  if (searchForm.model_name) {
-    const keyword = searchForm.model_name.toLowerCase()
-    list = list.filter((m) => m.model_name.toLowerCase().includes(keyword))
-  }
-
-  return list
-})
-
-// --- Form data ---
-function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
-  return {
+>({
+  fetchApi: modelApi.list,
+  createApi: modelApi.create as (
+    data: Partial<ProviderModel>,
+  ) => Promise<{ data: Record<string, unknown> }>,
+  updateApi: modelApi.update,
+  deleteApi: modelApi.delete,
+  idField: 'id',
+  immediateFilter: true,
+  fetchErrorMsg: t('model.fetchModelListFail'),
+  createSuccessMsg: t('common.createSuccess'),
+  updateSuccessMsg: t('common.updateSuccess'),
+  deleteSuccessMsg: t('common.deleteSuccess'),
+  deleteErrorMsg: t('common.deleteFail'),
+  defaultForm: () => ({
     provider_id: undefined,
     model_name: '',
     provider_model: '',
@@ -451,10 +434,37 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
     currency: 'CNY',
     routing_strategy: 'weighted_random',
     status: 1,
-  }
-}
-
-const formData = reactive(createEmptyForm())
+  }),
+  filterFn: (item, f) => {
+    let pass = true
+    if (f.provider_id !== undefined && f.provider_id !== null) {
+      pass = pass && item.provider_id === f.provider_id
+    }
+    if (f.routing_strategy) {
+      pass = pass && item.routing_strategy === f.routing_strategy
+    }
+    if (f.status !== undefined && f.status !== null) {
+      pass = pass && item.status === f.status
+    }
+    if (f.model_name) {
+      const kw = (f.model_name as string).toLowerCase()
+      pass = pass && (item.model_name as string).toLowerCase().includes(kw)
+    }
+    return pass
+  },
+  transformPayload: (form, isEdit) => {
+    const payload: Record<string, unknown> = {
+      ...form,
+      max_context: form.max_context || null,
+      input_price: form.input_price || null,
+      output_price: form.output_price || null,
+    }
+    if (!isEdit) {
+      delete payload.status
+    }
+    return payload as Partial<ProviderModel>
+  },
+})
 
 const formRules = {
   provider_id: [{ required: true, message: t('model.providerRequired') }],
@@ -462,16 +472,19 @@ const formRules = {
   provider_model: [{ required: true, message: t('model.providerModelRequired') }],
 }
 
-// --- Fetch data ---
-async function fetchModels() {
-  setLoading(true)
-  try {
-    const res = await modelApi.list()
-    modelList.value = res.data ?? []
-  } catch {
-    Message.error(t('model.fetchModelListFail'))
-  } finally {
-    setLoading(false)
+function handleAction(action: string, record: ProviderModel) {
+  if (action === 'edit') {
+    handleEdit(record)
+  } else if (action === 'delete') {
+    Modal.confirm({
+      title: t('common.delete'),
+      content: t('model.confirmDeleteModel', { name: record.model_name }),
+      okText: t('common.delete'),
+      cancelText: t('common.cancel'),
+      onOk: async () => {
+        await handleDelete(record)
+      },
+    })
   }
 }
 
@@ -484,117 +497,9 @@ async function fetchProviders() {
   }
 }
 
-// --- Search ---
-function handleSearch() {
-  pagination.current = 1
-}
-
-function handleReset() {
-  searchForm.provider_id = undefined
-  searchForm.routing_strategy = undefined
-  searchForm.status = undefined
-  searchForm.model_name = ''
-  pagination.current = 1
-}
-
-// --- Actions ---
-function handleCreate() {
-  isEdit.value = false
-  editingId.value = null
-  Object.assign(formData, createEmptyForm())
-  showDrawer()
-}
-
-function handleAction(action: string, record: ProviderModel) {
-  if (action === 'edit') {
-    handleEdit(record)
-  } else if (action === 'delete') {
-    handleDelete(record)
-  }
-}
-
-function handleEdit(record: ProviderModel) {
-  isEdit.value = true
-  editingId.value = record.id
-  Object.assign(formData, {
-    provider_id: record.provider_id,
-    model_name: record.model_name,
-    provider_model: record.provider_model,
-    weight: record.weight,
-    priority: record.priority,
-    max_context: record.max_context,
-    input_price: record.input_price,
-    output_price: record.output_price,
-    currency: record.currency,
-    routing_strategy: record.routing_strategy,
-    status: record.status,
-  })
-  showDrawer()
-}
-
-async function handleDelete(record: ProviderModel) {
-  Modal.confirm({
-    title: t('common.delete'),
-    content: t('model.confirmDeleteModel', { name: record.model_name }),
-    okText: t('common.delete'),
-    cancelText: t('common.cancel'),
-    onOk: async () => {
-      try {
-        await modelApi.delete(record.id)
-        Message.success(t('common.deleteSuccess'))
-        await fetchModels()
-      } catch {
-        Message.error(t('common.deleteFail'))
-      }
-    },
-  })
-}
-
-// --- Drawer ---
-function handleDrawerClose() {
-  hideDrawer()
-}
-
-async function handleDrawerOk() {
-  const errors = await formRef.value?.validate()
-  if (errors) return
-
-  try {
-    const payload: Partial<ModelCreateRequest> = {
-      provider_id: formData.provider_id,
-      model_name: formData.model_name,
-      provider_model: formData.provider_model,
-      weight: formData.weight,
-      priority: formData.priority,
-      max_context: formData.max_context ?? null,
-      input_price: formData.input_price ?? null,
-      output_price: formData.output_price ?? null,
-      currency: formData.currency,
-      routing_strategy: formData.routing_strategy,
-    }
-
-    if (isEdit.value && editingId.value !== null) {
-      await modelApi.update(editingId.value, {
-        ...payload,
-        status: formData.status,
-      })
-      Message.success(t('common.updateSuccess'))
-    } else {
-      await modelApi.create(payload as ModelCreateRequest)
-      Message.success(t('common.createSuccess'))
-    }
-
-    hideDrawer()
-    await fetchModels()
-  } catch {
-    Message.error(isEdit.value ? t('common.fail') : t('model.createFail'))
-  }
-}
-
-// --- Init ---
 onMounted(() => {
   fetchProviders()
-  fetchModels()
+  fetchData()
 })
 </script>
 

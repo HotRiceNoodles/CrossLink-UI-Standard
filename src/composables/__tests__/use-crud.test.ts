@@ -111,3 +111,109 @@ describe('useCrud', () => {
     expect(pagination.current).toBe(1)
   })
 })
+
+describe('useCrud — immediateFilter', () => {
+  const mockData: TestItem[] = [
+    { id: 1, name: 'Alpha' },
+    { id: 2, name: 'Beta' },
+    { id: 3, name: 'Alpha Two' },
+  ]
+
+  const fetchApi = vi.fn().mockResolvedValue({ data: mockData })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  function createCrud() {
+    return useCrud<TestItem, { name?: string }>({
+      fetchApi,
+      defaultForm: () => ({ name: '' }),
+      immediateFilter: true,
+      filterFn: (item, f) => {
+        if (!f.name) return true
+        return item.name.toLowerCase().includes(f.name.toLowerCase())
+      },
+    })
+  }
+
+  it('filter reacts immediately without applyFilter', async () => {
+    const { fetchData, filter, filteredList } = createCrud()
+    await fetchData()
+    expect(filteredList.value).toHaveLength(3)
+
+    Object.assign(filter, { name: 'alpha' })
+    expect(filteredList.value).toHaveLength(2)
+
+    Object.assign(filter, { name: '' })
+    expect(filteredList.value).toHaveLength(3)
+  })
+})
+
+describe('useCrud — onCreated callback', () => {
+  const fetchApi = vi.fn().mockResolvedValue({ data: [] })
+  const createApi = vi.fn().mockResolvedValue({ data: { id: 10, secret: 'abc' } })
+  const onCreated = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  function createCrud() {
+    return useCrud<TestItem>({
+      fetchApi,
+      createApi,
+      defaultForm: () => ({ name: '' }),
+      onCreated,
+    })
+  }
+
+  it('calls onCreated with response data on create', async () => {
+    const { fetchData, handleDrawerSubmit } = createCrud()
+    await fetchData()
+    await handleDrawerSubmit()
+    expect(onCreated).toHaveBeenCalledOnce()
+    expect(onCreated).toHaveBeenCalledWith({ id: 10, secret: 'abc' })
+  })
+})
+
+describe('useCrud — transformPayload', () => {
+  const fetchApi = vi.fn().mockResolvedValue({ data: [] })
+  const createApi = vi.fn().mockResolvedValue({ data: { id: 5 } })
+  const updateApi = vi.fn().mockResolvedValue({})
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  function createCrud() {
+    return useCrud<TestItem>({
+      fetchApi,
+      createApi,
+      updateApi,
+      defaultForm: () => ({ name: '', status: undefined }),
+      transformPayload: (form, isEdit) => {
+        const payload: Record<string, unknown> = { ...form }
+        if (!isEdit) delete payload.status
+        return payload as Partial<TestItem>
+      },
+    })
+  }
+
+  it('transformPayload is called on create', async () => {
+    const { fetchData, handleDrawerSubmit, formData } = createCrud()
+    await fetchData()
+    Object.assign(formData, { name: 'test', status: 1 })
+    await handleDrawerSubmit()
+    expect(createApi).toHaveBeenCalledWith({ name: 'test' })
+  })
+
+  it('transformPayload is called on update with isEdit=true', async () => {
+    const { fetchData, handleEdit, handleDrawerSubmit, formData } = createCrud()
+    await fetchData()
+    handleEdit({ id: 1, name: 'old' })
+    Object.assign(formData, { name: 'new', status: 0 })
+    await handleDrawerSubmit()
+    expect(updateApi).toHaveBeenCalledWith(1, { id: 1, name: 'new', status: 0 })
+  })
+})

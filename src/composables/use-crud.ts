@@ -17,6 +17,12 @@ interface CrudOptions<T, F extends Record<string, unknown> = Record<string, unkn
   fetchErrorMsg?: string
   deleteErrorMsg?: string
   idField?: keyof T & string
+  /** Called after successful create. When provided, the composable skips auto hideDrawer. */
+  onCreated?: (response: Record<string, unknown>) => void | Promise<void>
+  /** When true, filteredList reads filter directly instead of appliedFilter. */
+  immediateFilter?: boolean
+  /** Transform formData before sending to create/update API. */
+  transformPayload?: (formData: Partial<T>, isEdit: boolean) => Partial<T>
 }
 
 export function useCrud<
@@ -41,7 +47,8 @@ export function useCrud<
 
   const filteredList = computed(() => {
     if (!options.filterFn) return list.value
-    return list.value.filter((item) => options.filterFn!(item, { ...appliedFilter } as F))
+    const source = options.immediateFilter ? { ...filter } : { ...appliedFilter }
+    return list.value.filter((item) => options.filterFn!(item, source as F))
   })
 
   // Pagination (client-side)
@@ -126,13 +133,18 @@ export function useCrud<
 
     submitLoading.value = true
     try {
-      const payload = { ...formData, ...extra }
+      const raw = { ...formData, ...extra }
+      const payload = options.transformPayload ? options.transformPayload(raw, isEdit.value) : raw
       if (isEdit.value && editingId.value !== undefined && options.updateApi) {
         await options.updateApi(editingId.value, payload)
         Message.success(options.updateSuccessMsg || t('common.updateSuccess'))
       } else if (options.createApi) {
         const res = await options.createApi(payload)
-        hideDrawer()
+        if (options.onCreated) {
+          await options.onCreated(res.data)
+        } else {
+          hideDrawer()
+        }
         await fetchData()
         return res.data
       }

@@ -308,201 +308,84 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
 import { keyApi } from '@/api/key'
 import { modelApi } from '@/api/model'
-import { useLoading } from '@/hooks/loading'
-import { useVisible } from '@/hooks/visible'
+import { useCrud } from '@/composables/use-crud'
 import { formatTime } from '@/utils/format'
-import type { APIKey, KeyCreateRequest } from '@/types'
+import type { APIKey } from '@/types'
 
 const { t } = useI18n()
-const { loading, setLoading } = useLoading()
-const { visible: drawerVisible, show: showDrawer, hide: hideDrawer } = useVisible()
 
-const keyList = ref<APIKey[]>([])
+// Auxiliary data
 const modelOptions = ref<string[]>([])
-const isEdit = ref(false)
-const editingId = ref<number>()
-const submitLoading = ref(false)
-const formRef = ref()
 
-// Key modal
+// Key reveal modal (unique to this view)
 const keyModalVisible = ref(false)
 const createdKey = ref('')
 
-// Filter
-const filter = reactive({
-  status: undefined as number | undefined,
-  keyword: '',
-})
-const appliedFilter = reactive({
-  status: undefined as number | undefined,
-  keyword: '',
-})
-
-const filteredList = computed(() => {
-  let list = keyList.value
-  if (appliedFilter.status !== undefined && appliedFilter.status !== null) {
-    list = list.filter((k) => k.status === appliedFilter.status)
-  }
-  if (appliedFilter.keyword) {
-    const kw = appliedFilter.keyword.toLowerCase()
-    list = list.filter((k) => k.name.toLowerCase().includes(kw))
-  }
-  return list
-})
-
-// Pagination
-const pagination = reactive({
-  current: 1,
-  pageSize: 20,
-  showTotal: true,
-  showPageSize: true,
-})
-
-function onPageChange(page: number) {
-  pagination.current = page
-}
-
-function onPageSizeChange(pageSize: number) {
-  pagination.pageSize = pageSize
-  pagination.current = 1
-}
-
-// Form
-const formData = reactive<KeyCreateRequest & { status?: number }>({
-  name: '',
-  allowed_models: [],
-  allowed_routes: [],
-  tpm_limit: 0,
-  rpm_limit: 0,
-  max_budget: null,
-  budget_period: 'monthly',
-  status: 1,
+const {
+  loading,
+  filteredList,
+  drawerVisible,
+  isEdit,
+  submitLoading,
+  formRef,
+  formData,
+  filter,
+  pagination,
+  fetchData,
+  applyFilter,
+  resetFilter,
+  handleCreate,
+  handleEdit,
+  handleDrawerClose,
+  handleDrawerSubmit,
+  handleDelete,
+  hideDrawer,
+  onPageChange,
+  onPageSizeChange,
+} = useCrud<APIKey, { status?: number; keyword: string }>({
+  fetchApi: keyApi.list,
+  createApi: keyApi.create,
+  updateApi: keyApi.update,
+  deleteApi: keyApi.delete,
+  idField: 'id',
+  fetchErrorMsg: t('key.fetchKeyListFail'),
+  deleteErrorMsg: t('common.deleteFail'),
+  deleteSuccessMsg: t('key.keyDeleted'),
+  updateSuccessMsg: t('key.keyUpdateSuccess'),
+  defaultForm: () => ({
+    name: '',
+    allowed_models: [],
+    allowed_routes: [],
+    tpm_limit: 0,
+    rpm_limit: 0,
+    max_budget: null,
+    budget_period: 'monthly',
+    status: 1,
+  }),
+  filterFn: (item, f) => {
+    let pass = true
+    if (f.status !== undefined && f.status !== null) pass = pass && item.status === f.status
+    if (f.keyword) {
+      const kw = (f.keyword as string).toLowerCase()
+      pass = pass && (item.name as string).toLowerCase().includes(kw)
+    }
+    return pass
+  },
+  onCreated: async (responseData) => {
+    hideDrawer()
+    createdKey.value = (responseData as { key: string }).key
+    keyModalVisible.value = true
+  },
 })
 
 const formRules = {
   name: [{ required: true, message: t('key.nameRequired') }],
-}
-
-function resetForm() {
-  formData.name = ''
-  formData.allowed_models = []
-  formData.allowed_routes = []
-  formData.tpm_limit = 0
-  formData.rpm_limit = 0
-  formData.max_budget = null
-  formData.budget_period = 'monthly'
-  formData.status = 1
-}
-
-// Fetch
-async function fetchData() {
-  setLoading(true)
-  try {
-    const res = await keyApi.list()
-    keyList.value = res.data
-  } catch {
-    Message.error(t('key.fetchKeyListFail'))
-  } finally {
-    setLoading(false)
-  }
-}
-
-// Filter actions
-function applyFilter() {
-  appliedFilter.status = filter.status
-  appliedFilter.keyword = filter.keyword
-  pagination.current = 1
-}
-
-function resetFilter() {
-  filter.status = undefined
-  filter.keyword = ''
-  appliedFilter.status = undefined
-  appliedFilter.keyword = ''
-  pagination.current = 1
-}
-
-// CRUD
-function handleCreate() {
-  isEdit.value = false
-  editingId.value = undefined
-  resetForm()
-  showDrawer()
-}
-
-function handleEdit(record: APIKey) {
-  isEdit.value = true
-  editingId.value = record.id
-  formData.name = record.name
-  formData.allowed_models = [...(record.allowed_models || [])]
-  formData.allowed_routes = [...(record.allowed_routes || [])]
-  formData.tpm_limit = record.tpm_limit
-  formData.rpm_limit = record.rpm_limit
-  formData.max_budget = record.max_budget
-  formData.budget_period = record.budget_period
-  formData.status = record.status
-  showDrawer()
-}
-
-function handleDrawerClose() {
-  hideDrawer()
-  formRef.value?.resetFields()
-}
-
-async function handleDrawerSubmit() {
-  try {
-    await formRef.value?.validate()
-  } catch {
-    return
-  }
-
-  submitLoading.value = true
-  try {
-    if (isEdit.value && editingId.value) {
-      await keyApi.update(editingId.value, {
-        ...formData,
-      })
-      Message.success(t('key.keyUpdateSuccess'))
-    } else {
-      const res = await keyApi.create({
-        name: formData.name,
-        allowed_models: formData.allowed_models,
-        allowed_routes: formData.allowed_routes,
-        tpm_limit: formData.tpm_limit,
-        rpm_limit: formData.rpm_limit,
-        max_budget: formData.max_budget,
-        budget_period: formData.budget_period,
-      })
-      hideDrawer()
-      createdKey.value = res.data.key
-      keyModalVisible.value = true
-      await fetchData()
-      return
-    }
-    hideDrawer()
-    await fetchData()
-  } catch (err: unknown) {
-    const error = err as { response?: { data?: { error?: string } } }
-    Message.error(error.response?.data?.error || t('common.operationFail'))
-  } finally {
-    submitLoading.value = false
-  }
-}
-
-async function handleDelete(record: APIKey) {
-  try {
-    await keyApi.delete(record.id)
-    Message.success(t('key.keyDeleted'))
-    await fetchData()
-  } catch {
-    Message.error(t('common.deleteFail'))
-  }
 }
 
 async function handleRegenerate(record: APIKey) {
@@ -527,7 +410,6 @@ async function copyAndClose() {
   createdKey.value = ''
 }
 
-// Helpers
 function budgetPeriodLabel(period: string) {
   const map: Record<string, string> = {
     daily: t('key.periodDay'),
@@ -537,12 +419,10 @@ function budgetPeriodLabel(period: string) {
   return map[period] || period
 }
 
-// Fetch models
 async function fetchModels() {
   try {
     const res = await modelApi.list()
-    const names = [...new Set(res.data.map((m) => m.model_name))]
-    modelOptions.value = names.sort()
+    modelOptions.value = [...new Set(res.data.map((m) => m.model_name))].sort()
   } catch {
     // silently fail — model dropdown will just be empty
   }
