@@ -340,4 +340,9 @@ export default {
     empty: '暂无日志',
     all: '全部',
   },
+  errorBoundary: {
+    title: '页面出了点问题',
+    subtitle: '请尝试刷新页面',
+    retry: '重试',
+  },
 }

@@ -340,4 +340,9 @@ export default {
     empty: 'No logs',
     all: 'All',
   },
+  errorBoundary: {
+    title: 'Something went wrong',
+    subtitle: 'Please try refreshing the page',
+    retry: 'Retry',
+  },
 }

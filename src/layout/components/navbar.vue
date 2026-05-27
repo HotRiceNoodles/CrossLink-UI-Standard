@@ -36,6 +36,7 @@
         @change="(lang: string) => emit('languageChange', lang)"
       />
       <a-tag
+        class="tier-tag"
         :color="userStore.tier === 'community' ? 'arcoblue' : 'green'"
         size="small"
       >
@@ -129,5 +130,15 @@ watch(() => appStore.theme, (theme) => {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .navbar-breadcrumb {
+    display: none;
+  }
+
+  .navbar-right .tier-tag {
+    display: none;
+  }
 }
 </style>

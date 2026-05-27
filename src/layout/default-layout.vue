@@ -1,6 +1,8 @@
 <template>
   <div class="layout">
+    <!-- Desktop: inline sidebar -->
     <sidebar
+      v-if="device === 'desktop'"
       :menu-collapse="menuCollapse"
       :menu-routes="menuRoutes"
       :selected-keys="selectedKeys"
@@ -10,7 +12,29 @@
       @version-tap="onVersionTap"
     />
 
-    <div class="layout-main" :class="{ 'sider-collapsed': menuCollapse }">
+    <!-- Mobile: drawer sidebar -->
+    <a-drawer
+      v-else
+      :visible="!menuCollapse"
+      placement="left"
+      :width="240"
+      :footer="false"
+      :header="false"
+      :closable="false"
+      @cancel="appStore.toggleMenuCollapse()"
+    >
+      <sidebar
+        :menu-collapse="false"
+        :menu-routes="menuRoutes"
+        :selected-keys="selectedKeys"
+        :open-keys="openKeys"
+        @menu-item-click="onMobileMenuItemClick"
+        @sub-menu-click="onSubMenuClick"
+        @version-tap="onVersionTap"
+      />
+    </a-drawer>
+
+    <div class="layout-main" :class="{ 'sider-collapsed': menuCollapse && device === 'desktop' }">
       <navbar
         :menu-collapse="menuCollapse"
         :current-locale="currentLocale"
@@ -35,6 +59,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useBreakpoints } from '@vueuse/core'
 import { useAppStore, useUserStore } from '@/store'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
@@ -55,7 +80,16 @@ const { t } = useI18n()
 const currentLocale = ref(getCurrentLocale())
 
 const menuCollapse = computed(() => appStore.menuCollapse)
+const device = computed(() => appStore.device)
 const passwordVisible = ref(false)
+
+const breakpoints = useBreakpoints({ mobile: 768 })
+const isMobile = breakpoints.smaller('mobile')
+
+watch(isMobile, (mobile) => {
+  appStore.device = mobile ? 'mobile' : 'desktop'
+  if (mobile) appStore.menuCollapse = true
+}, { immediate: true })
 
 const menuRoutes = computed(() => {
   return (appRoutes.children || []) as RouteRecordRaw[]
@@ -95,6 +129,11 @@ watch(menuCollapse, (val) => {
 
 function onMenuItemClick(key: string) {
   router.push({ name: key })
+}
+
+function onMobileMenuItemClick(key: string) {
+  router.push({ name: key })
+  appStore.menuCollapse = true
 }
 
 function onLanguageChange(lang: string) {
