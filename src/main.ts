@@ -43,6 +43,8 @@ import {
   IconDashboard,
   IconMindMapping,
   IconTool,
+  IconMoon,
+  IconSun,
 } from '@arco-design/web-vue/es/icon'
 
 const icons = [
@@ -52,6 +54,7 @@ const icons = [
   IconSafe, IconUp, IconFile, IconCopy, IconBarChart,
   IconSwap, IconThunderbolt, IconSync, IconCheckCircleFill,
   IconCloseCircleFill, IconDashboard, IconMindMapping, IconTool,
+  IconMoon, IconSun,
 ]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')

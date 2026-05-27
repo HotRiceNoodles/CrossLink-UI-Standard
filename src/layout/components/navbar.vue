@@ -21,6 +21,16 @@
       </a-breadcrumb>
     </div>
     <div class="navbar-right">
+      <a-button
+        type="text"
+        size="small"
+        @click="appStore.theme = appStore.theme === 'dark' ? 'light' : 'dark'"
+      >
+        <template #icon>
+          <icon-moon v-if="appStore.theme === 'light'" />
+          <icon-sun v-else />
+        </template>
+      </a-button>
       <language-switch
         :current-locale="currentLocale"
         @change="(lang: string) => emit('languageChange', lang)"
@@ -52,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
@@ -83,6 +93,14 @@ const breadcrumbItems = computed(() => {
 })
 
 const tierLabel = computed(() => tierLabelFn(userStore.tier))
+
+watch(() => appStore.theme, (theme) => {
+  if (theme === 'dark') {
+    document.body.setAttribute('arco-theme', 'dark')
+  } else {
+    document.body.removeAttribute('arco-theme')
+  }
+}, { immediate: true })
 </script>
 
 <style scoped lang="less">

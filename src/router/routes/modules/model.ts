@@ -5,7 +5,6 @@ const route: RouteRecordRaw = {
   name: 'model',
   component: () => import('@/views/model/index.vue'),
   meta: {
-    locale: '模型管理',
     menuKey: 'model',
     icon: 'icon-mind-mapping',
     order: 2,

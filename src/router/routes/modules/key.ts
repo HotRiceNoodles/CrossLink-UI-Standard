@@ -5,7 +5,6 @@ const route: RouteRecordRaw = {
   name: 'key',
   component: () => import('@/views/key/index.vue'),
   meta: {
-    locale: 'API 密钥',
     menuKey: 'key',
     icon: 'icon-lock',
     order: 3,

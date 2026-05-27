@@ -5,7 +5,6 @@ const route: RouteRecordRaw = {
   name: 'dashboard',
   component: () => import('@/views/dashboard/index.vue'),
   meta: {
-    locale: '仪表盘',
     menuKey: 'dashboard',
     icon: 'icon-dashboard',
     order: 0,

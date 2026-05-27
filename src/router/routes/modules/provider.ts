@@ -5,7 +5,6 @@ const route: RouteRecordRaw = {
   name: 'provider',
   component: () => import('@/views/provider/index.vue'),
   meta: {
-    locale: '供应商管理',
     menuKey: 'provider',
     icon: 'icon-storage',
     order: 1,

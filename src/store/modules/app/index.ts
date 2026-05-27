@@ -1,14 +1,20 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { loadPersistedSettings, persistSettings } from '../../plugins/persist'
 
 export const useAppStore = defineStore('app', () => {
-  const theme = ref<'light' | 'dark'>('light')
+  const persisted = loadPersistedSettings()
+  const theme = ref<'light' | 'dark'>((persisted.theme as 'light' | 'dark') ?? 'light')
   const navbar = ref(true)
   const menu = ref(true)
-  const menuCollapse = ref(false)
+  const menuCollapse = ref((persisted.menuCollapse as boolean) ?? false)
   const menuWidth = ref(240)
   const footer = ref(false)
   const device = ref<'desktop' | 'mobile'>('desktop')
+
+  watch([theme, menuCollapse], () => {
+    persistSettings({ theme: theme.value, menuCollapse: menuCollapse.value })
+  })
 
   function toggleMenuCollapse() {
     menuCollapse.value = !menuCollapse.value
