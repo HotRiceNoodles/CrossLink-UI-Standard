@@ -185,7 +185,15 @@
             multiple
             allow-create
             allow-clear
-          />
+            :filterable="true"
+          >
+            <a-option
+              v-for="name in modelOptions"
+              :key="name"
+              :value="name"
+              :label="name"
+            />
+          </a-select>
         </a-form-item>
 
         <a-form-item field="allowed_routes" :label="t('key.allowedRoutesLabel')">
@@ -285,6 +293,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
 import { keyApi } from '@/api/key'
+import { modelApi } from '@/api/model'
 import { useLoading } from '@/hooks/loading'
 import { useVisible } from '@/hooks/visible'
 import type { APIKey, KeyCreateRequest } from '@/types'
@@ -294,6 +303,7 @@ const { loading, setLoading } = useLoading()
 const { visible: drawerVisible, show: showDrawer, hide: hideDrawer } = useVisible()
 
 const keyList = ref<APIKey[]>([])
+const modelOptions = ref<string[]>([])
 const isEdit = ref(false)
 const editingId = ref<number>()
 const submitLoading = ref(false)
@@ -506,8 +516,20 @@ function budgetPeriodLabel(period: string) {
   return map[period] || period
 }
 
+// Fetch models
+async function fetchModels() {
+  try {
+    const res = await modelApi.list()
+    const names = [...new Set(res.data.map((m) => m.model_name))]
+    modelOptions.value = names.sort()
+  } catch {
+    // silently fail — model dropdown will just be empty
+  }
+}
+
 onMounted(() => {
   fetchData()
+  fetchModels()
 })
 </script>
 
