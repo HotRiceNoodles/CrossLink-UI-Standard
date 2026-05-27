@@ -41,6 +41,16 @@ class Logger {
   private buffer = new RingBuffer<LogEntry>(500)
   private _level: LogLevel = 'debug'
   private counter = 0
+  private listeners = new Set<() => void>()
+
+  onChange(fn: () => void): () => void {
+    this.listeners.add(fn)
+    return () => this.listeners.delete(fn)
+  }
+
+  private notify() {
+    this.listeners.forEach(fn => fn())
+  }
 
   setLevel(level: LogLevel): void {
     this._level = level
@@ -116,6 +126,7 @@ class Logger {
     }
 
     this.buffer.push(entry)
+    this.notify()
 
     if (LEVEL_ORDER[level] >= LEVEL_ORDER[this._level]) {
       formatConsole(entry)

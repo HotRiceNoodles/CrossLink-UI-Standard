@@ -305,8 +305,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Message } from '@arco-design/web-vue'
-import dayjs from 'dayjs'
+import { Message, Modal } from '@arco-design/web-vue'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { useLoading } from '@/hooks/loading'
@@ -502,20 +501,21 @@ function handleEdit(record: ProviderModel) {
 }
 
 async function handleDelete(record: ProviderModel) {
-  const confirmed = await new Promise<boolean>((resolve) => {
-    const { confirm } = window as unknown as { confirm: (msg: string) => boolean }
-    // Arco doesn't expose Modal.confirm directly in a simple way, use a workaround
-    resolve(confirm(t('model.confirmDeleteModel', { name: record.model_name })))
+  Modal.confirm({
+    title: t('common.delete'),
+    content: t('model.confirmDeleteModel', { name: record.model_name }),
+    okText: t('common.delete'),
+    cancelText: t('common.cancel'),
+    onOk: async () => {
+      try {
+        await modelApi.delete(record.id)
+        Message.success(t('common.deleteSuccess'))
+        await fetchModels()
+      } catch {
+        Message.error(t('common.deleteFail'))
+      }
+    },
   })
-  if (!confirmed) return
-
-  try {
-    await modelApi.delete(record.id)
-    Message.success(t('common.deleteSuccess'))
-    await fetchModels()
-  } catch {
-    Message.error(t('common.deleteFail'))
-  }
 }
 
 // --- Drawer ---

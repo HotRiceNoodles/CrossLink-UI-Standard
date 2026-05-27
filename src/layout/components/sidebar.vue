@@ -41,7 +41,7 @@
       </template>
     </a-menu>
     <div class="sidebar-footer">
-      <span class="version-text" @click="emit('versionTap')">v1.0.0</span>
+      <span class="version-text" @click="emit('versionTap')">v{{ version }}</span>
     </div>
   </aside>
 </template>
@@ -51,6 +51,7 @@ import { useI18n } from 'vue-i18n'
 import type { RouteRecordRaw } from 'vue-router'
 
 const { t } = useI18n()
+const version = __APP_VERSION__
 
 defineProps<{
   menuCollapse: boolean

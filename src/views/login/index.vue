@@ -23,7 +23,7 @@
         <LoginForm />
       </div>
       <div class="login-footer">
-        <span>&copy; 2025 CrossLink</span>
+        <span>&copy; 2025-2026 CrossLink</span>
       </div>
     </div>
   </div>

@@ -204,7 +204,7 @@
 
           <a-table-column :title="t('ops.tableCost')" data-index="cost" :width="100" align="right">
             <template #cell="{ record }">
-              <span class="cell-cost">&yen;{{ record.cost != null ? record.cost.toFixed(4) : '-' }}</span>
+              <span class="cell-cost">{{ getCurrencySymbol(record.currency) }}{{ record.cost != null ? record.cost.toFixed(4) : '-' }}</span>
             </template>
           </a-table-column>
 
@@ -257,6 +257,7 @@ import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
 import { useLoading } from '@/hooks/loading'
 import { formatTime } from '@/utils/format'
+import { getCurrencySymbol } from '@/utils/currency'
 import LogDetailDrawer from './components/log-detail-drawer.vue'
 import type { UsageLog, UsageQuery, Provider, APIKey } from '@/types'
 

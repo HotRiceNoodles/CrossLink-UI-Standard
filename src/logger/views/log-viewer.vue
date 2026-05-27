@@ -91,7 +91,7 @@ const expandedId = ref<number>()
 const logListRef = ref<HTMLElement>()
 const logs = ref<LogEntry[]>([])
 
-let timer: ReturnType<typeof setInterval>
+let unsubscribe: (() => void) | null = null
 
 const filteredLogs = computed(() => {
   let list = logs.value
@@ -161,11 +161,11 @@ function getCleanData(data: unknown): unknown {
 
 onMounted(() => {
   refreshLogs()
-  timer = setInterval(refreshLogs, 1000)
+  unsubscribe = logger.onChange(refreshLogs)
 })
 
 onUnmounted(() => {
-  clearInterval(timer)
+  unsubscribe?.()
 })
 </script>
 
