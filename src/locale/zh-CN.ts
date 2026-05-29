@@ -131,7 +131,7 @@ export default {
     apiKeyEditPlaceholder: '留空则不修改',
     apiKeyCreatePlaceholder: '输入 API Key',
     extraConfig: '扩展配置',
-    extraConfigPlaceholder: 'JSON 格式，如 {"timeout": 30}',
+    extraConfigPlaceholder: 'JSON 格式',
     nameRequired: '请输入标识',
     displayNameRequired: '请输入显示名称',
     adapterTypeRequired: '请选择适配器类型',

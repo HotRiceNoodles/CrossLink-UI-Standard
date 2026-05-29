@@ -131,7 +131,7 @@ export default {
     apiKeyEditPlaceholder: 'Leave empty to keep unchanged',
     apiKeyCreatePlaceholder: 'Enter API Key',
     extraConfig: 'Extra Config',
-    extraConfigPlaceholder: 'JSON format, e.g. {"timeout": 30}',
+    extraConfigPlaceholder: 'JSON format',
     nameRequired: 'Please enter an identifier',
     displayNameRequired: 'Please enter a display name',
     adapterTypeRequired: 'Please select an adapter type',
