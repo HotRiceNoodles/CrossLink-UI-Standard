@@ -8,6 +8,9 @@ export function installVueErrorPlugin(app: App): void {
   }
 
   window.addEventListener('error', (event) => {
+    const msg = event.message ?? ''
+    if (msg.includes('ResizeObserver')) return
+
     logger.error(
       '全局 JS 错误',
       {
