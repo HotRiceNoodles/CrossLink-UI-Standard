@@ -189,6 +189,7 @@ export interface UsageQuery {
 // System
 export interface SystemInfo {
   db_status: string
+  redis_status: string
   admin_username: string
   token_expiry: string
   version: string
@@ -205,6 +206,17 @@ export interface LicenseStatus {
   license_id: string | null
   expires_at: string | null
   max_nodes: number | null
+}
+
+// System Settings
+export interface SystemSettings {
+  log_content: boolean
+  debug_mode: boolean
+  log_middleware_errors: Record<string, unknown> | null
+  circuit_breaker_threshold: number
+  circuit_breaker_duration: number
+  retry_budget_per_second: number
+  key_email_doc_url: string
 }
 
 // Usage Log
