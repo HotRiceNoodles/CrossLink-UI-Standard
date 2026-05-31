@@ -60,7 +60,9 @@
             <a-grid-item :span="12">
               <div class="field-item">
                 <span class="field-label">{{ t('settings.licenseExpiry') }}</span>
-                <span class="field-value">{{ license?.expires_at || '--' }}</span>
+                <span class="field-value">
+                  {{ license?.expires_at ? license.expires_at.slice(0, 10) : '--' }}
+                </span>
               </div>
             </a-grid-item>
           </a-grid>
