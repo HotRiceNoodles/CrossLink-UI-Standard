@@ -25,6 +25,10 @@ export function installVueErrorPlugin(app: App): void {
 
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason
+    // 过滤 ResizeObserver 无害错误
+    const msg = reason instanceof Error ? reason.message : String(reason ?? '')
+    if (msg.includes('ResizeObserver')) return
+
     logger.error(
       '未捕获的 Promise 异常',
       {
