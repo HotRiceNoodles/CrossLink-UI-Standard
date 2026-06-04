@@ -9,7 +9,7 @@
       <div v-if="log" class="drawer-title-row">
         <div class="drawer-title-left">
           <span class="drawer-request-id">{{ log.request_id }}</span>
-          <a-button size="mini" type="text" @click="copyToClipboard(log.request_id)">
+          <a-button size="mini" type="text" @click="handleCopy(log.request_id)">
             <template #icon><icon-copy /></template>
           </a-button>
         </div>
@@ -247,7 +247,7 @@
             :header="t('logDetail.requestContent')"
           >
             <template #extra>
-              <a-button size="mini" type="text" @click.stop="copyToClipboard(log.user_message!)">
+              <a-button size="mini" type="text" @click.stop="handleCopy(log.user_message!)">
                 <template #icon><icon-copy /></template>
               </a-button>
             </template>
@@ -259,7 +259,7 @@
             :header="t('logDetail.responseContent')"
           >
             <template #extra>
-              <a-button size="mini" type="text" @click.stop="copyToClipboard(log.model_response!)">
+              <a-button size="mini" type="text" @click.stop="handleCopy(log.model_response!)">
                 <template #icon><icon-copy /></template>
               </a-button>
             </template>
@@ -278,6 +278,7 @@ import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
 import { getCurrencySymbol } from '@/utils/currency'
+import { copyToClipboard } from '@/utils/clipboard'
 
 const props = defineProps<{
   visible: boolean
@@ -319,9 +320,9 @@ function statusCodeColor(code: number): string {
 }
 
 // Clipboard
-async function copyToClipboard(text: string) {
+async function handleCopy(text: string) {
   try {
-    await navigator.clipboard.writeText(text)
+    await copyToClipboard(text)
     Message.success(t('common.copied'))
   } catch {
     Message.error(t('common.copyFail'))

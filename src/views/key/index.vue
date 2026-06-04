@@ -318,6 +318,7 @@ import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { formatTime } from '@/utils/format'
 import { getCurrencySymbol } from '@/utils/currency'
+import { copyToClipboard } from '@/utils/clipboard'
 import type { APIKey } from '@/types'
 
 const { t } = useI18n()
@@ -403,7 +404,7 @@ async function handleRegenerate(record: APIKey) {
 
 async function copyAndClose() {
   try {
-    await navigator.clipboard.writeText(createdKey.value)
+    await copyToClipboard(createdKey.value)
     Message.success(t('key.keyCopied'))
   } catch {
     Message.error(t('key.copyFailManual'))
