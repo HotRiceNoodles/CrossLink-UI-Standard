@@ -96,7 +96,15 @@ watch(
 )
 
 const menuRoutes = computed(() => {
-  return (appRoutes.children || []) as RouteRecordRaw[]
+  const allRoutes = (appRoutes.children || []) as RouteRecordRaw[]
+  return allRoutes.filter((route) => {
+    const requiredTier = route.meta?.requiredTier
+    if (!requiredTier) return true
+    const allowed = Array.isArray(requiredTier)
+      ? requiredTier.includes(userStore.tier)
+      : userStore.tier === requiredTier
+    return allowed
+  })
 })
 
 const selectedKeys = computed(() => {
