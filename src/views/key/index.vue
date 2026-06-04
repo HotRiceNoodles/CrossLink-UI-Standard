@@ -406,11 +406,11 @@ async function copyAndClose() {
   try {
     await copyToClipboard(createdKey.value)
     Message.success(t('key.keyCopied'))
+    keyModalVisible.value = false
+    createdKey.value = ''
   } catch {
     Message.error(t('key.copyFailManual'))
   }
-  keyModalVisible.value = false
-  createdKey.value = ''
 }
 
 function budgetPeriodLabel(period: string) {
