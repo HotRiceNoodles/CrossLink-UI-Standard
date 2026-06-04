@@ -265,6 +265,9 @@ export default {
     tableTags: 'Tags',
     noLogs: 'No request logs',
     fetchLogsFail: 'Failed to fetch request logs',
+    tagFallback: 'Fallback',
+    tagCache: 'Cache',
+    tagGuardrail: 'Guardrail',
   },
   logDetail: {
     basicInfo: 'Basic Info',
@@ -341,6 +344,10 @@ export default {
     message: 'Message',
     empty: 'No logs',
     all: 'All',
+    source: 'Source',
+    errorStack: 'Error Stack',
+    data: 'Data',
+    context: 'Context',
   },
   settings: {
     title: 'Settings',

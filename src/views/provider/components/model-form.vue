@@ -163,10 +163,12 @@ const strategyMap: Record<string, { label: string; color: string }> = {
   least_busy: { label: 'strategy.least_busy', color: '#F77234' },
 }
 
-const strategyOptions = Object.entries(strategyMap).map(([value, { label }]) => ({
-  value,
-  label: t(label),
-}))
+const strategyOptions = computed(() =>
+  Object.entries(strategyMap).map(([value, { label }]) => ({
+    value,
+    label: t(label),
+  })),
+)
 
 interface Props {
   visible: boolean
@@ -272,7 +274,7 @@ async function handleSubmit() {
     emit('update:visible', false)
     emit('success')
   } catch {
-    Message.error(props.isEdit ? t('common.fail') : t('common.fail'))
+    Message.error(t('common.operationFail'))
   } finally {
     submitLoading.value = false
   }

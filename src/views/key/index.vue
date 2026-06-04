@@ -134,7 +134,8 @@
           <a-table-column :title="t('key.tableBudget')" :width="120" align="right">
             <template #cell="{ record }">
               <template v-if="record.max_budget">
-                ¥{{ record.max_budget }} / {{ budgetPeriodLabel(record.budget_period) }}
+                {{ getCurrencySymbol() }}{{ record.max_budget }} /
+                {{ budgetPeriodLabel(record.budget_period) }}
               </template>
               <span v-else style="color: var(--color-text-3)">-</span>
             </template>
@@ -316,6 +317,7 @@ import { keyApi } from '@/api/key'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { formatTime } from '@/utils/format'
+import { getCurrencySymbol } from '@/utils/currency'
 import type { APIKey } from '@/types'
 
 const { t } = useI18n()

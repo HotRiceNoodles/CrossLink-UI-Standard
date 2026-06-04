@@ -25,7 +25,7 @@
         <a-col :span="4">
           <a-select
             v-model="sourceFilter"
-            placeholder="来源"
+            :placeholder="t('logger.source')"
             allow-clear
             size="small"
             style="width: 100%"
@@ -74,17 +74,17 @@
           </div>
           <div v-show="expandedId === log.id" class="log-detail">
             <div v-if="getError(log.data)" class="log-section">
-              <div class="log-section-title">错误堆栈</div>
+              <div class="log-section-title">{{ t('logger.errorStack') }}</div>
               <pre class="log-stack">{{
                 getError(log.data)?.stack || getError(log.data)?.message
               }}</pre>
             </div>
             <div v-if="getCleanData(log.data)" class="log-section">
-              <div class="log-section-title">数据</div>
+              <div class="log-section-title">{{ t('logger.data') }}</div>
               <pre class="log-data">{{ JSON.stringify(getCleanData(log.data), null, 2) }}</pre>
             </div>
             <div v-if="log.context" class="log-section">
-              <div class="log-section-title">上下文</div>
+              <div class="log-section-title">{{ t('logger.context') }}</div>
               <pre class="log-data">{{ JSON.stringify(log.context, null, 2) }}</pre>
             </div>
           </div>
@@ -98,7 +98,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { logger } from '../core'
+import { logger } from '@/logger/core'
 import type { LogEntry, LogLevel } from '../types'
 
 const { t } = useI18n()

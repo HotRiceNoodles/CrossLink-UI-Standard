@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { systemApi } from '@/api/system'
@@ -53,7 +53,7 @@ const formData = reactive({
   confirm_password: '',
 })
 
-const rules = {
+const rules = computed(() => ({
   old_password: [{ required: true, message: t('profile.oldPasswordRequired') }],
   new_password: [
     { required: true, message: t('profile.newPasswordRequired') },
@@ -69,7 +69,7 @@ const rules = {
       },
     },
   ],
-}
+}))
 
 function handleClose() {
   emit('update:visible', false)

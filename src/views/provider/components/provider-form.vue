@@ -175,7 +175,7 @@ async function handleSubmit() {
     emit('update:visible', false)
     emit('success')
   } catch {
-    Message.error(props.isEdit ? t('common.fail') : t('common.fail'))
+    Message.error(t('common.operationFail'))
   } finally {
     submitLoading.value = false
   }

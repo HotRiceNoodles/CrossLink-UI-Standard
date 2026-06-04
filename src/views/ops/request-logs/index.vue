@@ -242,10 +242,14 @@
                 v-if="record.fallback_count > 0 || record.cache_hit || record.guardrail_triggered"
               >
                 <a-tag v-if="record.fallback_count > 0" color="orangered" size="small">
-                  fallback
+                  {{ t('ops.tagFallback') }}
                 </a-tag>
-                <a-tag v-if="record.cache_hit" color="arcoblue" size="small">cache</a-tag>
-                <a-tag v-if="record.guardrail_triggered" color="red" size="small">guardrail</a-tag>
+                <a-tag v-if="record.cache_hit" color="arcoblue" size="small">
+                  {{ t('ops.tagCache') }}
+                </a-tag>
+                <a-tag v-if="record.guardrail_triggered" color="red" size="small">
+                  {{ t('ops.tagGuardrail') }}
+                </a-tag>
               </template>
               <span v-else class="cell-dash">-</span>
             </template>

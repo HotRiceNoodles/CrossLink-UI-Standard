@@ -9,9 +9,13 @@ const route = useRoute()
 const router = useRouter()
 
 const { params, query } = route
-const { path } = params
-router.replace({
-  path: '/' + (Array.isArray(path) ? path.join('/') : path),
-  query,
-})
+const path = params.path
+if (path) {
+  router.replace({
+    path: '/' + (Array.isArray(path) ? path.join('/') : path),
+    query,
+  })
+} else {
+  router.replace({ path: '/', query })
+}
 </script>

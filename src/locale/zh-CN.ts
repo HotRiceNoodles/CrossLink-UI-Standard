@@ -264,6 +264,9 @@ export default {
     tableTags: '标签',
     noLogs: '暂无请求日志',
     fetchLogsFail: '获取请求日志失败',
+    tagFallback: '回退',
+    tagCache: '缓存',
+    tagGuardrail: '防护',
   },
   logDetail: {
     basicInfo: '基本信息',
@@ -340,6 +343,10 @@ export default {
     message: '消息',
     empty: '暂无日志',
     all: '全部',
+    source: '来源',
+    errorStack: '错误堆栈',
+    data: '数据',
+    context: '上下文',
   },
   settings: {
     title: '设置',

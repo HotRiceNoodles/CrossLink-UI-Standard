@@ -63,7 +63,8 @@
           </div>
           <div class="usage-metric">
             <span class="usage-metric-value">
-              &yen;{{ log.cost != null ? log.cost.toFixed(4) : '-' }}
+              {{ getCurrencySymbol(log.currency)
+              }}{{ log.cost != null ? log.cost.toFixed(4) : '-' }}
             </span>
             <span class="usage-metric-label">
               {{ t('logDetail.costWithCurrency', { currency: log.currency }) }}
@@ -276,6 +277,7 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
+import { getCurrencySymbol } from '@/utils/currency'
 
 const props = defineProps<{
   visible: boolean

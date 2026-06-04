@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
@@ -73,10 +73,10 @@ const formData = reactive({
   password: '',
 })
 
-const rules = {
+const rules = computed(() => ({
   username: [{ required: true, message: t('login.usernameRequired') }],
   password: [{ required: true, message: t('login.passwordRequired') }],
-}
+}))
 
 async function handleLogin() {
   loading.value = true

@@ -1,13 +1,12 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import svgLoader from 'vite-svg-loader'
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '../package.json'), 'utf-8'))
 
 export default defineConfig({
-  plugins: [vue(), svgLoader()],
+  plugins: [vue()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
