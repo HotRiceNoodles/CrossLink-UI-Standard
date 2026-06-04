@@ -2,126 +2,72 @@
   <div class="org-page">
     <a-card class="general-card">
       <template #title>{{ t('auth.organizations.title') }}</template>
+      <template #extra>
+        <a-space>
+          <a-button
+            v-if="userStore.hasPermission('org:create')"
+            type="primary"
+            @click="handleCreate"
+          >
+            <template #icon><icon-plus /></template>
+            {{ t('auth.organizations.createOrg') }}
+          </a-button>
+          <a-tooltip :content="t('common.refresh')">
+            <a-button @click="loadData">
+              <template #icon><icon-refresh /></template>
+            </a-button>
+          </a-tooltip>
+        </a-space>
+      </template>
 
       <!-- Search -->
-      <a-row :gutter="16" align="center">
-        <a-col :span="6">
-          <a-input v-model="filter.keyword" :placeholder="t('common.search')" allow-clear />
-        </a-col>
-        <a-col :span="6">
-          <a-space>
-            <a-button type="primary" @click="applyFilter">{{ t('common.search') }}</a-button>
-            <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
-          </a-space>
-        </a-col>
-      </a-row>
+      <a-input-search
+        v-model="filter.keyword"
+        :placeholder="t('common.search')"
+        allow-clear
+        style="width: 280px"
+        @search="applyFilter"
+        @clear="resetFilter"
+      />
 
       <a-divider style="margin: 16px 0" />
 
-      <!-- Toolbar -->
-      <a-row justify="space-between" align="center" style="margin-bottom: 16px">
+      <!-- Count -->
+      <a-row justify="end" align="center">
         <a-col>
           <span style="color: var(--color-text-3); font-size: 13px">
             {{ t('common.total', [filteredList.length]) }}
           </span>
         </a-col>
-        <a-col>
-          <a-space>
-            <a-button
-              v-if="userStore.hasPermission('org:create')"
-              type="primary"
-              @click="handleCreate"
-            >
-              <template #icon><icon-plus /></template>
-              {{ t('auth.organizations.createOrg') }}
-            </a-button>
-            <a-tooltip :content="t('common.refresh')">
-              <a-button @click="fetchData">
-                <template #icon><icon-refresh /></template>
-              </a-button>
-            </a-tooltip>
-          </a-space>
-        </a-col>
       </a-row>
 
-      <!-- Table -->
-      <a-table
-        :data="filteredList"
-        :loading="loading"
-        :pagination="pagination"
-        row-key="id"
-        size="small"
-        :bordered="false"
-        @page-change="onPageChange"
-        @page-size-change="onPageSizeChange"
-      >
-        <template #columns>
-          <a-table-column :title="t('auth.organizations.tableName')" data-index="name" :width="140">
-            <template #cell="{ record }">
-              <span style="font-weight: 600">{{ record.name }}</span>
-            </template>
-          </a-table-column>
+      <!-- Card Grid -->
+      <a-spin :loading="loading" style="width: 100%; min-height: 200px">
+        <a-row :gutter="16" style="margin-top: 16px">
+          <a-col v-for="org in paginatedList" :key="org.id" :span="8" style="margin-bottom: 16px">
+            <org-card
+              :org="org"
+              :budget="budgetMap[org.id] ?? null"
+              @edit="handleEdit"
+              @detail="openDetailDrawer"
+              @delete="handleDeleteOrg"
+            />
+          </a-col>
+        </a-row>
+        <a-empty v-if="!loading && filteredList.length === 0" style="padding: 48px 0" />
+      </a-spin>
 
-          <a-table-column
-            :title="t('auth.organizations.tableDisplayName')"
-            data-index="display_name"
-            :width="160"
-          />
-
-          <a-table-column :title="t('auth.organizations.tableBudget')" :width="120" align="right">
-            <template #cell="{ record }">
-              <template v-if="record.budget_limit">
-                ¥{{ record.budget_limit }} / {{ budgetPeriodLabel(record.budget_period) }}
-              </template>
-              <span v-else style="color: var(--color-text-3)">{{ t('common.unlimited') }}</span>
-            </template>
-          </a-table-column>
-
-          <a-table-column
-            :title="t('auth.organizations.tableRateLimit')"
-            :width="140"
-            align="center"
-          >
-            <template #cell="{ record }">
-              <span>TPM: {{ record.tpm_limit || t('common.unlimited') }}</span>
-              <br />
-              <span>RPM: {{ record.rpm_limit || t('common.unlimited') }}</span>
-            </template>
-          </a-table-column>
-
-          <a-table-column :title="t('common.actions')" :width="200" fixed="right">
-            <template #cell="{ record }">
-              <a-space :size="4">
-                <a-button
-                  v-if="userStore.hasPermission('org:update')"
-                  type="text"
-                  size="small"
-                  @click="handleEdit(record)"
-                >
-                  {{ t('common.edit') }}
-                </a-button>
-                <a-button
-                  v-if="userStore.hasPermission('org:manage_members')"
-                  type="text"
-                  size="small"
-                  @click="openDetailDrawer(record)"
-                >
-                  {{ t('auth.organizations.detail') }}
-                </a-button>
-                <a-button
-                  v-if="userStore.hasPermission('org:delete')"
-                  type="text"
-                  size="small"
-                  status="danger"
-                  @click="handleDeleteOrg(record)"
-                >
-                  {{ t('common.delete') }}
-                </a-button>
-              </a-space>
-            </template>
-          </a-table-column>
-        </template>
-      </a-table>
+      <!-- Pagination -->
+      <div v-if="filteredList.length > pageSize" style="margin-top: 16px; text-align: right">
+        <a-pagination
+          v-model:current="current"
+          :total="filteredList.length"
+          :page-size="pageSize"
+          show-total
+          show-page-size
+          @page-size-change="handlePageSizeChange"
+        />
+      </div>
     </a-card>
 
     <!-- Create / Edit Drawer -->
@@ -263,13 +209,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message, Modal } from '@arco-design/web-vue'
 import { useUserStore } from '@/store'
 import { orgApi } from '@/api/rbac'
 import { useCrud } from '@/composables/use-crud'
-import type { Organization } from '@/types'
+import type { Organization, OrgBudget } from '@/types'
+import OrgCard from './components/org-card.vue'
 import OrgMemberDrawer from './components/member-drawer.vue'
 import BudgetPanel from './components/budget-panel.vue'
 
@@ -284,8 +231,17 @@ const detailOrgId = ref(0)
 const credentialsVisible = ref(false)
 const credentials = reactive({ username: '', password: '' })
 
+// Budget data map
+const budgetMap = ref<Record<number, OrgBudget>>({})
+
+// Pagination (manual, independent of useCrud)
+const current = ref(1)
+const pageSize = ref(12)
+
+// useCrud with enriched fetchApi (detail API adds member_count, team_count, key_count)
 const {
   loading,
+  list,
   filteredList,
   drawerVisible,
   isEdit,
@@ -293,7 +249,6 @@ const {
   formRef,
   formData,
   filter,
-  pagination,
   fetchData,
   applyFilter,
   resetFilter,
@@ -302,7 +257,19 @@ const {
   handleDrawerClose,
   handleDrawerSubmit,
 } = useCrud<Organization, { keyword: string }>({
-  fetchApi: orgApi.list,
+  fetchApi: async () => {
+    const res = await orgApi.list()
+    // Enrich with detail data (member_count, team_count, key_count)
+    const enriched = await Promise.all(
+      res.data.map((org) =>
+        orgApi
+          .detail(org.id)
+          .then((r) => ({ ...org, ...r.data }))
+          .catch(() => org),
+      ),
+    )
+    return { data: enriched }
+  },
   createApi: orgApi.create,
   updateApi: orgApi.update,
   idField: 'id',
@@ -338,6 +305,37 @@ const formRules = {
   display_name: [{ required: true, message: t('auth.organizations.displayNameRequired') }],
 }
 
+// Fetch budget data for all orgs in parallel
+async function fetchAllBudgets() {
+  const orgs = list.value
+  if (!orgs.length) return
+  const results = await Promise.allSettled(orgs.map((org) => orgApi.budget(org.id)))
+  const map: Record<number, OrgBudget> = {}
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') {
+      map[orgs[i].id] = r.value.data
+    }
+  })
+  budgetMap.value = map
+}
+
+// Combined data loading: fetch orgs (enriched) + budgets
+async function loadData() {
+  await fetchData()
+  await fetchAllBudgets()
+}
+
+// Paginated list for card grid
+const paginatedList = computed(() => {
+  const start = (current.value - 1) * pageSize.value
+  return filteredList.value.slice(start, start + pageSize.value)
+})
+
+function handlePageSizeChange(newSize: number) {
+  pageSize.value = newSize
+  current.value = 1
+}
+
 function handleDeleteOrg(record: Organization) {
   Modal.confirm({
     title: t('common.confirm'),
@@ -348,7 +346,7 @@ function handleDeleteOrg(record: Organization) {
       try {
         await orgApi.delete(record.id)
         Message.success(t('auth.organizations.deleteSuccess'))
-        await fetchData()
+        await loadData()
       } catch {
         Message.error(t('common.deleteFail'))
       }
@@ -361,24 +359,15 @@ function openDetailDrawer(record: Organization) {
   detailDrawerVisible.value = true
 }
 
-function budgetPeriodLabel(period: string) {
-  const map: Record<string, string> = {
-    daily: t('key.periodDay'),
-    weekly: t('key.periodWeek'),
-    monthly: t('key.periodMonth'),
-  }
-  return map[period] || period
-}
-
 onMounted(() => {
-  fetchData()
+  loadData()
 })
 </script>
 
 <style scoped lang="less">
 .org-page {
-  :deep(.arco-table) {
-    font-size: 13px;
+  :deep(.arco-pagination) {
+    margin-top: 8px;
   }
 }
 </style>
