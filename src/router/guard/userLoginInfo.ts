@@ -44,6 +44,21 @@ function createLoginGuard(router: Router) {
   })
 }
 
+function createTierGuard(router: Router) {
+  router.beforeEach((to) => {
+    const match = to.matched.find((m) => m.meta?.requiredTier)
+    if (!match) return true
+    const requiredTier = match.meta.requiredTier
+    const userStore = useUserStore()
+    const allowed = Array.isArray(requiredTier)
+      ? requiredTier.includes(userStore.tier)
+      : userStore.tier === requiredTier
+    if (!allowed) return { name: 'notFound' }
+    return true
+  })
+}
+
 export default function createRouteGuard(router: Router) {
   createLoginGuard(router)
+  createTierGuard(router)
 }

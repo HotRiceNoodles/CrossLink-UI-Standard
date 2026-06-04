@@ -43,6 +43,9 @@ import {
   IconDashboard,
   IconMindMapping,
   IconTool,
+  IconUserGroup,
+  IconNav,
+  IconPublic,
 } from '@arco-design/web-vue/es/icon'
 
 const icons = [
@@ -76,6 +79,9 @@ const icons = [
   IconDashboard,
   IconMindMapping,
   IconTool,
+  IconUserGroup,
+  IconNav,
+  IconPublic,
 ]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')
