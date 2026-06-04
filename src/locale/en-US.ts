@@ -394,6 +394,104 @@ export default {
       security: 'Security',
       role: 'Role Management',
       mcp: 'MCP Services',
+
+      // System
+      'system:password': 'Change Password',
+      'system:view': 'View System',
+      'system:update': 'Update System',
+      'license:view': 'View License',
+      'license:manage': 'Manage License',
+      'playground:use': 'Use Playground',
+      'insight:manage': 'Manage Insights',
+
+      // Provider
+      'provider:list': 'List Providers',
+      'provider:create': 'Create Provider',
+      'provider:update': 'Update Provider',
+      'provider:delete': 'Delete Provider',
+      'provider:test': 'Test Connectivity',
+
+      // Model
+      'model:list': 'List Models',
+      'model:create': 'Create Model',
+      'model:update': 'Update Model',
+      'model:delete': 'Delete Model',
+
+      // Key
+      'key:list': 'List API Keys',
+      'key:create': 'Create API Key',
+      'key:update': 'Update API Key',
+      'key:delete': 'Delete API Key',
+      'key:regenerate': 'Regenerate Key',
+      'key:rotate': 'Rotate Key',
+      'key:hashes': 'View Key Hashes',
+
+      // User
+      'user:list': 'List Users',
+      'user:create': 'Create User',
+      'user:update': 'Update User',
+      'user:delete': 'Delete User',
+
+      // Team
+      'team:list': 'List Teams',
+      'team:create': 'Create Team',
+      'team:update': 'Update Team',
+      'team:delete': 'Delete Team',
+      'team:manage_members': 'Manage Members',
+
+      // Organization
+      'org:list': 'List Organizations',
+      'org:create': 'Create Organization',
+      'org:update': 'Update Organization',
+      'org:delete': 'Delete Organization',
+      'org:manage_members': 'Manage Members',
+      'org:view_billing': 'View Billing',
+      'org:manage_billing': 'Manage Billing',
+
+      // Operations
+      'usage:list': 'View Usage',
+      'usage:stats': 'Usage Statistics',
+      'usage:export': 'Export Usage',
+      'debug:list': 'View Debug Logs',
+      'debug:clear': 'Clear Debug Logs',
+      'audit:list': 'View Audit Logs',
+      'audit:export': 'Export Audit Logs',
+      'budget:manage': 'Manage Budget',
+
+      // Security
+      'guardrail:list': 'List Guardrails',
+      'guardrail:create': 'Create Guardrail',
+      'guardrail:update': 'Update Guardrail',
+      'guardrail:delete': 'Delete Guardrail',
+      'guardrail:test': 'Test Guardrail',
+      'guardrail_alert:list': 'List Guardrail Alerts',
+      'guardrail_alert:create': 'Create Guardrail Alert',
+      'guardrail_alert:update': 'Update Guardrail Alert',
+      'guardrail_alert:delete': 'Delete Guardrail Alert',
+      'guardrail_alert:logs': 'View Guardrail Logs',
+      'secret:test': 'Test Secret',
+      'secret:manage': 'Manage Secrets',
+      'agent_shield:view': 'View Agent Shield',
+      'agent_shield:manage': 'Manage Agent Shield',
+      'fingerprint:list': 'List Fingerprints',
+      'fingerprint:view': 'View Fingerprint',
+      'fingerprint:manage': 'Manage Fingerprints',
+
+      // Role
+      'role:list': 'List Roles',
+      'role:create': 'Create Role',
+      'role:update': 'Update Role',
+      'role:delete': 'Delete Role',
+
+      // MCP
+      'mcp:list': 'List MCP Services',
+      'mcp:view': 'View MCP Service',
+      'mcp:create': 'Create MCP Service',
+      'mcp:update': 'Update MCP Service',
+      'mcp:delete': 'Delete MCP Service',
+      'mcp:permission': 'Manage MCP Permissions',
+      'mcp:logs': 'View MCP Logs',
+      'mcp:stats': 'View MCP Statistics',
     },
   },
   ops: {

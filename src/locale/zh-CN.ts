@@ -391,6 +391,104 @@ export default {
       security: '安全防护',
       role: '角色管理',
       mcp: 'MCP 服务',
+
+      // 系统管理
+      'system:password': '修改密码',
+      'system:view': '查看系统',
+      'system:update': '更新系统',
+      'license:view': '查看授权',
+      'license:manage': '管理授权',
+      'playground:use': '使用 Playground',
+      'insight:manage': '管理洞察',
+
+      // 供应商
+      'provider:list': '查看供应商列表',
+      'provider:create': '创建供应商',
+      'provider:update': '更新供应商',
+      'provider:delete': '删除供应商',
+      'provider:test': '测试连通性',
+
+      // 模型
+      'model:list': '查看模型列表',
+      'model:create': '创建模型',
+      'model:update': '更新模型',
+      'model:delete': '删除模型',
+
+      // API 密钥
+      'key:list': '查看密钥列表',
+      'key:create': '创建密钥',
+      'key:update': '更新密钥',
+      'key:delete': '删除密钥',
+      'key:regenerate': '重新生成密钥',
+      'key:rotate': '轮换密钥',
+      'key:hashes': '查看密钥哈希',
+
+      // 用户管理
+      'user:list': '查看用户列表',
+      'user:create': '创建用户',
+      'user:update': '更新用户',
+      'user:delete': '删除用户',
+
+      // 团队管理
+      'team:list': '查看团队列表',
+      'team:create': '创建团队',
+      'team:update': '更新团队',
+      'team:delete': '删除团队',
+      'team:manage_members': '管理成员',
+
+      // 组织管理
+      'org:list': '查看组织列表',
+      'org:create': '创建组织',
+      'org:update': '更新组织',
+      'org:delete': '删除组织',
+      'org:manage_members': '管理成员',
+      'org:view_billing': '查看账单',
+      'org:manage_billing': '管理账单',
+
+      // 运维监控
+      'usage:list': '查看用量',
+      'usage:stats': '用量统计',
+      'usage:export': '导出用量',
+      'debug:list': '查看调试日志',
+      'debug:clear': '清除调试日志',
+      'audit:list': '查看审计日志',
+      'audit:export': '导出审计日志',
+      'budget:manage': '管理预算',
+
+      // 安全防护
+      'guardrail:list': '查看防护规则列表',
+      'guardrail:create': '创建防护规则',
+      'guardrail:update': '更新防护规则',
+      'guardrail:delete': '删除防护规则',
+      'guardrail:test': '测试防护规则',
+      'guardrail_alert:list': '查看防护告警列表',
+      'guardrail_alert:create': '创建防护告警',
+      'guardrail_alert:update': '更新防护告警',
+      'guardrail_alert:delete': '删除防护告警',
+      'guardrail_alert:logs': '查看防护日志',
+      'secret:test': '测试密钥',
+      'secret:manage': '管理密钥',
+      'agent_shield:view': '查看 Agent Shield',
+      'agent_shield:manage': '管理 Agent Shield',
+      'fingerprint:list': '查看指纹列表',
+      'fingerprint:view': '查看指纹',
+      'fingerprint:manage': '管理指纹',
+
+      // 角色管理
+      'role:list': '查看角色列表',
+      'role:create': '创建角色',
+      'role:update': '更新角色',
+      'role:delete': '删除角色',
+
+      // MCP 服务
+      'mcp:list': '查看 MCP 服务列表',
+      'mcp:view': '查看 MCP 服务',
+      'mcp:create': '创建 MCP 服务',
+      'mcp:update': '更新 MCP 服务',
+      'mcp:delete': '删除 MCP 服务',
+      'mcp:permission': '管理 MCP 权限',
+      'mcp:logs': '查看 MCP 日志',
+      'mcp:stats': '查看 MCP 统计',
     },
   },
   ops: {

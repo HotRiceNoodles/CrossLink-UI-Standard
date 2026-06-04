@@ -19,7 +19,7 @@
         <a-checkbox-group :model-value="modelValue" @change="handleChange">
           <a-space wrap>
             <a-checkbox v-for="action in group.actions" :key="action" :value="action">
-              {{ action }}
+              {{ t(`auth.permissions.${action}`) }}
             </a-checkbox>
           </a-space>
         </a-checkbox-group>
