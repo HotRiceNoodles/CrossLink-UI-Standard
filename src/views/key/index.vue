@@ -302,7 +302,12 @@
       </a-alert>
       <a-input :model-value="createdKey" readonly style="font-family: monospace" />
       <div style="margin-top: 16px; text-align: right">
-        <a-button type="primary" @click="copyAndClose">{{ t('key.copyAndClose') }}</a-button>
+        <a-space>
+          <a-button v-if="copyFailed" @click="confirmCopied">
+            {{ t('key.confirmedCopied') }}
+          </a-button>
+          <a-button type="primary" @click="copyAndClose">{{ t('key.copyAndClose') }}</a-button>
+        </a-space>
       </div>
     </a-modal>
   </div>
@@ -329,6 +334,7 @@ const modelOptions = ref<string[]>([])
 // Key reveal modal (unique to this view)
 const keyModalVisible = ref(false)
 const createdKey = ref('')
+const copyFailed = ref(false)
 
 const {
   loading,
@@ -406,11 +412,21 @@ async function copyAndClose() {
   try {
     await copyToClipboard(createdKey.value)
     Message.success(t('key.keyCopied'))
-    keyModalVisible.value = false
-    createdKey.value = ''
+    closeKeyModal()
   } catch {
+    copyFailed.value = true
     Message.error(t('key.copyFailManual'))
   }
+}
+
+function confirmCopied() {
+  closeKeyModal()
+}
+
+function closeKeyModal() {
+  keyModalVisible.value = false
+  createdKey.value = ''
+  copyFailed.value = false
 }
 
 function budgetPeriodLabel(period: string) {
