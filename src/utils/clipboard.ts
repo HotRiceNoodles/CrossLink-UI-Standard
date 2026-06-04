@@ -3,20 +3,15 @@
  *
  * Priority:
  * 1. navigator.clipboard.writeText (modern API, requires HTTPS/localhost)
- * 2. textarea + execCommand('copy') (works in all HTTP contexts)
+ * 2. textarea + execCommand('copy') (synchronous, preserves user gesture)
  */
-export async function copyToClipboard(text: string): Promise<void> {
-  // Try modern Clipboard API first
-  if (navigator.clipboard?.writeText) {
-    try {
-      await navigator.clipboard.writeText(text)
-      return
-    } catch {
-      // Fall through to legacy method
-    }
+export function copyToClipboard(text: string): Promise<void> {
+  // Try modern Clipboard API (only in secure contexts)
+  if (window.isSecureContext && navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text))
   }
 
-  // Fallback: textarea + execCommand
+  // Fallback: textarea + execCommand (works in HTTP)
   return fallbackCopy(text)
 }
 
@@ -24,26 +19,29 @@ function fallbackCopy(text: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const textarea = document.createElement('textarea')
     textarea.value = text
+    // Prevent mobile keyboard from showing
+    textarea.setAttribute('readonly', '')
     // Make invisible but still functional
     textarea.style.position = 'fixed'
     textarea.style.left = '-9999px'
     textarea.style.top = '-9999px'
     textarea.style.opacity = '0'
     document.body.appendChild(textarea)
-    textarea.focus()
-    textarea.select()
+    // iOS Safari needs setSelectionRange, not select()
+    textarea.setSelectionRange(0, textarea.value.length)
 
+    let success = false
     try {
-      const success = document.execCommand('copy')
-      document.body.removeChild(textarea)
-      if (success) {
-        resolve()
-      } else {
-        reject(new Error('execCommand copy failed'))
-      }
-    } catch (err) {
-      document.body.removeChild(textarea)
-      reject(err)
+      success = document.execCommand('copy')
+    } catch {
+      // ignore
+    }
+    document.body.removeChild(textarea)
+
+    if (success) {
+      resolve()
+    } else {
+      reject(new Error('Copy failed'))
     }
   })
 }
