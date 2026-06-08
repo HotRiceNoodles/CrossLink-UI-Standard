@@ -5,6 +5,7 @@
       v-if="device === 'desktop'"
       :menu-collapse="menuCollapse"
       :menu-routes="menuRoutes"
+      :footer-routes="footerRoutes"
       :selected-keys="selectedKeys"
       :open-keys="openKeys"
       @menu-item-click="onMenuItemClick"
@@ -26,6 +27,7 @@
       <sidebar
         :menu-collapse="false"
         :menu-routes="menuRoutes"
+        :footer-routes="footerRoutes"
         :selected-keys="selectedKeys"
         :open-keys="openKeys"
         @menu-item-click="onMobileMenuItemClick"
@@ -102,6 +104,9 @@ const menuRoutes = computed(() => {
   const isAdminMode = isDefaultRoute && userStore.isEnterprise && userStore.isPlatformAdmin
 
   return children.filter((r) => {
+    // Footer-positioned routes are excluded from the main menu
+    if (r.meta?.sidebarFooter) return false
+
     // Tier check
     const requiredTier = r.meta?.requiredTier
     if (requiredTier) {
@@ -123,6 +128,15 @@ const menuRoutes = computed(() => {
       return !requiresAdmin
     }
   })
+})
+
+// Footer routes — always visible regardless of admin/feature mode
+const footerRoutes = computed(() => {
+  const activeParent = route.matched.find((m) => m.name === 'orgRoot' || m.name === 'default')
+  const children = (activeParent?.children || []) as RouteRecordRaw[]
+  return children
+    .filter((r) => !!r.meta?.sidebarFooter)
+    .sort((a, b) => ((a.meta?.order as number) ?? 999) - ((b.meta?.order as number) ?? 999))
 })
 
 const selectedKeys = computed(() => {

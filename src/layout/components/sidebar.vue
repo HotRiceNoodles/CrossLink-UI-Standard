@@ -38,6 +38,29 @@
       </template>
     </a-menu>
     <div class="sidebar-footer">
+      <div v-if="footerRoutes.length" class="footer-actions">
+        <a-tooltip
+          v-for="fr in footerRoutes"
+          :key="fr.name as string"
+          :content="t(`menu.${fr.meta?.menuKey}`)"
+          position="right"
+          mini
+          :disabled="!menuCollapse"
+        >
+          <div
+            class="footer-action-item"
+            :class="{ active: selectedKeys.includes(fr.name as string) }"
+            @click="emit('menuItemClick', fr.name as string)"
+          >
+            <component :is="fr.meta?.icon as string" class="footer-action-icon" />
+            <transition name="fade">
+              <span v-show="!menuCollapse" class="footer-action-label">
+                {{ t(`menu.${fr.meta?.menuKey}`) }}
+              </span>
+            </transition>
+          </div>
+        </a-tooltip>
+      </div>
       <span class="version-text" @click="emit('versionTap')">v{{ version }}</span>
     </div>
   </aside>
@@ -53,6 +76,7 @@ const version = __APP_VERSION__
 defineProps<{
   menuCollapse: boolean
   menuRoutes: RouteRecordRaw[]
+  footerRoutes: RouteRecordRaw[]
   selectedKeys: string[]
   openKeys: string[]
 }>()
@@ -117,15 +141,63 @@ const emit = defineEmits<{
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 12px;
+  padding: 8px 12px;
   border-top: 1px solid var(--color-fill-2);
-  text-align: center;
+}
+
+.footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.footer-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+
+  &:hover {
+    background-color: var(--color-fill-2);
+  }
+
+  &.active {
+    background-color: rgb(var(--arcoblue-1));
+    color: rgb(var(--arcoblue-6));
+
+    .footer-action-icon {
+      color: rgb(var(--arcoblue-6));
+    }
+  }
+}
+
+.footer-action-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-2);
+}
+
+.footer-action-label {
+  font-size: 13px;
+  color: var(--color-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .version-text {
+  display: block;
+  text-align: center;
   font-size: 11px;
   color: var(--color-text-4);
   cursor: default;
   user-select: none;
+  padding-top: 4px;
 }
 </style>
