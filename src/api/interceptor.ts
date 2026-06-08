@@ -7,6 +7,9 @@ const request = axios.create({
   baseURL: '/admin/api',
   timeout: 30000,
   withCredentials: true,
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+  },
 })
 
 request.interceptors.request.use((config) => {
