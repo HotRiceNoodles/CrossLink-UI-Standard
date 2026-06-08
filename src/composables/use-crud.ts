@@ -18,7 +18,10 @@ interface CrudOptions<T, F extends Record<string, unknown> = Record<string, unkn
   deleteErrorMsg?: string
   idField?: keyof T & string
   /** Called after successful create. When provided, the composable skips auto hideDrawer. */
-  onCreated?: (response: Record<string, unknown>) => void | Promise<void>
+  onCreated?: (
+    response: Record<string, unknown>,
+    fullResponse?: Record<string, unknown>,
+  ) => void | Promise<void>
   /** When true, filteredList reads filter directly instead of appliedFilter. */
   immediateFilter?: boolean
   /** Transform formData before sending to create/update API. */
@@ -141,7 +144,7 @@ export function useCrud<
       } else if (options.createApi) {
         const res = await options.createApi(payload)
         if (options.onCreated) {
-          await options.onCreated(res.data)
+          await options.onCreated(res.data, res)
         } else {
           hideDrawer()
         }

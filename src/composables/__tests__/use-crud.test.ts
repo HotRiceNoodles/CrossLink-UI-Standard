@@ -173,7 +173,10 @@ describe('useCrud — onCreated callback', () => {
     await fetchData()
     await handleDrawerSubmit()
     expect(onCreated).toHaveBeenCalledOnce()
-    expect(onCreated).toHaveBeenCalledWith({ id: 10, secret: 'abc' })
+    expect(onCreated).toHaveBeenCalledWith(
+      { id: 10, secret: 'abc' },
+      { data: { id: 10, secret: 'abc' } },
+    )
   })
 })
 

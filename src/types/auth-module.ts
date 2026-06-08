@@ -103,6 +103,12 @@ export interface OrganizationCreateRequest {
   tpm_limit?: number
   admin_email?: string
 }
+export interface AdminCredentials {
+  username: string
+  password: string
+  email: string
+  email_sent: boolean
+}
 export interface OrgMember {
   id: number
   user_id: number

@@ -188,21 +188,47 @@
       :footer="false"
       :width="520"
     >
-      <a-alert type="warning" :closable="false" style="margin-bottom: 16px">
+      <a-alert
+        v-if="credentials.email && !credentialsEmailSent"
+        type="error"
+        :closable="false"
+        style="margin-bottom: 16px"
+      >
+        {{ t('auth.organizations.credentialsEmailFailed', { email: credentials.email }) }}
+      </a-alert>
+      <a-alert v-else type="warning" :closable="false" style="margin-bottom: 16px">
         {{ t('auth.organizations.credentialsWarning') }}
       </a-alert>
       <a-form :model="{}" layout="vertical">
         <a-form-item :label="t('auth.organizations.username')">
-          <a-input :model-value="credentials.username" readonly />
+          <a-input :model-value="credentials.username" readonly>
+            <template #append>
+              <a-button type="text" @click="handleCopyCredential('username')">
+                <template #icon><icon-copy /></template>
+              </a-button>
+            </template>
+          </a-input>
         </a-form-item>
         <a-form-item :label="t('auth.organizations.password')">
-          <a-input-password :model-value="credentials.password" readonly />
+          <a-input-password :model-value="credentials.password" readonly>
+            <template #append>
+              <a-button type="text" @click="handleCopyCredential('password')">
+                <template #icon><icon-copy /></template>
+              </a-button>
+            </template>
+          </a-input-password>
         </a-form-item>
       </a-form>
       <div style="margin-top: 16px; text-align: right">
-        <a-button type="primary" @click="credentialsVisible = false">
-          {{ t('common.confirm') }}
-        </a-button>
+        <a-space>
+          <a-button @click="handleCopyAll">
+            <template #icon><icon-copy /></template>
+            {{ t('auth.organizations.copyAll') }}
+          </a-button>
+          <a-button type="primary" @click="credentialsVisible = false">
+            {{ t('common.confirm') }}
+          </a-button>
+        </a-space>
       </div>
     </a-modal>
   </div>
@@ -214,8 +240,10 @@ import { useI18n } from 'vue-i18n'
 import { Message, Modal } from '@arco-design/web-vue'
 import { useUserStore } from '@/store'
 import { orgApi } from '@/api/rbac'
+import { copyToClipboard } from '@/utils/clipboard'
 import { useCrud } from '@/composables/use-crud'
 import type { Organization, OrgBudget } from '@/types'
+import type { AdminCredentials } from '@/types/auth-module'
 import OrgCard from './components/org-card.vue'
 import OrgMemberDrawer from './components/member-drawer.vue'
 import BudgetPanel from './components/budget-panel.vue'
@@ -229,7 +257,27 @@ const detailOrgId = ref(0)
 
 // Credentials modal
 const credentialsVisible = ref(false)
-const credentials = reactive({ username: '', password: '' })
+const credentialsEmailSent = ref(false)
+const credentials = reactive({ username: '', password: '', email: '' })
+
+async function handleCopyCredential(field: 'username' | 'password') {
+  try {
+    await copyToClipboard(credentials[field])
+    Message.success(t('common.copied'))
+  } catch {
+    Message.error(t('common.copyFail'))
+  }
+}
+
+async function handleCopyAll() {
+  const text = `${t('auth.organizations.username')}: ${credentials.username}\n${t('auth.organizations.password')}: ${credentials.password}`
+  try {
+    await copyToClipboard(text)
+    Message.success(t('auth.organizations.copyAllSuccess'))
+  } catch {
+    Message.error(t('common.copyFail'))
+  }
+}
 
 // Budget data map
 const budgetMap = ref<Record<number, OrgBudget>>({})
@@ -291,15 +339,25 @@ const {
     return item.name.toLowerCase().includes(kw) || item.display_name.toLowerCase().includes(kw)
   },
   immediateFilter: true,
-  onCreated: async (responseData) => {
+  onCreated: async (_responseData, fullResponse) => {
     Message.success(t('common.createSuccess'))
     hideDrawer()
-    const data = responseData as { admin_credentials?: { username: string; password: string } }
-    if (data.admin_credentials) {
-      credentials.username = data.admin_credentials.username
-      credentials.password = data.admin_credentials.password
-      credentialsVisible.value = true
+
+    const creds = (fullResponse as { admin_credentials?: AdminCredentials })?.admin_credentials
+    if (!creds) return
+
+    // Scenario B: email was provided and sent successfully
+    if (creds.email_sent && creds.email) {
+      Message.success(t('auth.organizations.credentialsEmailSent', { email: creds.email }))
+      return
     }
+
+    // Scenarios A & C: show credentials modal
+    credentials.username = creds.username
+    credentials.password = creds.password
+    credentials.email = creds.email
+    credentialsEmailSent.value = creds.email_sent
+    credentialsVisible.value = true
   },
 })
 
