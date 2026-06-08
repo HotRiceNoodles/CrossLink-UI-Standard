@@ -256,6 +256,7 @@ const {
   handleEdit,
   handleDrawerClose,
   handleDrawerSubmit,
+  hideDrawer,
 } = useCrud<Organization, { keyword: string }>({
   fetchApi: async () => {
     const res = await orgApi.list()
@@ -291,6 +292,8 @@ const {
   },
   immediateFilter: true,
   onCreated: async (responseData) => {
+    Message.success(t('common.createSuccess'))
+    hideDrawer()
     const data = responseData as { admin_credentials?: { username: string; password: string } }
     if (data.admin_credentials) {
       credentials.username = data.admin_credentials.username
