@@ -63,7 +63,6 @@ import { useBreakpoints } from '@vueuse/core'
 import { useAppStore, useUserStore } from '@/store'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
-import appRoutes from '@/router/routes'
 import { authApi } from '@/api/auth'
 import { Message, Modal } from '@arco-design/web-vue'
 import Sidebar from './components/sidebar.vue'
@@ -96,9 +95,10 @@ watch(
 )
 
 const menuRoutes = computed(() => {
-  const allRoutes = (appRoutes.children || []) as RouteRecordRaw[]
-  return allRoutes.filter((route) => {
-    const requiredTier = route.meta?.requiredTier
+  const activeParent = route.matched.find((m) => m.name === 'orgRoot' || m.name === 'global')
+  const children = (activeParent?.children || []) as RouteRecordRaw[]
+  return children.filter((r) => {
+    const requiredTier = r.meta?.requiredTier
     if (!requiredTier) return true
     const allowed = Array.isArray(requiredTier)
       ? requiredTier.includes(userStore.tier)
@@ -192,7 +192,7 @@ function onVersionTap() {
       router.push('/dev/logs')
       return
     }
-    router.addRoute('root', {
+    router.addRoute('orgRoot', {
       path: 'dev/logs',
       name: 'DevLogs',
       component: () => import('@/logger/views/log-viewer.vue'),

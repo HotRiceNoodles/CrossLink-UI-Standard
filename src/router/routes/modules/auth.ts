@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 const route: RouteRecordRaw = {
   path: 'auth',
   name: 'auth',
-  redirect: '/auth/roles',
+  redirect: { name: 'authRoles' },
   component: () => import('@/layout/blank-layout.vue'),
   meta: {
     menuKey: 'auth',
@@ -30,12 +30,6 @@ const route: RouteRecordRaw = {
       name: 'authTeams',
       component: () => import('@/views/auth/teams/index.vue'),
       meta: { menuKey: 'authTeams', icon: 'icon-nav' },
-    },
-    {
-      path: 'organizations',
-      name: 'authOrganizations',
-      component: () => import('@/views/auth/organizations/index.vue'),
-      meta: { menuKey: 'authOrganizations', icon: 'icon-public' },
     },
   ],
 }

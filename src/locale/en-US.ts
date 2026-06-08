@@ -1,6 +1,7 @@
 export default {
   common: {
     enabled: 'Enabled',
+    active: 'Active',
     disabled: 'Disabled',
     status: 'Status',
     actions: 'Actions',
@@ -44,6 +45,8 @@ export default {
     ops: 'Operations',
     requestLogs: 'Request Logs',
     settings: 'Settings',
+    globalDashboard: 'Dashboard',
+    globalOrganizations: 'Organizations',
   },
   tier: {
     community: 'Community',
@@ -634,5 +637,25 @@ export default {
     title: 'Something went wrong',
     subtitle: 'Please try refreshing the page',
     retry: 'Retry',
+  },
+  org: {
+    switcher: {
+      searchPlaceholder: 'Search organizations...',
+      backToPlatform: 'Back to Platform',
+      platformOverview: 'Platform Overview',
+      noResults: 'No organizations found',
+      switchFailed: 'Failed to switch organization',
+    },
+  },
+  globalDashboard: {
+    title: 'Platform Overview',
+    subtitle: 'Welcome back, {name}',
+    statOrgs: 'Organizations',
+    statMembers: 'Members',
+    statKeys: 'API Keys',
+    enterOrg: 'Enter',
+    emptyTitle: 'No organizations yet',
+    emptyDesc: 'Create your first organization to get started.',
+    createFirst: 'Create Organization',
   },
 }

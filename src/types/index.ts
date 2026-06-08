@@ -31,6 +31,22 @@ export interface User {
   display_name: string
   role_id: number
   role_name: string
+  org_id: number | null
+  org_name: string | null
+  org_role: string | null
+}
+
+export interface OrgContext {
+  orgId: number
+  orgName: string
+  orgRole: string
+}
+
+export interface SwitchOrgResponse {
+  token: string
+  org_id: number
+  org_name: string
+  org_display_name: string
 }
 
 // Provider

@@ -12,6 +12,7 @@
           {{ matched.locale }}
         </a-breadcrumb-item>
       </a-breadcrumb>
+      <org-switcher v-if="showOrgSwitcher" />
     </div>
     <div class="navbar-right">
       <language-switch
@@ -52,6 +53,7 @@ import { useRoute } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
 import { useTierLabel } from '@/utils/license'
 import LanguageSwitch from './language-switch.vue'
+import OrgSwitcher from './org-switcher.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -77,6 +79,8 @@ const breadcrumbItems = computed(() => {
 })
 
 const tierLabel = computed(() => tierLabelFn(userStore.tier))
+
+const showOrgSwitcher = computed(() => userStore.isPlatformAdmin || userStore.hasOrgContext)
 </script>
 
 <style scoped lang="less">

@@ -56,6 +56,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
 import { authApi } from '@/api/auth'
+import { orgApi } from '@/api/rbac'
 import { Message } from '@arco-design/web-vue'
 
 const { t } = useI18n()
@@ -89,10 +90,22 @@ async function handleLogin() {
     })
 
     userStore.setAuth(res.data)
+    userStore.initOrgContext()
     Message.success(t('login.loginSuccess'))
 
-    const redirect = (route.query.redirect as string) || '/dashboard'
-    router.push(redirect)
+    if (userStore.isPlatformAdmin) {
+      const orgsRes = await orgApi.list()
+      userStore.setAvailableOrgs(orgsRes.data)
+      const redirect = (route.query.redirect as string) || '/dashboard'
+      router.push(redirect)
+    } else {
+      const orgId = res.data.user.org_id
+      if (orgId) {
+        router.push(`/org/${orgId}/dashboard`)
+      } else {
+        router.push('/dashboard')
+      }
+    }
   } catch (err: unknown) {
     const error = err as { response?: { data?: { error?: string } } }
     errorMsg.value = error.response?.data?.error || t('login.loginFail')

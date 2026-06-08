@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import appRoute from './routes'
+import appRoutes from './routes'
 import { REDIRECT_MAIN, NOT_FOUND_ROUTE } from './routes/base'
 import createRouteGuard from './guard/userLoginInfo'
 
@@ -16,11 +16,7 @@ const router = createRouter({
       component: () => import('@/views/login/index.vue'),
       meta: { requiresAuth: false },
     },
-    {
-      path: '/',
-      redirect: '/dashboard',
-    },
-    appRoute,
+    ...appRoutes,
     REDIRECT_MAIN,
     NOT_FOUND_ROUTE,
   ],

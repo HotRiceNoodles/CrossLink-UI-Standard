@@ -7,5 +7,7 @@ declare module 'vue-router' {
     order?: number
     isMenuGroup?: boolean
     requiredTier?: string | string[]
+    requiresOrg?: boolean
+    requiresPlatformAdmin?: boolean
   }
 }

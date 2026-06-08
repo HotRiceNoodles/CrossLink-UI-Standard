@@ -1,6 +1,7 @@
 export default {
   common: {
     enabled: '启用',
+    active: '运行中',
     disabled: '禁用',
     status: '状态',
     actions: '操作',
@@ -44,6 +45,8 @@ export default {
     ops: '运维',
     requestLogs: '请求日志',
     settings: '设置',
+    globalDashboard: '仪表盘',
+    globalOrganizations: '组织管理',
   },
   tier: {
     community: '社区版',
@@ -631,5 +634,25 @@ export default {
     title: '页面出了点问题',
     subtitle: '请尝试刷新页面',
     retry: '重试',
+  },
+  org: {
+    switcher: {
+      searchPlaceholder: '搜索组织...',
+      backToPlatform: '返回平台',
+      platformOverview: '平台概览',
+      noResults: '未找到组织',
+      switchFailed: '切换组织失败',
+    },
+  },
+  globalDashboard: {
+    title: '平台概览',
+    subtitle: '欢迎回来，{name}',
+    statOrgs: '组织数',
+    statMembers: '成员数',
+    statKeys: '密钥数',
+    enterOrg: '进入',
+    emptyTitle: '暂无组织',
+    emptyDesc: '创建您的第一个组织以开始使用。',
+    createFirst: '创建组织',
   },
 }
