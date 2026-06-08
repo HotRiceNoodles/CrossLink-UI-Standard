@@ -1,13 +1,21 @@
 import { get, post, put, del } from './interceptor'
 import type { Provider, ProviderCreateRequest, Adapter } from '@/types'
 
+export interface TestResult {
+  success: boolean
+  error?: string
+  latency_ms?: number
+  model?: string
+}
+
 export const providerApi = {
   list: () => get<Provider[]>('/providers'),
   create: (data: ProviderCreateRequest) => post<Provider>('/providers', data),
   update: (id: number, data: Partial<ProviderCreateRequest>) =>
     put<Provider>(`/providers/${id}`, data),
   delete: (id: number) => del<void>(`/providers/${id}`),
-  test: (id: number) => post<{ success: boolean; message: string }>(`/providers/${id}/test`),
+  test: (id: number, model?: string) =>
+    post<TestResult>(`/providers/${id}/test`, model ? { model } : undefined),
   adapters: async () => {
     const res = await get<Record<string, unknown>[]>('/adapters')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

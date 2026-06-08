@@ -115,6 +115,57 @@
       @update:visible="modelFormVisible = $event"
       @success="onModelFormSuccess"
     />
+
+    <!-- 连通性测试模型选择弹窗 -->
+    <a-modal
+      v-model:visible="testModalVisible"
+      :title="t('provider.testSelectModel')"
+      :ok-text="t('provider.probeConnectivity')"
+      :ok-loading="testLoading"
+      :mask-closable="!testLoading"
+      :closable="!testLoading"
+      @ok="executeTest"
+      @cancel="testModalVisible = false"
+    >
+      <a-spin :loading="testLoading" style="width: 100%">
+        <a-radio-group v-model="testSelectedModel" direction="vertical" style="width: 100%">
+          <!-- 自动选择 -->
+          <a-radio value="">
+            <span>{{ t('provider.testModelAuto') }}</span>
+            <span style="color: var(--color-text-3); font-size: 12px; margin-left: 8px">
+              {{ t('provider.testModelAutoDesc') }}
+            </span>
+          </a-radio>
+          <!-- 具体模型列表 -->
+          <a-radio v-for="m in testTargetModels" :key="m.id" :value="m.provider_model">
+            <span style="font-weight: 600">{{ m.model_name }}</span>
+            <span style="color: var(--color-text-3); font-size: 12px; margin-left: 8px">
+              {{ m.provider_model }}
+            </span>
+          </a-radio>
+        </a-radio-group>
+
+        <a-empty
+          v-if="testTargetModels.length === 0"
+          :description="t('provider.testNoModels')"
+          :style="{ padding: '16px 0' }"
+        />
+
+        <!-- 测试结果 -->
+        <a-alert
+          v-if="testResult"
+          :type="testResult.success ? 'success' : 'error'"
+          style="margin-top: 16px"
+        >
+          <template v-if="testResult.success">
+            {{ t('provider.testSuccess', [testResult.latency_ms ?? '-']) }}
+          </template>
+          <template v-else>
+            {{ t('provider.testFail', [testResult.error || t('provider.connectFail')]) }}
+          </template>
+        </a-alert>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -124,6 +175,7 @@ import { Message, Modal } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { providerApi } from '@/api/provider'
+import type { TestResult } from '@/api/provider'
 import { modelApi } from '@/api/model'
 import { useLoading } from '@/hooks/loading'
 import type { Provider, ProviderModel, Adapter } from '@/types'
@@ -139,6 +191,13 @@ const providerList = ref<Provider[]>([])
 const modelList = ref<ProviderModel[]>([])
 const adapterList = ref<Adapter[]>([])
 const testingId = ref<number | null>(null)
+
+// ---------- Test Modal ----------
+const testModalVisible = ref(false)
+const testTargetProvider = ref<Provider | null>(null)
+const testSelectedModel = ref<string>('')
+const testLoading = ref(false)
+const testResult = ref<TestResult | null>(null)
 
 // ---------- Filter ----------
 const PAGE_SIZE_THRESHOLD = 50
@@ -251,25 +310,43 @@ function onModelFormSuccess() {
 }
 
 // ---------- Actions ----------
-async function handleTest(provider: Provider) {
+function handleTest(provider: Provider) {
+  testTargetProvider.value = provider
+  testSelectedModel.value = ''
+  testResult.value = null
+  testModalVisible.value = true
+}
+
+async function executeTest() {
+  const provider = testTargetProvider.value
+  if (!provider) return
+
+  testLoading.value = true
+  testResult.value = null
   testingId.value = provider.id
   probeStatusMap[provider.id] = 'testing'
+
   try {
-    const res = await providerApi.test(provider.id)
+    const res = await providerApi.test(provider.id, testSelectedModel.value || undefined)
+    testResult.value = res.data
     if (res.data.success) {
       probeStatusMap[provider.id] = 'success'
-      Message.success(res.data.message || t('provider.connected'))
     } else {
       probeStatusMap[provider.id] = 'fail'
-      Message.error(res.data.message || t('provider.connectFail'))
     }
   } catch {
     probeStatusMap[provider.id] = 'fail'
-    Message.error(t('provider.connectTestFail'))
+    testResult.value = { success: false, error: t('provider.connectTestFail') }
   } finally {
+    testLoading.value = false
     testingId.value = null
   }
 }
+
+const testTargetModels = computed(() => {
+  if (!testTargetProvider.value) return []
+  return modelsByProvider.value.get(testTargetProvider.value.id) || []
+})
 
 function handleDeleteProvider(provider: Provider) {
   const models = modelsByProvider.value.get(provider.id) || []
