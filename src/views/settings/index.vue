@@ -66,6 +66,9 @@
               </div>
             </a-grid-item>
           </a-grid>
+          <router-link :to="{ name: 'license' }" class="license-link">
+            {{ t('settings.viewLicenseDetail') }} →
+          </router-link>
         </a-card>
 
         <!-- Connection Status -->
@@ -291,5 +294,17 @@ onMounted(async () => {
 .feature-desc {
   font-size: 13px;
   color: var(--color-text-3);
+}
+
+.license-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgb(var(--arcoblue-6));
+  text-decoration: none;
+
+  &:hover {
+    color: rgb(var(--arcoblue-5));
+  }
 }
 </style>
