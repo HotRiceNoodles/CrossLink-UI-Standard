@@ -4,26 +4,6 @@ import type { User, OrgContext, Organization } from '@/types'
 import { setToken, clearToken, getToken } from '@/utils/auth'
 import { authApi } from '@/api/auth'
 
-const ORG_STORAGE_KEY = 'lgw_current_org'
-
-function loadPersistedOrg(): OrgContext | null {
-  try {
-    const raw = localStorage.getItem(ORG_STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as OrgContext
-  } catch {
-    // ignore
-  }
-  return null
-}
-
-function persistOrg(org: OrgContext | null) {
-  if (org) {
-    localStorage.setItem(ORG_STORAGE_KEY, JSON.stringify(org))
-  } else {
-    localStorage.removeItem(ORG_STORAGE_KEY)
-  }
-}
-
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken())
   const user = ref<User | null>(null)
@@ -31,7 +11,7 @@ export const useUserStore = defineStore('user', () => {
   const tier = ref('community')
 
   // Org context state
-  const currentOrg = ref<OrgContext | null>(loadPersistedOrg())
+  const currentOrg = ref<OrgContext | null>(null)
   const availableOrgs = ref<Organization[]>([])
 
   const isLoggedIn = computed(() => !!token.value)
@@ -56,19 +36,24 @@ export const useUserStore = defineStore('user', () => {
     tier.value = t
   }
 
+  function setUser(u: User) {
+    user.value = u
+  }
+
   function initOrgContext() {
+    // Derive org context from the user object.
+    // For org users: user.org_id is set from JWT claims via the permissions API.
+    // For platform admins who switched into an org: user.org_id reflects the switched org.
+    // For platform admins in platform scope: user.org_id is 0 or null.
     if (user.value?.org_id && user.value.org_id > 0) {
       currentOrg.value = {
         orgId: user.value.org_id,
         orgName: user.value.org_name ?? '',
         orgRole: user.value.org_role ?? '',
       }
-    } else if (isPlatformAdmin.value && currentOrg.value) {
-      // Platform admin who previously switched into an org — keep persisted context
     } else {
       currentOrg.value = null
     }
-    persistOrg(currentOrg.value)
   }
 
   async function switchOrg(targetOrgId: number) {
@@ -84,12 +69,10 @@ export const useUserStore = defineStore('user', () => {
     } else {
       currentOrg.value = null
     }
-    persistOrg(currentOrg.value)
   }
 
   function clearOrgContext() {
     currentOrg.value = null
-    persistOrg(null)
   }
 
   function setAvailableOrgs(orgs: Organization[]) {
@@ -104,7 +87,6 @@ export const useUserStore = defineStore('user', () => {
     currentOrg.value = null
     availableOrgs.value = []
     clearToken()
-    persistOrg(null)
   }
 
   function hasPermission(action: string): boolean {
@@ -125,6 +107,7 @@ export const useUserStore = defineStore('user', () => {
     hasOrgContext,
     currentOrgId,
     setAuth,
+    setUser,
     setPermissions,
     setTier,
     initOrgContext,
