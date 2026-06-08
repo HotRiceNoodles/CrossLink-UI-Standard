@@ -24,9 +24,6 @@ function createLoginGuard(router: Router) {
           if (!permissionPromise) {
             permissionPromise = (async () => {
               const res = await authApi.permissions()
-              if (res.data.user) {
-                userStore.setUser(res.data.user)
-              }
               userStore.setPermissions(res.data.permissions)
               userStore.setTier(res.data.tier)
               userStore.initOrgContext()
