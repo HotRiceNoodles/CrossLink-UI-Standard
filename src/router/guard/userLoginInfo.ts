@@ -17,7 +17,7 @@ function createLoginGuard(router: Router) {
   router.beforeEach(async (to, _from, next) => {
     if (isLogin()) {
       const userStore = useUserStore()
-      if (userStore.user) {
+      if (userStore.hydrated) {
         next()
       } else {
         try {
@@ -27,6 +27,7 @@ function createLoginGuard(router: Router) {
               userStore.setPermissions(res.data.permissions)
               userStore.setTier(res.data.tier)
               userStore.initOrgContext()
+              userStore.markHydrated()
 
               // Only fetch org list for enterprise platform admins
               if (userStore.isEnterprise && userStore.isPlatformAdmin) {

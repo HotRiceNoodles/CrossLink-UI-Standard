@@ -5,7 +5,13 @@ import { setToken, clearToken, getToken } from '@/utils/auth'
 import { authApi } from '@/api/auth'
 
 const ORG_STORAGE_KEY = 'lgw_current_org'
-const USER_STORAGE_KEY = 'lgw_user'
+const SESSION_STORAGE_KEY = 'lgw_session'
+
+interface PersistedSession {
+  user: User
+  tier: string
+  permissions: string[]
+}
 
 function loadPersistedOrg(): OrgContext | null {
   try {
@@ -25,29 +31,35 @@ function persistOrg(org: OrgContext | null) {
   }
 }
 
-function loadPersistedUser(): User | null {
+function loadPersistedSession(): PersistedSession | null {
   try {
-    const raw = localStorage.getItem(USER_STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as User
+    const raw = localStorage.getItem(SESSION_STORAGE_KEY)
+    if (raw) return JSON.parse(raw) as PersistedSession
   } catch {
     // ignore
   }
   return null
 }
 
-function persistUser(user: User | null) {
-  if (user) {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
+function persistSession(session: PersistedSession | null) {
+  if (session) {
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
   } else {
-    localStorage.removeItem(USER_STORAGE_KEY)
+    localStorage.removeItem(SESSION_STORAGE_KEY)
   }
 }
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken())
-  const user = ref<User | null>(loadPersistedUser())
-  const permissions = ref<string[]>([])
-  const tier = ref('community')
+
+  // Restore full session from localStorage
+  const persisted = loadPersistedSession()
+  const user = ref<User | null>(persisted?.user ?? null)
+  const permissions = ref<string[]>(persisted?.permissions ?? [])
+  const tier = ref(persisted?.tier ?? 'community')
+  // hydrated = true only when session was explicitly set via setAuth (login or API rehydration)
+  // Prevents guard from skipping the permissions API call on initial page load with stale data
+  const hydrated = ref(false)
 
   // Org context state
   const currentOrg = ref<OrgContext | null>(loadPersistedOrg())
@@ -65,13 +77,13 @@ export const useUserStore = defineStore('user', () => {
     user.value = data.user
     permissions.value = data.permissions
     tier.value = data.tier
+    hydrated.value = true
     setToken(data.token)
-    persistUser(data.user)
+    persistSession({ user: data.user, tier: data.tier, permissions: data.permissions })
   }
 
   function setUser(u: User) {
     user.value = u
-    persistUser(u)
   }
 
   function setPermissions(perms: string[]) {
@@ -80,6 +92,13 @@ export const useUserStore = defineStore('user', () => {
 
   function setTier(t: string) {
     tier.value = t
+  }
+
+  function markHydrated() {
+    hydrated.value = true
+    if (user.value) {
+      persistSession({ user: user.value, tier: tier.value, permissions: permissions.value })
+    }
   }
 
   function initOrgContext() {
@@ -131,11 +150,12 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
     permissions.value = []
     tier.value = 'community'
+    hydrated.value = false
     currentOrg.value = null
     availableOrgs.value = []
     clearToken()
     persistOrg(null)
-    persistUser(null)
+    persistSession(null)
   }
 
   function hasPermission(action: string): boolean {
@@ -148,6 +168,7 @@ export const useUserStore = defineStore('user', () => {
     user,
     permissions,
     tier,
+    hydrated,
     currentOrg,
     availableOrgs,
     isLoggedIn,
@@ -160,6 +181,7 @@ export const useUserStore = defineStore('user', () => {
     setUser,
     setPermissions,
     setTier,
+    markHydrated,
     initOrgContext,
     switchOrg,
     clearOrgContext,
