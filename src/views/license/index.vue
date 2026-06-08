@@ -1,0 +1,109 @@
+<template>
+  <div class="license-page">
+    <a-spin :loading="loading" style="width: 100%">
+      <div class="page-content">
+        <status-card :license="license" />
+        <activate-form v-if="canManage" :loading="activateLoading" @activate="handleActivate" />
+        <import-form v-if="canManage" :loading="importLoading" @import="handleImport" />
+      </div>
+    </a-spin>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { Message } from '@arco-design/web-vue'
+import { licenseApi } from '@/api/license'
+import { authApi } from '@/api/auth'
+import { useUserStore } from '@/store/modules/user'
+import type { LicenseStatus } from '@/types'
+import StatusCard from './components/status-card.vue'
+import ActivateForm from './components/activate-form.vue'
+import ImportForm from './components/import-form.vue'
+
+const { t } = useI18n()
+const userStore = useUserStore()
+
+const loading = ref(true)
+const activateLoading = ref(false)
+const importLoading = ref(false)
+const license = ref<LicenseStatus | null>(null)
+
+const canManage = computed(() => {
+  if (!license.value) return false
+  if (!license.value.license_management) return false
+  return userStore.hasPermission('license:manage')
+})
+
+async function fetchLicenseStatus() {
+  try {
+    const res = await licenseApi.status()
+    license.value = res.data
+    // Sync tier to store if changed
+    if (res.data.tier && res.data.tier !== userStore.tier) {
+      userStore.setTier(res.data.tier)
+    }
+  } catch {
+    Message.error(t('license.fetchFail'))
+  }
+}
+
+async function syncPermissionsAndRefresh() {
+  // Re-fetch permissions to sync tier and permission changes
+  try {
+    const permRes = await authApi.permissions()
+    userStore.setPermissions(permRes.data.permissions)
+    userStore.setTier(permRes.data.tier)
+  } catch {
+    // Non-critical — tier already updated from license status
+  }
+  await fetchLicenseStatus()
+}
+
+async function handleActivate(licenseKey: string) {
+  activateLoading.value = true
+  try {
+    await licenseApi.activate(licenseKey)
+    Message.success(t('license.activateSuccess'))
+    await syncPermissionsAndRefresh()
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } } }
+    Message.error(error.response?.data?.error || t('license.activateFail'))
+  } finally {
+    activateLoading.value = false
+  }
+}
+
+async function handleImport(file: File) {
+  importLoading.value = true
+  try {
+    await licenseApi.importLic(file)
+    Message.success(t('license.importSuccess'))
+    await syncPermissionsAndRefresh()
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } } }
+    Message.error(error.response?.data?.error || t('license.importFail'))
+  } finally {
+    importLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  loading.value = true
+  await fetchLicenseStatus()
+  loading.value = false
+})
+</script>
+
+<style scoped lang="less">
+.license-page {
+  padding: 0;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+</style>
