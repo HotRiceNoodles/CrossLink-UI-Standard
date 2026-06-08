@@ -5,6 +5,7 @@ import { setToken, clearToken, getToken } from '@/utils/auth'
 import { authApi } from '@/api/auth'
 
 const ORG_STORAGE_KEY = 'lgw_current_org'
+const USER_STORAGE_KEY = 'lgw_user'
 
 function loadPersistedOrg(): OrgContext | null {
   try {
@@ -24,9 +25,27 @@ function persistOrg(org: OrgContext | null) {
   }
 }
 
+function loadPersistedUser(): User | null {
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY)
+    if (raw) return JSON.parse(raw) as User
+  } catch {
+    // ignore
+  }
+  return null
+}
+
+function persistUser(user: User | null) {
+  if (user) {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
+  } else {
+    localStorage.removeItem(USER_STORAGE_KEY)
+  }
+}
+
 export const useUserStore = defineStore('user', () => {
   const token = ref(getToken())
-  const user = ref<User | null>(null)
+  const user = ref<User | null>(loadPersistedUser())
   const permissions = ref<string[]>([])
   const tier = ref('community')
 
@@ -37,6 +56,7 @@ export const useUserStore = defineStore('user', () => {
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role_name === 'admin')
   const isPlatformAdmin = computed(() => user.value?.role_name === 'admin')
+  const isEnterprise = computed(() => tier.value === 'enterprise')
   const hasOrgContext = computed(() => !!currentOrg.value)
   const currentOrgId = computed(() => currentOrg.value?.orgId ?? null)
 
@@ -46,6 +66,12 @@ export const useUserStore = defineStore('user', () => {
     permissions.value = data.permissions
     tier.value = data.tier
     setToken(data.token)
+    persistUser(data.user)
+  }
+
+  function setUser(u: User) {
+    user.value = u
+    persistUser(u)
   }
 
   function setPermissions(perms: string[]) {
@@ -63,8 +89,12 @@ export const useUserStore = defineStore('user', () => {
         orgName: user.value.org_name ?? '',
         orgRole: user.value.org_role ?? '',
       }
-    } else if (isPlatformAdmin.value && currentOrg.value) {
-      // Platform admin who previously switched into an org — keep persisted context
+    } else if (isPlatformAdmin.value && isEnterprise.value && currentOrg.value) {
+      // Enterprise platform admin who previously switched into an org — keep persisted context
+    } else if (!user.value && currentOrg.value) {
+      // During page-refresh rehydration, user is temporarily null.
+      // Preserve the org context loaded from localStorage so guards
+      // don't redirect to login before the user object is populated.
     } else {
       currentOrg.value = null
     }
@@ -105,6 +135,7 @@ export const useUserStore = defineStore('user', () => {
     availableOrgs.value = []
     clearToken()
     persistOrg(null)
+    persistUser(null)
   }
 
   function hasPermission(action: string): boolean {
@@ -122,9 +153,11 @@ export const useUserStore = defineStore('user', () => {
     isLoggedIn,
     isAdmin,
     isPlatformAdmin,
+    isEnterprise,
     hasOrgContext,
     currentOrgId,
     setAuth,
+    setUser,
     setPermissions,
     setTier,
     initOrgContext,

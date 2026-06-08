@@ -28,7 +28,8 @@ function createLoginGuard(router: Router) {
               userStore.setTier(res.data.tier)
               userStore.initOrgContext()
 
-              if (userStore.isPlatformAdmin) {
+              // Only fetch org list for enterprise platform admins
+              if (userStore.isEnterprise && userStore.isPlatformAdmin) {
                 const orgsRes = await orgApi.list()
                 userStore.setAvailableOrgs(orgsRes.data)
               }
@@ -68,34 +69,43 @@ function createTierGuard(router: Router) {
 function createOrgGuard(router: Router) {
   router.beforeEach((to) => {
     const userStore = useUserStore()
+    const isDefaultRoute = to.matched.some((m) => m.name === 'default')
+    const isOrgRoute = to.matched.some((m) => m.name === 'orgRoot')
 
-    // Dynamic root redirect based on role
+    // Dynamic root redirect based on tier and role
     if (to.path === '/' || to.path === '') {
-      if (userStore.isPlatformAdmin) return { name: 'globalDashboard' }
-      if (userStore.currentOrgId) return `/org/${userStore.currentOrgId}/dashboard`
-      return { name: 'login' }
+      if (userStore.isEnterprise && userStore.isPlatformAdmin) {
+        return { name: 'globalDashboard' }
+      }
+      if (userStore.isEnterprise && userStore.currentOrgId) {
+        return { name: 'org-dashboard' }
+      }
+      // Community/Pro: go to default dashboard
+      return { name: 'dashboard' }
     }
 
-    // Org-scoped routes: must have org context
-    if (to.matched.some((m) => m.meta?.requiresOrg)) {
+    // Org-scoped routes: only accessible in enterprise edition
+    if (isOrgRoute) {
+      if (!userStore.isEnterprise) {
+        // Non-enterprise users should not access org routes
+        return { name: 'dashboard' }
+      }
       if (!userStore.hasOrgContext) {
         return userStore.isPlatformAdmin ? { name: 'globalDashboard' } : { name: 'login' }
       }
       const routeOrgId = Number(to.params.orgId)
       if (!userStore.isPlatformAdmin && routeOrgId !== userStore.currentOrgId) {
-        return `/org/${userStore.currentOrgId}/dashboard`
+        return { name: 'org-dashboard' }
       }
       if (userStore.isPlatformAdmin && routeOrgId !== userStore.currentOrgId) {
         return { name: 'globalDashboard' }
       }
     }
 
-    // Global-only routes: must be platform admin
-    if (to.matched.some((m) => m.meta?.requiresPlatformAdmin)) {
-      if (!userStore.isPlatformAdmin) {
-        return userStore.currentOrgId
-          ? `/org/${userStore.currentOrgId}/dashboard`
-          : { name: 'notFound' }
+    // Admin-only routes on default route: must be enterprise platform admin
+    if (isDefaultRoute && to.matched.some((m) => m.meta?.requiresPlatformAdmin)) {
+      if (!userStore.isEnterprise || !userStore.isPlatformAdmin) {
+        return { name: 'notFound' }
       }
     }
 

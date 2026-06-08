@@ -93,18 +93,25 @@ async function handleLogin() {
     userStore.initOrgContext()
     Message.success(t('login.loginSuccess'))
 
-    if (userStore.isPlatformAdmin) {
-      const orgsRes = await orgApi.list()
-      userStore.setAvailableOrgs(orgsRes.data)
+    if (userStore.isEnterprise) {
+      // Enterprise edition: multi-tenant mode
+      if (userStore.isPlatformAdmin) {
+        const orgsRes = await orgApi.list()
+        userStore.setAvailableOrgs(orgsRes.data)
+        const redirect = (route.query.redirect as string) || '/overview'
+        router.push(redirect)
+      } else {
+        const orgId = res.data.user.org_id
+        if (orgId) {
+          router.push({ name: 'org-dashboard' })
+        } else {
+          router.push('/dashboard')
+        }
+      }
+    } else {
+      // Community/Pro: single-tenant, flat routes
       const redirect = (route.query.redirect as string) || '/dashboard'
       router.push(redirect)
-    } else {
-      const orgId = res.data.user.org_id
-      if (orgId) {
-        router.push(`/org/${orgId}/dashboard`)
-      } else {
-        router.push('/dashboard')
-      }
     }
   } catch (err: unknown) {
     const error = err as { response?: { data?: { error?: string } } }

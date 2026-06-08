@@ -80,7 +80,9 @@ const breadcrumbItems = computed(() => {
 
 const tierLabel = computed(() => tierLabelFn(userStore.tier))
 
-const showOrgSwitcher = computed(() => userStore.isPlatformAdmin || userStore.hasOrgContext)
+const showOrgSwitcher = computed(
+  () => userStore.isEnterprise && (userStore.isPlatformAdmin || userStore.hasOrgContext),
+)
 </script>
 
 <style scoped lang="less">

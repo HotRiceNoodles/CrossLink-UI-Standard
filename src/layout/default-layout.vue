@@ -95,15 +95,33 @@ watch(
 )
 
 const menuRoutes = computed(() => {
-  const activeParent = route.matched.find((m) => m.name === 'orgRoot' || m.name === 'global')
+  const activeParent = route.matched.find((m) => m.name === 'orgRoot' || m.name === 'default')
   const children = (activeParent?.children || []) as RouteRecordRaw[]
+  const isDefaultRoute = activeParent?.name === 'default'
+  // Enterprise admin on default route sees only admin modules (overview, organizations)
+  const isAdminMode = isDefaultRoute && userStore.isEnterprise && userStore.isPlatformAdmin
+
   return children.filter((r) => {
+    // Tier check
     const requiredTier = r.meta?.requiredTier
-    if (!requiredTier) return true
-    const allowed = Array.isArray(requiredTier)
-      ? requiredTier.includes(userStore.tier)
-      : userStore.tier === requiredTier
-    return allowed
+    if (requiredTier) {
+      const allowed = Array.isArray(requiredTier)
+        ? requiredTier.includes(userStore.tier)
+        : userStore.tier === requiredTier
+      if (!allowed) return false
+    }
+
+    // Platform admin check on individual routes
+    const requiresAdmin = !!r.meta?.requiresPlatformAdmin
+    if (requiresAdmin && !userStore.isPlatformAdmin) return false
+
+    // In admin mode (enterprise admin on default route): only show admin modules
+    // In feature mode: hide admin modules
+    if (isAdminMode) {
+      return requiresAdmin
+    } else {
+      return !requiresAdmin
+    }
   })
 })
 
@@ -192,7 +210,7 @@ function onVersionTap() {
       router.push('/dev/logs')
       return
     }
-    router.addRoute('orgRoot', {
+    router.addRoute('default', {
       path: 'dev/logs',
       name: 'DevLogs',
       component: () => import('@/logger/views/log-viewer.vue'),

@@ -4,7 +4,13 @@ const route: RouteRecordRaw = {
   path: 'organizations',
   name: 'globalOrganizations',
   component: () => import('@/views/auth/organizations/index.vue'),
-  meta: { menuKey: 'globalOrganizations', icon: 'icon-public', order: 1 },
+  meta: {
+    menuKey: 'globalOrganizations',
+    icon: 'icon-public',
+    order: 1,
+    requiresPlatformAdmin: true,
+    requiredTier: 'enterprise',
+  },
 }
 
 export default route
