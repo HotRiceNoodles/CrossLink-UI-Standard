@@ -7,6 +7,7 @@ import i18n from './locale'
 import globalComponents from './components'
 import './api/interceptor'
 import '@/assets/style/global.less'
+import 'highlight.js/styles/github-dark.css'
 import App from './App.vue'
 import { logger } from '@/logger'
 import { installVueErrorPlugin } from '@/logger/plugins/vue-error'
@@ -47,6 +48,13 @@ import {
   IconNav,
   IconPublic,
   IconUpload,
+  IconRobot,
+  IconMessage,
+  IconPause,
+  IconExclamationCircle,
+  IconLoading,
+  IconRight,
+  IconLeft,
 } from '@arco-design/web-vue/es/icon'
 
 const icons = [
@@ -84,6 +92,13 @@ const icons = [
   IconNav,
   IconPublic,
   IconUpload,
+  IconRobot,
+  IconMessage,
+  IconPause,
+  IconExclamationCircle,
+  IconLoading,
+  IconRight,
+  IconLeft,
 ]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')

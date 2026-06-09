@@ -114,8 +114,21 @@ function createOrgGuard(router: Router) {
   })
 }
 
+function createPermissionGuard(router: Router) {
+  router.beforeEach((to) => {
+    const requiredPermission = to.meta?.requiredPermission as string | undefined
+    if (!requiredPermission) return true
+    const userStore = useUserStore()
+    if (!userStore.hasPermission(requiredPermission)) {
+      return { name: 'notFound' }
+    }
+    return true
+  })
+}
+
 export default function createRouteGuard(router: Router) {
   createLoginGuard(router)
   createTierGuard(router)
   createOrgGuard(router)
+  createPermissionGuard(router)
 }

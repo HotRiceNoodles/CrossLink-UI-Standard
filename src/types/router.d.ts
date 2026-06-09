@@ -9,5 +9,6 @@ declare module 'vue-router' {
     requiredTier?: string | string[]
     requiresOrg?: boolean
     requiresPlatformAdmin?: boolean
+    requiredPermission?: string
   }
 }

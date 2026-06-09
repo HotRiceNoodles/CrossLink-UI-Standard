@@ -270,3 +270,4 @@ export interface UsageLog {
 }
 
 export * from './auth-module'
+export * from './playground'

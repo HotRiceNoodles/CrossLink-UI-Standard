@@ -120,6 +120,10 @@ const menuRoutes = computed(() => {
     const requiresAdmin = !!r.meta?.requiresPlatformAdmin
     if (requiresAdmin && !userStore.isPlatformAdmin) return false
 
+    // Permission check
+    const requiredPermission = r.meta?.requiredPermission as string | undefined
+    if (requiredPermission && !userStore.hasPermission(requiredPermission)) return false
+
     // In admin mode (enterprise admin on default route): only show admin modules
     // In feature mode: hide admin modules
     if (isAdminMode) {
