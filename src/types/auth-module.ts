@@ -29,6 +29,9 @@ export interface AuthUser {
   email?: string
   last_login_at?: string
   created_at: string
+  team_id: number | null
+  team_name: string | null
+  team_role: string | null
 }
 export interface UserCreateRequest {
   username: string
@@ -40,6 +43,10 @@ export interface UserUpdateRequest {
   display_name?: string
   role_id?: number
   status?: number
+}
+export interface UserCreateWithTeamRequest extends UserCreateRequest {
+  team_id?: number | null
+  team_role?: string
 }
 
 // 团队
@@ -54,6 +61,7 @@ export interface Team {
   tpm_limit: number
   status: number
   created_at: string
+  member_count: number
 }
 export interface TeamCreateRequest {
   name: string
@@ -74,6 +82,16 @@ export interface TeamMember {
     id: number
     username: string
     display_name: string
+    role_id: number
+    role: {
+      id: number
+      name: string
+      display_name: string
+    }
+    status: number
+    email?: string
+    last_login_at?: string
+    created_at: string
   }
 }
 

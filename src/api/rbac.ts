@@ -5,6 +5,7 @@ import type {
   RoleUpdateRequest,
   AuthUser,
   UserCreateRequest,
+  UserCreateWithTeamRequest,
   UserUpdateRequest,
   Team,
   TeamCreateRequest,
@@ -25,7 +26,7 @@ export const roleApi = {
 
 export const authUserApi = {
   list: () => get<AuthUser[]>('/users'),
-  create: (data: UserCreateRequest) => post('/users', data),
+  create: (data: UserCreateWithTeamRequest) => post('/users', data),
   update: (id: number, data: UserUpdateRequest) => put(`/users/${id}`, data),
   changePassword: (id: number, data: { old_password?: string; new_password: string }) =>
     put(`/users/${id}/password`, data),
@@ -41,6 +42,8 @@ export const teamApi = {
   addMember: (id: number, data: { user_id: number; role: string }) =>
     post(`/teams/${id}/members`, data),
   removeMember: (id: number, uid: number) => del(`/teams/${id}/members/${uid}`),
+  moveUser: (data: { user_id: number; from_team_id: number | null; to_team_id: number }) =>
+    post('/teams/move-user', data),
 }
 
 export const orgApi = {
