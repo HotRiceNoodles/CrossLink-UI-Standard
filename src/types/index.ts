@@ -141,6 +141,8 @@ export interface APIKey {
   rpm_limit: number
   max_budget: number | null
   budget_period: string
+  max_calls: number
+  call_period: string
   expires_at: string | null
   created_at: string
   updated_at: string
@@ -158,6 +160,8 @@ export interface KeyCreateRequest {
   rpm_limit?: number
   max_budget?: number | null
   budget_period?: string
+  max_calls?: number
+  call_period?: string
 }
 
 export interface KeyCreateResponse {

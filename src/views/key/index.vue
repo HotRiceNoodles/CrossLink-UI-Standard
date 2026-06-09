@@ -141,6 +141,15 @@
             </template>
           </a-table-column>
 
+          <a-table-column :title="t('key.tableCallCount')" :width="120" align="right">
+            <template #cell="{ record }">
+              <template v-if="record.max_calls">
+                {{ record.max_calls }} / {{ callPeriodLabel(record.call_period) }}
+              </template>
+              <span v-else style="color: var(--color-text-3)">-</span>
+            </template>
+          </a-table-column>
+
           <a-table-column :title="t('key.tableCreatedAt')" data-index="created_at" :width="150">
             <template #cell="{ record }">
               {{ formatTime(record.created_at) }}
@@ -202,7 +211,11 @@
     >
       <a-form ref="formRef" :model="formData" :rules="formRules" layout="vertical">
         <a-form-item field="name" :label="t('key.nameLabel')">
-          <a-input v-model="formData.name" :placeholder="t('key.namePlaceholder')" />
+          <a-input
+            v-model="formData.name"
+            :placeholder="t('key.namePlaceholder')"
+            :disabled="isEdit"
+          />
         </a-form-item>
 
         <a-form-item field="allowed_models" :label="t('key.allowedModelsLabel')">
@@ -270,6 +283,31 @@
               <a-select
                 v-model="formData.budget_period"
                 :placeholder="t('key.budgetPeriodPlaceholder')"
+              >
+                <a-option value="daily" :label="t('key.periodDaily')" />
+                <a-option value="weekly" :label="t('key.periodWeekly')" />
+                <a-option value="monthly" :label="t('key.periodMonthly')" />
+              </a-select>
+            </a-form-item>
+          </a-grid-item>
+        </a-grid>
+
+        <a-grid :cols="24" :col-gap="16">
+          <a-grid-item :span="12">
+            <a-form-item field="max_calls" :label="t('key.callLimitLabel')">
+              <a-input-number
+                v-model="formData.max_calls"
+                :min="0"
+                :placeholder="t('key.callPlaceholder')"
+                style="width: 100%"
+              />
+            </a-form-item>
+          </a-grid-item>
+          <a-grid-item :span="12">
+            <a-form-item field="call_period" :label="t('key.callPeriodLabel')">
+              <a-select
+                v-model="formData.call_period"
+                :placeholder="t('key.callPeriodPlaceholder')"
               >
                 <a-option value="daily" :label="t('key.periodDaily')" />
                 <a-option value="weekly" :label="t('key.periodWeekly')" />
@@ -375,6 +413,8 @@ const {
     rpm_limit: 0,
     max_budget: null,
     budget_period: 'monthly',
+    max_calls: 0,
+    call_period: 'daily',
     status: 1,
   }),
   filterFn: (item, f) => {
@@ -430,6 +470,15 @@ function closeKeyModal() {
 }
 
 function budgetPeriodLabel(period: string) {
+  const map: Record<string, string> = {
+    daily: t('key.periodDay'),
+    weekly: t('key.periodWeek'),
+    monthly: t('key.periodMonth'),
+  }
+  return map[period] || period
+}
+
+function callPeriodLabel(period: string) {
   const map: Record<string, string> = {
     daily: t('key.periodDay'),
     weekly: t('key.periodWeek'),

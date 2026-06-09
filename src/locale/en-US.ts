@@ -246,6 +246,11 @@ export default {
     periodWeekly: 'Weekly',
     periodMonthly: 'Monthly',
     budgetDisplay: '¥{amount} / {period}',
+    tableCallCount: 'Call Limit',
+    callLimitLabel: 'Max Calls',
+    callPlaceholder: '0 = Unlimited',
+    callPeriodLabel: 'Call Period',
+    callPeriodPlaceholder: 'Select period',
     keyCreatedTitle: 'Key Created',
     keyCreatedWarning:
       "Please save this key immediately. You won't be able to see it again after closing.",
