@@ -3,28 +3,22 @@ import type { RouteRecordRaw } from 'vue-router'
 const route: RouteRecordRaw = {
   path: 'auth',
   name: 'auth',
-  redirect: { name: 'authUsers' },
   component: () => import('@/layout/blank-layout.vue'),
   meta: {
-    menuKey: 'auth',
-    icon: 'icon-safe',
+    menuKey: 'authMembers',
+    icon: 'icon-user-group',
     order: 4,
-    isMenuGroup: true,
     requiredTier: 'enterprise',
   },
   children: [
     {
-      path: 'users',
-      name: 'authUsers',
-      component: () => import('@/views/auth/users/index.vue'),
-      meta: { menuKey: 'authUsers', icon: 'icon-user' },
+      path: '',
+      name: 'authMembers',
+      component: () => import('@/views/auth/members/index.vue'),
     },
-    {
-      path: 'teams',
-      name: 'authTeams',
-      component: () => import('@/views/auth/teams/index.vue'),
-      meta: { menuKey: 'authTeams', icon: 'icon-nav' },
-    },
+    // 旧路由重定向
+    { path: 'users', redirect: { name: 'authMembers' } },
+    { path: 'teams', redirect: { name: 'authMembers' } },
   ],
 }
 
