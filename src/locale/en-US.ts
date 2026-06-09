@@ -49,6 +49,7 @@ export default {
     playground: 'Playground',
     globalDashboard: 'Dashboard',
     globalOrganizations: 'Organizations',
+    globalRoles: 'Roles',
   },
   tier: {
     community: 'Community',

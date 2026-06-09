@@ -79,7 +79,7 @@ function createOrgGuard(router: Router) {
         return { name: 'globalDashboard' }
       }
       if (userStore.isEnterprise && userStore.currentOrgId) {
-        return { name: 'org-dashboard' }
+        return `/org/${userStore.currentOrgId}/dashboard`
       }
       // Community/Pro: go to default dashboard
       return { name: 'dashboard' }
@@ -96,7 +96,7 @@ function createOrgGuard(router: Router) {
       }
       const routeOrgId = Number(to.params.orgId)
       if (!userStore.isPlatformAdmin && routeOrgId !== userStore.currentOrgId) {
-        return { name: 'org-dashboard' }
+        return `/org/${userStore.currentOrgId}/dashboard`
       }
       if (userStore.isPlatformAdmin && routeOrgId !== userStore.currentOrgId) {
         return { name: 'globalDashboard' }

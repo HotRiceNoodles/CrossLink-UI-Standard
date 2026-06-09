@@ -49,6 +49,7 @@ export default {
     playground: 'Playground',
     globalDashboard: '仪表盘',
     globalOrganizations: '组织管理',
+    globalRoles: '角色管理',
   },
   tier: {
     community: '社区版',

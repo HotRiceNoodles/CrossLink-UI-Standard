@@ -103,7 +103,7 @@ async function handleLogin() {
       } else {
         const orgId = res.data.user.org_id
         if (orgId) {
-          router.push({ name: 'org-dashboard' })
+          router.push(`/org/${orgId}/dashboard`)
         } else {
           router.push('/dashboard')
         }
