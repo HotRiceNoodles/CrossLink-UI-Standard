@@ -20,7 +20,8 @@
     </div>
     <div class="login-form-wrapper">
       <div class="login-form-container">
-        <LoginForm />
+        <LoginForm v-if="!forceChangeMode" @force-change="onForceChange" />
+        <ForceChangePassword v-else @cancel="onCancelForceChange" />
       </div>
       <div class="login-footer">
         <span>&copy; 2025-2026 CrossLink</span>
@@ -30,10 +31,31 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoginForm from './components/login-form.vue'
+import ForceChangePassword from './components/force-change-password.vue'
 
 const { t } = useI18n()
+const route = useRoute()
+
+const forceChangeMode = ref(false)
+
+function onForceChange() {
+  forceChangeMode.value = true
+}
+
+function onCancelForceChange() {
+  forceChangeMode.value = false
+}
+
+// Handle redirect from 403 interceptor: user already has token but needs to change password
+onMounted(() => {
+  if (route.query.force_change === 'true') {
+    forceChangeMode.value = true
+  }
+})
 </script>
 
 <style scoped lang="less">

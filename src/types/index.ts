@@ -34,6 +34,7 @@ export interface User {
   org_id: number | null
   org_name: string | null
   org_role: string | null
+  force_password_change?: boolean
 }
 
 export interface OrgContext {

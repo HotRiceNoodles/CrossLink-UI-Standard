@@ -1,11 +1,11 @@
 <template>
-  <div class="login-form">
-    <div class="login-form-header">
-      <h2 class="login-form-title">{{ t('login.title') }}</h2>
-      <p class="login-form-subtitle">{{ t('login.subtitle') }}</p>
+  <div class="force-change-form">
+    <div class="force-change-header">
+      <h2 class="force-change-title">{{ t('login.forceChangeTitle') }}</h2>
+      <p class="force-change-desc">{{ t('login.forceChangeDesc') }}</p>
     </div>
 
-    <a-alert v-if="errorMsg" type="danger" :closable="false" class="login-error">
+    <a-alert v-if="errorMsg" type="danger" :closable="false" class="force-change-error">
       {{ errorMsg }}
     </a-alert>
 
@@ -14,26 +14,25 @@
       :model="formData"
       :rules="rules"
       layout="vertical"
-      @submit-success="handleLogin"
+      @submit-success="handleSubmit"
     >
-      <a-form-item field="username" hide-label>
-        <a-input
-          v-model="formData.username"
-          :placeholder="t('login.usernamePlaceholder')"
+      <a-form-item field="new_password" :label="t('login.forceNewPassword')">
+        <a-input-password
+          v-model="formData.new_password"
+          :placeholder="t('login.forceNewPasswordPlaceholder')"
           size="large"
         >
           <template #prefix>
-            <icon-user />
+            <icon-lock />
           </template>
-        </a-input>
+        </a-input-password>
       </a-form-item>
 
-      <a-form-item field="password" hide-label>
+      <a-form-item field="confirm_password" :label="t('login.forceConfirmPassword')">
         <a-input-password
-          v-model="formData.password"
-          :placeholder="t('login.passwordPlaceholder')"
+          v-model="formData.confirm_password"
+          :placeholder="t('login.forceConfirmPasswordPlaceholder')"
           size="large"
-          @keyup.enter="handleLogin"
         >
           <template #prefix>
             <icon-lock />
@@ -43,7 +42,13 @@
 
       <a-form-item>
         <a-button type="primary" html-type="submit" long size="large" :loading="loading">
-          {{ t('login.title') }}
+          {{ t('login.forceChangeTitle') }}
+        </a-button>
+      </a-form-item>
+
+      <a-form-item>
+        <a-button type="text" long size="large" @click="handleCancel">
+          {{ t('login.forceChangeCancel') }}
         </a-button>
       </a-form-item>
     </a-form>
@@ -59,10 +64,9 @@ import { authApi } from '@/api/auth'
 import { orgApi } from '@/api/rbac'
 import { Message } from '@arco-design/web-vue'
 
-const emit = defineEmits<{ forceChange: [] }>()
+const emit = defineEmits<{ cancel: [] }>()
 
 const { t } = useI18n()
-
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
@@ -72,38 +76,48 @@ const loading = ref(false)
 const errorMsg = ref('')
 
 const formData = reactive({
-  username: '',
-  password: '',
+  new_password: '',
+  confirm_password: '',
 })
 
 const rules = computed(() => ({
-  username: [{ required: true, message: t('login.usernameRequired') }],
-  password: [{ required: true, message: t('login.passwordRequired') }],
+  new_password: [
+    { required: true, message: t('login.forceNewPasswordRequired') },
+    { minLength: 8, message: t('login.forcePasswordMinLength') },
+  ],
+  confirm_password: [
+    { required: true, message: t('login.forceConfirmPasswordRequired') },
+    {
+      validator: (value: string, cb: (msg?: string) => void) => {
+        if (value !== formData.new_password) {
+          cb(t('login.forcePasswordMismatch'))
+        }
+      },
+    },
+  ],
 }))
 
-async function handleLogin() {
+function handleCancel() {
+  userStore.logout()
+  emit('cancel')
+}
+
+async function handleSubmit() {
   loading.value = true
   errorMsg.value = ''
 
   try {
-    const res = await authApi.login({
-      username: formData.username,
-      password: formData.password,
+    const res = await authApi.changeForcedPassword({
+      new_password: formData.new_password,
+      confirm_password: formData.confirm_password,
     })
 
     userStore.setAuth(res.data)
     userStore.initOrgContext()
+    Message.success(t('login.forceChangeSuccess'))
 
-    // If user must change password on first login, switch to force-change form
-    if (res.data.user.force_password_change) {
-      emit('forceChange')
-      return
-    }
-
-    Message.success(t('login.loginSuccess'))
-
+    // Same routing logic as login-form
     if (userStore.isEnterprise) {
-      // Enterprise edition: multi-tenant mode
       if (userStore.isPlatformAdmin) {
         const orgsRes = await orgApi.list()
         userStore.setAvailableOrgs(orgsRes.data)
@@ -118,13 +132,12 @@ async function handleLogin() {
         }
       }
     } else {
-      // Community/Pro: single-tenant, flat routes
       const redirect = (route.query.redirect as string) || '/dashboard'
       router.push(redirect)
     }
   } catch (err: unknown) {
     const error = err as { response?: { data?: { error?: string } } }
-    errorMsg.value = error.response?.data?.error || t('login.loginFail')
+    errorMsg.value = error.response?.data?.error || t('login.forceChangeFail')
   } finally {
     loading.value = false
   }
@@ -132,28 +145,28 @@ async function handleLogin() {
 </script>
 
 <style scoped lang="less">
-.login-form {
+.force-change-form {
   width: 100%;
 }
 
-.login-form-header {
+.force-change-header {
   margin-bottom: 32px;
 }
 
-.login-form-title {
+.force-change-title {
   font-size: 24px;
   font-weight: 600;
   color: var(--color-text-1);
   margin: 0 0 8px;
 }
 
-.login-form-subtitle {
+.force-change-desc {
   font-size: 14px;
   color: var(--color-text-3);
   margin: 0;
 }
 
-.login-error {
+.force-change-error {
   margin-bottom: 16px;
 }
 

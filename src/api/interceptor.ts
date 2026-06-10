@@ -30,6 +30,15 @@ request.interceptors.response.use(
         router.push({ name: 'login' })
       })
     }
+
+    // Handle force_password_change: backend blocks all requests except the change-password endpoint
+    if (error.response?.status === 403 && error.response?.data?.code === 'force_password_change') {
+      // Token is still valid for the forced-password endpoint — don't clear it
+      import('@/router').then(({ default: router }) => {
+        router.push({ name: 'login', query: { force_change: 'true' } })
+      })
+      return Promise.reject(error)
+    }
     // Logger: API 错误日志
     const status = error.response?.status
     const method = error.config?.method?.toUpperCase()
