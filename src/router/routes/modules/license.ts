@@ -7,7 +7,7 @@ const route: RouteRecordRaw = {
   meta: {
     menuKey: 'license',
     icon: 'icon-safe',
-    order: 7,
+    order: 8,
     sidebarFooter: true,
     requiredPermission: 'license:view',
   },

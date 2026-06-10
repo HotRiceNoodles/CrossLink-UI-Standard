@@ -7,7 +7,7 @@ const route: RouteRecordRaw = {
   meta: {
     menuKey: 'settings',
     icon: 'icon-settings',
-    order: 6,
+    order: 7,
     sidebarFooter: true,
     requiredPermission: 'system:view',
   },

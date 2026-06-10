@@ -89,7 +89,7 @@ watch(
 const roleLabel = computed(() => {
   if (props.message.role === 'user') return t('playground.roleUser')
   if (props.message.role === 'assistant') return t('playground.roleAssistant')
-  return 'System'
+  return t('playground.roleSystem')
 })
 
 const md = new MarkdownIt({

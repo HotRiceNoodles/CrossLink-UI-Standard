@@ -7,7 +7,7 @@ const route: RouteRecordRaw = {
   meta: {
     menuKey: 'playground',
     icon: 'icon-code',
-    order: 8,
+    order: 9,
     requiredTier: ['pro', 'enterprise'],
     requiredPermission: 'playground:use',
   },
