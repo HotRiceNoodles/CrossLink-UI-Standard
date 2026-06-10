@@ -276,10 +276,17 @@
         </a-form-item>
 
         <a-form-item field="model_filter" :label="t('safety.rules.formModelFilter')">
-          <a-input
-            v-model="formData.model_filter"
-            :placeholder="t('safety.rules.formModelFilter')"
-          />
+          <a-select
+            v-model="modelFilterTags"
+            :placeholder="t('safety.rules.formModelFilterPh')"
+            multiple
+            allow-clear
+            allow-search
+            :allow-create="true"
+            :filterable="true"
+          >
+            <a-option v-for="name in modelOptions" :key="name" :value="name" :label="name" />
+          </a-select>
         </a-form-item>
       </a-form>
     </a-drawer>
@@ -338,6 +345,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { guardrailApi } from '@/api/safety'
+import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { formatTime } from '@/utils/format'
 import { getDefaultsForEngine } from '@/config/engine-schema'
@@ -363,6 +371,33 @@ const engineTypeOptions: GuardrailEngineType[] = [
   'behavior_analysis',
   'webhook',
 ]
+
+// Model list for model_filter selector
+const modelOptions = ref<string[]>([])
+
+async function fetchModels() {
+  try {
+    const res = await modelApi.list()
+    modelOptions.value = [...new Set(res.data.map((m: any) => m.model_name))].sort()
+  } catch {
+    // silently fail — model dropdown will just be empty
+  }
+}
+
+// Convert between comma-separated string (backend) and string array (multi-select)
+const modelFilterTags = computed({
+  get: () => {
+    const val = formData.model_filter
+    if (!val) return []
+    return val
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter(Boolean)
+  },
+  set: (arr: string[]) => {
+    formData.model_filter = arr.join(',')
+  },
+})
 
 // Global config
 const globalConfig = ref<GuardrailConfig>({
@@ -521,6 +556,7 @@ async function executeTest() {
 onMounted(() => {
   fetchData()
   fetchConfig()
+  fetchModels()
 })
 </script>
 

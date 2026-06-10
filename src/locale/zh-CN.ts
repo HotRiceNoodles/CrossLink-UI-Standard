@@ -558,6 +558,7 @@ export default {
       formAction: '处理动作',
       formConfig: '引擎配置',
       formModelFilter: '适用模型',
+      formModelFilterPh: '选择或输入模型名称',
       formEnabled: '启用',
       filterType: '引擎类型',
       filterStatus: '状态',

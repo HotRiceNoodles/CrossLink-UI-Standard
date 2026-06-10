@@ -562,6 +562,7 @@ export default {
       formAction: 'Action',
       formConfig: 'Engine Config',
       formModelFilter: 'Model Filter',
+      formModelFilterPh: 'Select or type model names',
       formEnabled: 'Enabled',
       filterType: 'Engine Type',
       filterStatus: 'Status',
