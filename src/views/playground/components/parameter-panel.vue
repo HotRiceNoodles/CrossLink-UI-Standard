@@ -9,7 +9,7 @@
 
     <template v-if="!collapsed">
       <div class="panel-content">
-        <!-- Model selector -->
+        <!-- Model selector (shared) -->
         <div class="param-section">
           <div class="param-label">{{ t('playground.model') }}</div>
           <a-select
@@ -28,106 +28,161 @@
           </a-select>
         </div>
 
-        <!-- System Prompt -->
-        <div class="param-section">
-          <div class="param-label" @click="systemPromptExpanded = !systemPromptExpanded">
-            {{ t('playground.systemPrompt') }}
-            <icon-down v-if="!systemPromptExpanded" class="expand-icon" />
-            <icon-up v-else class="expand-icon" />
+        <!-- ===== Chat-specific params ===== -->
+        <template v-if="mode === 'chat'">
+          <!-- System Prompt -->
+          <div class="param-section">
+            <div class="param-label" @click="systemPromptExpanded = !systemPromptExpanded">
+              {{ t('playground.systemPrompt') }}
+              <icon-down v-if="!systemPromptExpanded" class="expand-icon" />
+              <icon-up v-else class="expand-icon" />
+            </div>
+            <a-textarea
+              v-if="systemPromptExpanded"
+              :model-value="chatParams.systemPrompt"
+              :placeholder="t('playground.systemPromptPlaceholder')"
+              :auto-size="{ minRows: 3, maxRows: 8 }"
+              @input="(v: string) => updateParam('systemPrompt', v)"
+            />
+            <div v-else-if="chatParams.systemPrompt" class="param-summary">
+              {{
+                chatParams.systemPrompt.slice(0, 60) +
+                (chatParams.systemPrompt.length > 60 ? '...' : '')
+              }}
+            </div>
           </div>
-          <a-textarea
-            v-if="systemPromptExpanded"
-            :model-value="params.systemPrompt"
-            :placeholder="t('playground.systemPromptPlaceholder')"
-            :auto-size="{ minRows: 3, maxRows: 8 }"
-            @input="(v: string) => updateParam('systemPrompt', v)"
-          />
-          <div v-else-if="params.systemPrompt" class="param-summary">
-            {{ params.systemPrompt.slice(0, 60) }}{{ params.systemPrompt.length > 60 ? '...' : '' }}
-          </div>
-        </div>
 
-        <!-- Temperature -->
-        <div class="param-section">
-          <div class="param-label-row">
-            <span class="param-label">{{ t('playground.temperature') }}</span>
-            <a-input-number
-              :model-value="params.temperature"
+          <!-- Temperature -->
+          <div class="param-section">
+            <div class="param-label-row">
+              <span class="param-label">{{ t('playground.temperature') }}</span>
+              <a-input-number
+                :model-value="chatParams.temperature"
+                :min="0"
+                :max="2"
+                :step="0.1"
+                :precision="1"
+                size="mini"
+                style="width: 72px"
+                @change="(v: number) => updateParam('temperature', v)"
+              />
+            </div>
+            <a-slider
+              :model-value="chatParams.temperature"
               :min="0"
               :max="2"
               :step="0.1"
-              :precision="1"
-              size="mini"
-              style="width: 72px"
               @change="(v: number) => updateParam('temperature', v)"
             />
           </div>
-          <a-slider
-            :model-value="params.temperature"
-            :min="0"
-            :max="2"
-            :step="0.1"
-            @change="(v: number) => updateParam('temperature', v)"
-          />
-        </div>
 
-        <!-- Top P -->
-        <div class="param-section">
-          <div class="param-label-row">
-            <span class="param-label">{{ t('playground.topP') }}</span>
-            <a-input-number
-              :model-value="params.topP"
+          <!-- Top P -->
+          <div class="param-section">
+            <div class="param-label-row">
+              <span class="param-label">{{ t('playground.topP') }}</span>
+              <a-input-number
+                :model-value="chatParams.topP"
+                :min="0"
+                :max="1"
+                :step="0.05"
+                :precision="2"
+                size="mini"
+                style="width: 72px"
+                @change="(v: number) => updateParam('topP', v)"
+              />
+            </div>
+            <a-slider
+              :model-value="chatParams.topP"
               :min="0"
               :max="1"
               :step="0.05"
-              :precision="2"
-              size="mini"
-              style="width: 72px"
               @change="(v: number) => updateParam('topP', v)"
             />
           </div>
-          <a-slider
-            :model-value="params.topP"
-            :min="0"
-            :max="1"
-            :step="0.05"
-            @change="(v: number) => updateParam('topP', v)"
-          />
-        </div>
 
-        <!-- Max Tokens -->
-        <div class="param-section">
-          <div class="param-label-row">
-            <span class="param-label">{{ t('playground.maxTokens') }}</span>
-            <a-input-number
-              :model-value="params.maxTokens"
-              :min="1"
-              :max="128000"
-              :step="1"
-              size="mini"
-              style="width: 100px"
-              @change="(v: number) => updateParam('maxTokens', v)"
-            />
+          <!-- Max Tokens -->
+          <div class="param-section">
+            <div class="param-label-row">
+              <span class="param-label">{{ t('playground.maxTokens') }}</span>
+              <a-input-number
+                :model-value="chatParams.maxTokens"
+                :min="1"
+                :max="128000"
+                :step="1"
+                size="mini"
+                style="width: 100px"
+                @change="(v: number) => updateParam('maxTokens', v)"
+              />
+            </div>
           </div>
-        </div>
 
-        <!-- Streaming toggle -->
-        <div class="param-section">
-          <div class="param-label-row">
-            <span class="param-label">{{ t('playground.streaming') }}</span>
-            <a-switch
-              :model-value="useStreaming"
-              @change="(v: boolean) => emit('update:useStreaming', v)"
-            />
+          <!-- Streaming toggle -->
+          <div class="param-section">
+            <div class="param-label-row">
+              <span class="param-label">{{ t('playground.streaming') }}</span>
+              <a-switch
+                :model-value="useStreaming"
+                @change="(v: boolean) => emit('update:useStreaming', v)"
+              />
+            </div>
           </div>
-        </div>
+        </template>
+
+        <!-- ===== Image-specific params ===== -->
+        <template v-if="mode === 'image'">
+          <!-- Size -->
+          <div class="param-section">
+            <div class="param-label">{{ t('playground.imageSize') }}</div>
+            <a-select
+              :model-value="imageParams.size"
+              :placeholder="'1024x1024'"
+              allow-clear
+              @change="(v: string) => emit('imageParamChange', 'size', v || '')"
+            >
+              <a-option value="1024x1024" label="1024 × 1024" />
+              <a-option value="1792x1024" label="1792 × 1024" />
+              <a-option value="1024x1792" label="1024 × 1792" />
+              <a-option value="512x512" label="512 × 512" />
+            </a-select>
+          </div>
+
+          <!-- Quality -->
+          <div class="param-section">
+            <div class="param-label">{{ t('playground.imageQuality') }}</div>
+            <a-select
+              :model-value="imageParams.quality"
+              :placeholder="t('playground.imageQualityPlaceholder')"
+              allow-clear
+              @change="(v: string) => emit('imageParamChange', 'quality', v || '')"
+            >
+              <a-option value="standard" :label="t('playground.qualityStandard')" />
+              <a-option value="hd" :label="t('playground.qualityHd')" />
+            </a-select>
+          </div>
+
+          <!-- Number of images -->
+          <div class="param-section">
+            <div class="param-label-row">
+              <span class="param-label">{{ t('playground.imageCount') }}</span>
+              <a-input-number
+                :model-value="imageParams.n"
+                :min="1"
+                :max="4"
+                :step="1"
+                size="mini"
+                style="width: 72px"
+                @change="(v: number) => emit('imageParamChange', 'n', v)"
+              />
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- Clear button -->
       <div class="panel-footer">
         <a-button long @click="emit('clear')">
           <template #icon><icon-delete /></template>
-          {{ t('playground.clearChat') }}
+          {{ mode === 'chat' ? t('playground.clearChat') : t('playground.clearImages') }}
         </a-button>
       </div>
     </template>
@@ -139,17 +194,25 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { ProviderModel } from '@/types'
 
-interface Params {
+interface ChatParams {
   systemPrompt: string
   temperature: number
   topP: number
   maxTokens: number
 }
 
+interface ImageParams {
+  size: string
+  quality: string
+  n: number
+}
+
 defineProps<{
+  mode: 'chat' | 'image'
   modelList: ProviderModel[]
   selectedModel: string
-  params: Params
+  chatParams: ChatParams
+  imageParams: ImageParams
   useStreaming: boolean
   collapsed: boolean
   streaming: boolean
@@ -161,6 +224,7 @@ const emit = defineEmits<{
   'update:collapsed': [value: boolean]
   clear: []
   paramChange: [key: string, value: unknown]
+  imageParamChange: [key: string, value: unknown]
 }>()
 
 const { t } = useI18n()

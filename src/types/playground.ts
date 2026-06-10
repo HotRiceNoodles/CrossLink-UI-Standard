@@ -45,3 +45,38 @@ export interface SSEGuardrailEvent {
   type: 'guardrail_masked'
   content: string
 }
+
+// --- Image Generation ---
+
+/** Request payload for the Playground image generation API */
+export interface PlaygroundImageRequest {
+  model: string
+  prompt: string
+  n?: number
+  size?: string
+  quality?: string
+}
+
+/** Single image data from the image generation response */
+export interface PlaygroundImageData {
+  b64_json?: string
+  url?: string
+}
+
+/** Response from the Playground image generation API */
+export interface PlaygroundImageResponse {
+  images: PlaygroundImageData[]
+  model: string
+  provider: string
+  cost: number
+}
+
+/** A batch of generated images (stored in history) */
+export interface ImageGenerationBatch {
+  id: number
+  prompt: string
+  images: PlaygroundImageData[]
+  model: string
+  provider: string
+  cost: number
+}

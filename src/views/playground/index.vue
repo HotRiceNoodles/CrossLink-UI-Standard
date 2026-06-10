@@ -15,48 +15,79 @@
 
     <!-- Main playground layout -->
     <div v-else class="playground-layout">
-      <!-- Chat area -->
-      <div class="chat-area">
-        <!-- Messages -->
-        <div ref="messagesContainer" class="messages-container">
-          <div v-if="messages.length === 0" class="chat-empty">
-            <div class="chat-empty-icon">
-              <icon-message style="font-size: 32px; color: var(--color-text-4)" />
+      <div class="content-area">
+        <!-- Tab bar -->
+        <div class="tab-bar">
+          <div class="tab-bar-left">
+            <div
+              class="tab-item"
+              :class="{ active: activeTab === 'chat' }"
+              @click="activeTab = 'chat'"
+            >
+              <icon-message class="tab-icon" />
+              {{ t('playground.tabChat') }}
             </div>
-            <div class="chat-empty-title">{{ t('playground.emptyChat') }}</div>
-            <div class="chat-empty-desc">{{ t('playground.emptyChatDesc') }}</div>
-          </div>
-          <template v-else>
-            <message-item
-              v-for="(msg, idx) in messages"
-              :key="idx"
-              :message="msg"
-              :usage="messageUsages[idx]"
-              :streaming="streaming && idx === messages.length - 1 && msg.role === 'assistant'"
-            />
-          </template>
-          <!-- Error message -->
-          <div v-if="errorMessage" class="error-message">
-            <icon-exclamation-circle style="font-size: 14px" />
-            {{ errorMessage }}
+            <div
+              class="tab-item"
+              :class="{ active: activeTab === 'image' }"
+              @click="activeTab = 'image'"
+            >
+              <icon-image class="tab-icon" />
+              {{ t('playground.tabImage') }}
+            </div>
           </div>
         </div>
 
-        <!-- Input -->
-        <chat-input
-          :disabled="!selectedModel || modelList.length === 0"
-          :streaming="streaming"
-          :sending="sending"
-          @send="handleSend"
-          @stop="handleStop"
-        />
+        <!-- Chat tab -->
+        <div v-if="activeTab === 'chat'" class="chat-area">
+          <div ref="messagesContainer" class="messages-container">
+            <div v-if="messages.length === 0" class="chat-empty">
+              <div class="chat-empty-icon">
+                <icon-message style="font-size: 32px; color: var(--color-text-4)" />
+              </div>
+              <div class="chat-empty-title">{{ t('playground.emptyChat') }}</div>
+              <div class="chat-empty-desc">{{ t('playground.emptyChatDesc') }}</div>
+            </div>
+            <template v-else>
+              <message-item
+                v-for="(msg, idx) in messages"
+                :key="idx"
+                :message="msg"
+                :usage="messageUsages[idx]"
+                :streaming="streaming && idx === messages.length - 1 && msg.role === 'assistant'"
+              />
+            </template>
+            <div v-if="errorMessage" class="error-message">
+              <icon-exclamation-circle style="font-size: 14px" />
+              {{ errorMessage }}
+            </div>
+          </div>
+          <chat-input
+            :disabled="!selectedModel || modelList.length === 0"
+            :streaming="streaming"
+            :sending="sending"
+            @send="handleSend"
+            @stop="handleStop"
+          />
+        </div>
+
+        <!-- Image tab -->
+        <div v-if="activeTab === 'image'" class="image-area">
+          <image-playground
+            ref="imagePlaygroundRef"
+            :selected-model="selectedModel"
+            :image-params="imageParams"
+          />
+        </div>
       </div>
 
       <!-- Parameter panel -->
       <parameter-panel
+        :mode="activeTab"
         :model-list="modelList"
         :selected-model="selectedModel"
-        :params="params"
+        :chat-params="params"
+        :image-params="imageParams"
         :use-streaming="useStreaming"
         :collapsed="panelCollapsed"
         :streaming="streaming || sending"
@@ -64,6 +95,7 @@
         @update:use-streaming="useStreaming = $event"
         @update:collapsed="panelCollapsed = $event"
         @param-change="handleParamChange"
+        @image-param-change="handleImageParamChange"
         @clear="handleClear"
       />
     </div>
@@ -81,8 +113,12 @@ import type { PlaygroundMessage, PlaygroundRequest, ProviderModel } from '@/type
 import MessageItem from './components/message-item.vue'
 import ChatInput from './components/chat-input.vue'
 import ParameterPanel from './components/parameter-panel.vue'
+import ImagePlayground from './components/image-playground.vue'
 
 const { t } = useI18n()
+
+// Tab
+const activeTab = ref<'chat' | 'image'>('chat')
 
 // Models
 const modelList = ref<ProviderModel[]>([])
@@ -99,13 +135,21 @@ const messageUsages = reactive<
   Record<number, { input: number; output: number; latency_ms?: number; provider?: string }>
 >({})
 
-// Parameters
+// Chat parameters
 const params = reactive({
   systemPrompt: '',
   temperature: 0.7,
   topP: 1,
   maxTokens: 4096,
 })
+
+// Image parameters
+const imageParams = reactive({
+  size: '1024x1024',
+  quality: '',
+  n: 1,
+})
+
 const useStreaming = ref(true)
 const panelCollapsed = ref(false)
 
@@ -119,8 +163,9 @@ const {
   abort,
 } = usePlaygroundStream()
 
-// Scroll container ref
+// Refs
 const messagesContainer = ref<HTMLElement>()
+const imagePlaygroundRef = ref()
 
 // Load models
 onMounted(async () => {
@@ -270,14 +315,23 @@ function handleStop() {
 }
 
 function handleClear() {
-  messages.value = []
-  errorMessage.value = ''
-  Object.keys(messageUsages).forEach((k) => delete messageUsages[Number(k)])
+  if (activeTab.value === 'chat') {
+    messages.value = []
+    errorMessage.value = ''
+    Object.keys(messageUsages).forEach((k) => delete messageUsages[Number(k)])
+  }
+  // Image playground handles its own clear via ref if needed
 }
 
 function handleParamChange(key: string, value: unknown) {
   if (key in params) {
     ;(params as Record<string, unknown>)[key] = value
+  }
+}
+
+function handleImageParamChange(key: string, value: unknown) {
+  if (key in imageParams) {
+    ;(imageParams as Record<string, unknown>)[key] = value
   }
 }
 </script>
@@ -318,11 +372,62 @@ function handleParamChange(key: string, value: unknown) {
   border: 1px solid var(--color-border-1);
 }
 
-.chat-area {
+.content-area {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+// Tab bar
+.tab-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--color-border-2);
+  background: var(--color-bg-2);
+  flex-shrink: 0;
+}
+
+.tab-bar-left {
+  display: flex;
+  gap: 0;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
+
+  &:hover {
+    color: var(--color-text-1);
+  }
+
+  &.active {
+    color: rgb(var(--arcoblue-6));
+    border-bottom-color: rgb(var(--arcoblue-6));
+  }
+}
+
+.tab-icon {
+  font-size: 14px;
+}
+
+// Chat area
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .messages-container {
@@ -353,6 +458,14 @@ function handleParamChange(key: string, value: unknown) {
 .chat-empty-desc {
   font-size: 13px;
   margin-top: 4px;
+}
+
+// Image area
+.image-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  min-height: 0;
 }
 
 .error-message {

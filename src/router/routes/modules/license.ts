@@ -9,6 +9,7 @@ const route: RouteRecordRaw = {
     icon: 'icon-safe',
     order: 7,
     sidebarFooter: true,
+    requiredPermission: 'license:view',
   },
 }
 

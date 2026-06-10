@@ -1,6 +1,11 @@
 import { post } from './interceptor'
 import { getToken } from '@/utils/auth'
-import type { PlaygroundRequest, PlaygroundResponse } from '@/types'
+import type {
+  PlaygroundRequest,
+  PlaygroundResponse,
+  PlaygroundImageRequest,
+  PlaygroundImageResponse,
+} from '@/types'
 
 export const playgroundApi = {
   /** Non-streaming chat completion */
@@ -22,4 +27,8 @@ export const playgroundApi = {
       signal,
     })
   },
+
+  /** Image generation */
+  imageGenerate: (data: PlaygroundImageRequest) =>
+    post<PlaygroundImageResponse>('/playground/image', data),
 }

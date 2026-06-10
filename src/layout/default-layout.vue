@@ -140,6 +140,10 @@ const footerRoutes = computed(() => {
   const children = (activeParent?.children || []) as RouteRecordRaw[]
   return children
     .filter((r) => !!r.meta?.sidebarFooter)
+    .filter((r) => {
+      const requiredPermission = r.meta?.requiredPermission as string | undefined
+      return !requiredPermission || userStore.hasPermission(requiredPermission)
+    })
     .sort((a, b) => ((a.meta?.order as number) ?? 999) - ((b.meta?.order as number) ?? 999))
 })
 
