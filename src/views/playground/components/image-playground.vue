@@ -50,8 +50,7 @@
               <div v-for="(img, idx) in batch.images" :key="idx" class="image-card">
                 <a-image
                   :src="getImageSrc(img)"
-                  :title="`${batch.prompt} #${idx + 1}`"
-                  fit="cover"
+                  fit="contain"
                   class="generated-image"
                   :preview-props="{
                     actionsLayout: [
@@ -156,14 +155,22 @@ function getImageSrc(img: PlaygroundImageData): string {
   return img.url || ''
 }
 
-function downloadImage(img: PlaygroundImageData, idx: number) {
-  let src = getImageSrc(img)
+async function downloadImage(img: PlaygroundImageData, idx: number) {
+  const src = getImageSrc(img)
   if (!src) return
-
-  const link = document.createElement('a')
-  link.href = src
-  link.download = `image-${idx + 1}.png`
-  link.click()
+  try {
+    const response = await fetch(src)
+    const blob = await response.blob()
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `image-${idx + 1}.png`
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    // fallback: open in new tab
+    window.open(src, '_blank')
+  }
 }
 </script>
 
@@ -215,6 +222,7 @@ function downloadImage(img: PlaygroundImageData, idx: number) {
 }
 
 .batch-section {
+  position: relative;
   margin-bottom: 20px;
 
   & + .batch-section {
@@ -224,7 +232,15 @@ function downloadImage(img: PlaygroundImageData, idx: number) {
 }
 
 .batch-header {
-  margin-bottom: 8px;
+  position: relative;
+  z-index: 0;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.batch-images {
+  position: relative;
+  z-index: 1;
 }
 
 .batch-prompt {
@@ -260,6 +276,7 @@ function downloadImage(img: PlaygroundImageData, idx: number) {
   overflow: hidden;
   border: 1px solid var(--color-border-2);
   aspect-ratio: 1;
+  background: var(--color-fill-2);
 
   &:hover .image-actions {
     opacity: 1;
@@ -269,7 +286,12 @@ function downloadImage(img: PlaygroundImageData, idx: number) {
 .generated-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  :deep(img) {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+  }
 }
 
 .image-actions {
