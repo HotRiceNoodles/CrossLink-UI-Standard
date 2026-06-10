@@ -25,9 +25,15 @@ function buildChildren(modules: Record<string, RouteRecordRaw>): RouteRecordRaw[
  * Used to avoid Vue Router name conflicts between default and org routes.
  */
 function prefixRouteNames(route: RouteRecordRaw, prefix: string): RouteRecordRaw {
+  const redirect = route.redirect
+  let prefixedRedirect = redirect
+  if (redirect && typeof redirect === 'object' && 'name' in redirect && redirect.name) {
+    prefixedRedirect = { ...redirect, name: `${prefix}${String(redirect.name)}` }
+  }
   return {
     ...route,
     name: route.name ? `${prefix}${String(route.name)}` : route.name,
+    redirect: prefixedRedirect,
     children: route.children?.map((child) => prefixRouteNames(child, prefix)),
   }
 }

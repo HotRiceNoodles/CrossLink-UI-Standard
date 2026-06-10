@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 const route: RouteRecordRaw = {
   path: 'auth',
   name: 'auth',
+  redirect: { name: 'authMembers' },
   component: () => import('@/layout/blank-layout.vue'),
   meta: {
     menuKey: 'authMembers',
