@@ -147,7 +147,7 @@
         row-class="clickable-row"
         @page-change="onPageChange"
         @page-size-change="onPageSizeChange"
-        @row-click="openDetail"
+        @row-click="(record: any) => openDetail(record as GuardrailAlertLog)"
       >
         <template #columns>
           <a-table-column :title="t('safety.alerts.colTime')" data-index="created_at" :width="170">
@@ -226,6 +226,20 @@
               <a-tag :color="statusColor(record.status)">
                 {{ t(`safety.alertStatus.${record.status}`) }}
               </a-tag>
+            </template>
+          </a-table-column>
+
+          <!-- Content preview (only shown when showContent is checked) -->
+          <a-table-column
+            v-if="filter.showContent"
+            :title="t('safety.alerts.contentPreview')"
+            data-index="content_preview"
+            :width="240"
+            :ellipsis="true"
+            :tooltip="true"
+          >
+            <template #cell="{ record }">
+              <span class="cell-preview">{{ record.content_preview || '-' }}</span>
             </template>
           </a-table-column>
         </template>
@@ -488,6 +502,14 @@ onMounted(() => {
 
   .cell-model {
     color: var(--color-text-2);
+  }
+
+  .cell-preview {
+    color: var(--color-text-2);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .empty-state {
