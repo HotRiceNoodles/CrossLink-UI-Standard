@@ -86,16 +86,18 @@ export function useTeamUsers() {
   }
 
   function mapTeamMembers(members: TeamMember[], teamDisplayName: string | null): UserRow[] {
-    return members.map((m) => ({
-      id: m.user.id,
-      username: m.user.username,
-      display_name: m.user.display_name,
-      global_role: m.user.role ?? null,
-      status: m.user.status,
-      team_role: m.role,
-      team_name: teamDisplayName,
-      created_at: m.user.created_at,
-    }))
+    return members
+      .filter((m) => m.user && m.user.id)
+      .map((m) => ({
+        id: m.user.id,
+        username: m.user.username,
+        display_name: m.user.display_name,
+        global_role: m.user.role ?? null,
+        status: m.user.status,
+        team_role: m.role,
+        team_name: teamDisplayName,
+        created_at: m.user.created_at,
+      }))
   }
 
   // ─── 操作 ───

@@ -166,7 +166,21 @@ const userCrud = useCrud<AuthUser, Record<string, unknown>>({
     team_id: undefined as number | undefined,
     team_role: 'member',
   }),
-  onCreated: async () => {
+  onCreated: async (responseData) => {
+    // Backend POST /users doesn't accept team_id/team_role yet (change 4).
+    // After user creation, sequentially call addMember if team was selected.
+    const createdUser = responseData as { id?: number }
+    const tid = userCrud.formData.team_id as number | undefined
+    if (tid && createdUser?.id) {
+      try {
+        await teamApi.addMember(tid, {
+          user_id: createdUser.id,
+          role: (userCrud.formData.team_role as string) || 'member',
+        })
+      } catch {
+        Message.warning(t('common.operationFail'))
+      }
+    }
     await refreshAll()
     userCrud.handleDrawerClose()
   },
@@ -297,29 +311,31 @@ function openMoveUserModal(record: UserRow) {
 
 async function handleMoveUser(toTeamId: number) {
   if (!moveTargetUser.value) return
+  const userId = moveTargetUser.value.id
+  const fromTeamId = moveFromTeamId.value
+
   try {
-    // Try atomic moveUser API first (backend change 5)
-    await teamApi.moveUser({
-      user_id: moveTargetUser.value.id,
-      from_team_id: moveFromTeamId.value,
-      to_team_id: toTeamId,
-    })
-    Message.success(t('common.updateSuccess'))
-  } catch {
-    // Fallback: sequential remove + add
-    try {
-      if (moveFromTeamId.value) {
-        await teamApi.removeMember(moveFromTeamId.value, moveTargetUser.value.id)
+    if (fromTeamId) {
+      // Move between teams: try atomic API first, then fallback to sequential
+      try {
+        await teamApi.moveUser({
+          user_id: userId,
+          from_team_id: fromTeamId,
+          to_team_id: toTeamId,
+        })
+      } catch {
+        // Fallback: sequential remove + add
+        await teamApi.removeMember(fromTeamId, userId)
+        await teamApi.addMember(toTeamId, { user_id: userId, role: 'member' })
       }
-      await teamApi.addMember(toTeamId, {
-        user_id: moveTargetUser.value.id,
-        role: 'member',
-      })
-      Message.success(t('common.updateSuccess'))
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: string } } }
-      Message.error(error.response?.data?.error || t('common.operationFail'))
+    } else {
+      // Assign to team (no source team): just addMember directly
+      await teamApi.addMember(toTeamId, { user_id: userId, role: 'member' })
     }
+    Message.success(t('common.updateSuccess'))
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } } }
+    Message.error(error.response?.data?.error || t('common.operationFail'))
   }
   moveModalVisible.value = false
   await refreshAll()
