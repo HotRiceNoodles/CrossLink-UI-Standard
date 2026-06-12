@@ -1,6 +1,6 @@
 <template>
-  <div class="org-card">
-    <!-- Header: Avatar + Name + Dropdown -->
+  <div class="org-card" :class="{ 'org-card--danger': healthStatus === 'danger' }">
+    <!-- Header: Avatar + Name + Health Tag + Dropdown -->
     <div class="org-card__header">
       <div class="org-card__identity">
         <a-avatar :style="{ backgroundColor: avatarColor }" :size="40">
@@ -11,29 +11,32 @@
           <span class="org-card__slug">{{ org.name }}</span>
         </div>
       </div>
-      <a-dropdown trigger="hover" position="br">
-        <a-button type="text" size="small" class="org-card__more">
-          <template #icon><icon-more /></template>
-        </a-button>
-        <template #content>
-          <a-doption v-if="userStore.hasPermission('org:update')" @click="emit('edit', org)">
-            <template #icon><icon-edit /></template>
-            {{ t('common.edit') }}
-          </a-doption>
-          <a-doption @click="emit('detail', org)">
-            <template #icon><icon-eye /></template>
-            {{ t('auth.organizations.detail') }}
-          </a-doption>
-          <a-doption
-            v-if="userStore.hasPermission('org:delete')"
-            class="org-card__delete-option"
-            @click="emit('delete', org)"
-          >
-            <template #icon><icon-delete /></template>
-            {{ t('common.delete') }}
-          </a-doption>
-        </template>
-      </a-dropdown>
+      <div class="org-card__header-actions">
+        <a-tag :color="healthTagColor" size="small">{{ healthLabel }}</a-tag>
+        <a-dropdown trigger="hover" position="br">
+          <a-button type="text" size="small" class="org-card__more">
+            <template #icon><icon-more /></template>
+          </a-button>
+          <template #content>
+            <a-doption v-if="userStore.hasPermission('org:update')" @click="emit('edit', org)">
+              <template #icon><icon-edit /></template>
+              {{ t('common.edit') }}
+            </a-doption>
+            <a-doption @click="emit('detail', org)">
+              <template #icon><icon-eye /></template>
+              {{ t('auth.organizations.detail') }}
+            </a-doption>
+            <a-doption
+              v-if="userStore.hasPermission('org:delete')"
+              class="org-card__delete-option"
+              @click="emit('delete', org)"
+            >
+              <template #icon><icon-delete /></template>
+              {{ t('common.delete') }}
+            </a-doption>
+          </template>
+        </a-dropdown>
+      </div>
     </div>
 
     <a-divider style="margin: 12px 0" />
@@ -77,12 +80,17 @@
       />
     </div>
 
-    <!-- Footer: Date -->
+    <!-- Footer: Date + Enter Button -->
     <div class="org-card__footer">
       <span class="org-card__date">
         {{ t('auth.organizations.cardCreatedAt') }}: {{ formatDate(org.created_at) }}
       </span>
     </div>
+
+    <a-button type="primary" long :disabled="org.status !== 1" @click="emit('enter', org)">
+      <template #icon><icon-right /></template>
+      {{ t('globalDashboard.enterOrg') }}
+    </a-button>
   </div>
 </template>
 
@@ -106,6 +114,7 @@ const emit = defineEmits<{
   (e: 'edit', org: Organization): void
   (e: 'detail', org: Organization): void
   (e: 'delete', org: Organization): void
+  (e: 'enter', org: Organization): void
 }>()
 
 // Avatar color — hash-based from provider-card pattern
@@ -135,6 +144,35 @@ const progressColor = computed(() => {
   if (pct >= 90) return 'red'
   if (pct >= 70) return 'orangered'
   return 'arcoblue'
+})
+
+// Health status indicator
+type HealthStatus = 'healthy' | 'warning' | 'danger'
+
+const healthStatus = computed<HealthStatus>(() => {
+  if (props.org.status !== 1) return 'danger'
+  if (!props.budget || !props.org.budget_limit) return 'healthy'
+  if (props.budget.usage_pct >= 90) return 'danger'
+  if (props.budget.usage_pct >= 70) return 'warning'
+  return 'healthy'
+})
+
+const healthTagColor = computed(() => {
+  const map: Record<HealthStatus, string> = {
+    healthy: 'green',
+    warning: 'orangered',
+    danger: 'red',
+  }
+  return map[healthStatus.value]
+})
+
+const healthLabel = computed(() => {
+  const map: Record<HealthStatus, string> = {
+    healthy: t('globalDashboard.healthHealthy'),
+    warning: t('globalDashboard.healthWarning'),
+    danger: t('globalDashboard.healthDanger'),
+  }
+  return map[healthStatus.value]
 })
 
 // Budget period label
@@ -169,10 +207,21 @@ function formatDate(dateStr: string): string {
     border-color: var(--color-border-3);
   }
 
+  &--danger {
+    border-left: 3px solid rgb(var(--danger-6));
+  }
+
   &__header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   &__identity {

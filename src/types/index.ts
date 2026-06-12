@@ -178,6 +178,9 @@ export interface UsageStats {
   total_cost: number
   avg_latency: number
   cost_by_currency: Record<string, number>
+  organization_count?: number
+  member_count?: number
+  total_api_keys?: number
 }
 
 export interface DailyTrend {

@@ -4,6 +4,14 @@
       <template #title>{{ t('auth.organizations.title') }}</template>
       <template #extra>
         <a-space>
+          <a-input-search
+            v-model="filter.keyword"
+            :placeholder="t('common.search')"
+            allow-clear
+            style="width: 200px"
+            @search="applyFilter"
+            @clear="resetFilter"
+          />
           <a-button
             v-if="userStore.hasPermission('org:create')"
             type="primary"
@@ -17,20 +25,12 @@
               <template #icon><icon-refresh /></template>
             </a-button>
           </a-tooltip>
+          <a-radio-group v-model="viewMode" type="button" size="small">
+            <a-radio value="card"><icon-apps /></a-radio>
+            <a-radio value="table"><icon-list /></a-radio>
+          </a-radio-group>
         </a-space>
       </template>
-
-      <!-- Search -->
-      <a-input-search
-        v-model="filter.keyword"
-        :placeholder="t('common.search')"
-        allow-clear
-        style="width: 280px"
-        @search="applyFilter"
-        @clear="resetFilter"
-      />
-
-      <a-divider style="margin: 16px 0" />
 
       <!-- Count -->
       <a-row justify="end" align="center">
@@ -41,8 +41,97 @@
         </a-col>
       </a-row>
 
-      <!-- Card Grid -->
-      <a-spin :loading="loading" style="width: 100%; min-height: 200px">
+      <!-- Table View -->
+      <a-table
+        v-if="viewMode === 'table'"
+        :data="filteredList"
+        :loading="loading"
+        :pagination="tablePagination"
+        row-key="id"
+        size="small"
+        :bordered="false"
+        style="margin-top: 16px"
+        @page-change="onPageChange"
+        @page-size-change="onPageSizeChange"
+      >
+        <template #columns>
+          <a-table-column :title="t('auth.organizations.tableName')" data-index="name" :width="140">
+            <template #cell="{ record }">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <a-avatar :size="28" :style="{ backgroundColor: avatarColor(record) }">
+                  {{ record.display_name?.charAt(0)?.toUpperCase() || '?' }}
+                </a-avatar>
+                <span
+                  style="font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px"
+                >
+                  {{ record.name }}
+                </span>
+              </div>
+            </template>
+          </a-table-column>
+          <a-table-column
+            :title="t('auth.organizations.tableDisplayName')"
+            data-index="display_name"
+            :ellipsis="true"
+          />
+          <a-table-column :title="t('common.status')" :width="80" align="center">
+            <template #cell="{ record }">
+              <a-tag :color="record.status === 1 ? 'green' : 'red'" size="small">
+                {{ record.status === 1 ? t('common.active') : t('common.disabled') }}
+              </a-tag>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('auth.organizations.cardMembers')" :width="70" align="center">
+            <template #cell="{ record }">{{ record.member_count ?? '--' }}</template>
+          </a-table-column>
+          <a-table-column :title="t('auth.organizations.cardTeams')" :width="70" align="center">
+            <template #cell="{ record }">{{ record.team_count ?? '--' }}</template>
+          </a-table-column>
+          <a-table-column :title="t('auth.organizations.cardKeys')" :width="70" align="center">
+            <template #cell="{ record }">{{ record.key_count ?? '--' }}</template>
+          </a-table-column>
+          <a-table-column :title="t('auth.organizations.budgetUsage')" :width="160">
+            <template #cell="{ record }">
+              <a-progress
+                v-if="budgetMap[record.id]"
+                :percent="budgetMap[record.id].usage_pct / 100"
+                :color="progressColor(budgetMap[record.id])"
+                size="small"
+              />
+              <span v-else style="color: var(--color-text-4)">--</span>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('common.actions')" :width="180" fixed="right">
+            <template #cell="{ record }">
+              <a-space :size="4">
+                <a-button
+                  v-if="userStore.hasPermission('org:update')"
+                  type="text"
+                  size="small"
+                  @click="handleEdit(record)"
+                >
+                  {{ t('common.edit') }}
+                </a-button>
+                <a-button type="text" size="small" @click="openDetailDrawer(record)">
+                  {{ t('auth.organizations.detail') }}
+                </a-button>
+                <a-button
+                  v-if="userStore.hasPermission('org:delete')"
+                  type="text"
+                  size="small"
+                  status="danger"
+                  @click="handleDeleteOrg(record)"
+                >
+                  {{ t('common.delete') }}
+                </a-button>
+              </a-space>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+
+      <!-- Card View -->
+      <a-spin v-else :loading="loading" style="width: 100%; min-height: 200px">
         <a-row :gutter="16" style="margin-top: 16px">
           <a-col v-for="org in paginatedList" :key="org.id" :span="8" style="margin-bottom: 16px">
             <org-card
@@ -51,21 +140,25 @@
               @edit="handleEdit"
               @detail="openDetailDrawer"
               @delete="handleDeleteOrg"
+              @enter="handleEnterOrg"
             />
           </a-col>
         </a-row>
         <a-empty v-if="!loading && filteredList.length === 0" style="padding: 48px 0" />
       </a-spin>
 
-      <!-- Pagination -->
-      <div v-if="filteredList.length > pageSize" style="margin-top: 16px; text-align: right">
+      <!-- Pagination (card view only — table has its own) -->
+      <div
+        v-if="viewMode === 'card' && filteredList.length > cardPageSize"
+        style="margin-top: 16px; text-align: right"
+      >
         <a-pagination
-          v-model:current="current"
+          v-model:current="cardCurrent"
           :total="filteredList.length"
-          :page-size="pageSize"
+          :page-size="cardPageSize"
           show-total
           show-page-size
-          @page-size-change="handlePageSizeChange"
+          @page-size-change="handleCardPageSizeChange"
         />
       </div>
     </a-card>
@@ -236,6 +329,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Message, Modal } from '@arco-design/web-vue'
 import { useUserStore } from '@/store'
@@ -249,7 +343,11 @@ import OrgMemberDrawer from './components/member-drawer.vue'
 import BudgetPanel from './components/budget-panel.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 const userStore = useUserStore()
+
+// View mode toggle
+const viewMode = ref<'card' | 'table'>('card')
 
 // Detail drawer
 const detailDrawerVisible = ref(false)
@@ -282,14 +380,41 @@ async function handleCopyAll() {
 // Budget data map
 const budgetMap = ref<Record<number, OrgBudget>>({})
 
-// Pagination (manual, independent of useCrud)
-const current = ref(1)
-const pageSize = ref(12)
+// Table pagination (for table view, using useCrud's pagination)
+// Card pagination (separate, for card view)
+const cardCurrent = ref(1)
+const cardPageSize = ref(12)
 
-// useCrud with enriched fetchApi (detail API adds member_count, team_count, key_count)
+// Shared helpers
+const COLORS = [
+  '#165DFF',
+  '#00B42A',
+  '#FF7D00',
+  '#722ED1',
+  '#0FC6C2',
+  '#F77234',
+  '#3491FA',
+  '#9FDB1D',
+]
+
+function avatarColor(org: { display_name?: string; name: string }) {
+  let hash = 0
+  const name = org.display_name || org.name
+  for (const ch of name) {
+    hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
+  }
+  return COLORS[Math.abs(hash) % COLORS.length]
+}
+
+function progressColor(budget: OrgBudget) {
+  if (budget.usage_pct >= 90) return 'red'
+  if (budget.usage_pct >= 70) return 'orangered'
+  return 'arcoblue'
+}
+
+// useCrud with enriched fetchApi
 const {
   loading,
-  list,
   filteredList,
   drawerVisible,
   isEdit,
@@ -297,6 +422,7 @@ const {
   formRef,
   formData,
   filter,
+  pagination,
   fetchData,
   applyFilter,
   resetFilter,
@@ -305,6 +431,8 @@ const {
   handleDrawerClose,
   handleDrawerSubmit,
   hideDrawer,
+  onPageChange,
+  onPageSizeChange,
 } = useCrud<Organization, { keyword: string }>({
   fetchApi: async () => {
     const res = await orgApi.list()
@@ -366,9 +494,29 @@ const formRules = {
   display_name: [{ required: true, message: t('auth.organizations.displayNameRequired') }],
 }
 
+// Table pagination computed (wraps useCrud pagination for a-table format)
+const tablePagination = computed(() => ({
+  current: pagination.current,
+  pageSize: pagination.pageSize,
+  total: filteredList.value.length,
+  showTotal: true,
+  showPageSize: true,
+}))
+
+// Card view paginated list
+const paginatedList = computed(() => {
+  const start = (cardCurrent.value - 1) * cardPageSize.value
+  return filteredList.value.slice(start, start + cardPageSize.value)
+})
+
+function handleCardPageSizeChange(newSize: number) {
+  cardPageSize.value = newSize
+  cardCurrent.value = 1
+}
+
 // Fetch budget data for all orgs in parallel
 async function fetchAllBudgets() {
-  const orgs = list.value
+  const orgs = filteredList.value
   if (!orgs.length) return
   const results = await Promise.allSettled(orgs.map((org) => orgApi.budget(org.id)))
   const map: Record<number, OrgBudget> = {}
@@ -384,17 +532,6 @@ async function fetchAllBudgets() {
 async function loadData() {
   await fetchData()
   await fetchAllBudgets()
-}
-
-// Paginated list for card grid
-const paginatedList = computed(() => {
-  const start = (current.value - 1) * pageSize.value
-  return filteredList.value.slice(start, start + pageSize.value)
-})
-
-function handlePageSizeChange(newSize: number) {
-  pageSize.value = newSize
-  current.value = 1
 }
 
 function handleDeleteOrg(record: Organization) {
@@ -418,6 +555,21 @@ function handleDeleteOrg(record: Organization) {
 function openDetailDrawer(record: Organization) {
   detailOrgId.value = record.id
   detailDrawerVisible.value = true
+}
+
+const entering = ref<number | null>(null)
+
+async function handleEnterOrg(org: Organization) {
+  if (entering.value) return
+  entering.value = org.id
+  try {
+    await userStore.switchOrg(org.id)
+    router.push(`/org/${org.id}/dashboard`)
+  } catch {
+    Message.error(t('org.switcher.switchFailed'))
+  } finally {
+    entering.value = null
+  }
 }
 
 onMounted(() => {

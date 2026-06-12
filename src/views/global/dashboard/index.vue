@@ -1,5 +1,6 @@
 <template>
   <div class="global-dashboard">
+    <!-- Header -->
     <div class="global-dashboard__header">
       <div>
         <h2 class="global-dashboard__title">{{ t('globalDashboard.title') }}</h2>
@@ -9,147 +10,198 @@
       </div>
     </div>
 
-    <!-- Stats summary -->
-    <div class="global-dashboard__stats">
-      <a-statistic
-        :title="t('globalDashboard.statOrgs')"
-        :value="orgs.length"
-        :value-style="{ fontSize: '28px', fontWeight: 600 }"
-      >
-        <template #prefix><icon-public /></template>
-      </a-statistic>
-      <a-statistic
-        :title="t('globalDashboard.statMembers')"
-        :value="totalMembers"
-        :value-style="{ fontSize: '28px', fontWeight: 600 }"
-      >
-        <template #prefix><icon-user-group /></template>
-      </a-statistic>
-      <a-statistic
-        :title="t('globalDashboard.statKeys')"
-        :value="totalKeys"
-        :value-style="{ fontSize: '28px', fontWeight: 600 }"
-      >
-        <template #prefix><icon-lock /></template>
-      </a-statistic>
-    </div>
-
-    <!-- Organization cards grid -->
-    <div v-if="orgs.length" class="global-dashboard__grid">
-      <div v-for="org in orgs" :key="org.id" class="global-dashboard__org-card">
-        <div class="global-dashboard__org-header">
-          <div class="global-dashboard__org-identity">
-            <a-avatar :style="{ backgroundColor: avatarColor(org) }" :size="44">
-              {{ org.display_name?.charAt(0)?.toUpperCase() || '?' }}
-            </a-avatar>
-            <div>
-              <div class="global-dashboard__org-name">{{ org.display_name }}</div>
-              <div class="global-dashboard__org-slug">{{ org.name }}</div>
-            </div>
+    <a-spin :loading="loading" style="width: 100%">
+      <!-- KPI Stats Bar — 6 metrics -->
+      <div class="global-dashboard__stats">
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--blue">
+            <icon-public />
           </div>
-          <a-tag v-if="org.status === 1" color="green" size="small">
-            {{ t('common.active') }}
-          </a-tag>
-          <a-tag v-else color="red" size="small">
-            {{ t('common.disabled') }}
-          </a-tag>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">{{ displayOrgCount }}</span>
+            <span class="global-dashboard__stat-label">{{ t('globalDashboard.statOrgs') }}</span>
+          </div>
         </div>
-
-        <div class="global-dashboard__org-stats">
-          <span>
-            <icon-user-group class="global-dashboard__org-stat-icon" />
-            {{ org.member_count ?? 0 }}
-          </span>
-          <span>
-            <icon-nav class="global-dashboard__org-stat-icon" />
-            {{ org.team_count ?? 0 }}
-          </span>
-          <span>
-            <icon-lock class="global-dashboard__org-stat-icon" />
-            {{ org.key_count ?? 0 }}
-          </span>
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--green">
+            <icon-user-group />
+          </div>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">{{ displayMemberCount }}</span>
+            <span class="global-dashboard__stat-label">{{ t('globalDashboard.statMembers') }}</span>
+          </div>
         </div>
-
-        <a-button
-          type="primary"
-          long
-          :disabled="org.status !== 1 || entering === org.id"
-          :loading="entering === org.id"
-          @click="handleEnterOrg(org)"
-        >
-          <template #icon><icon-right /></template>
-          {{ t('globalDashboard.enterOrg') }}
-        </a-button>
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--orange">
+            <icon-lock />
+          </div>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">{{ displayKeyCount }}</span>
+            <span class="global-dashboard__stat-label">{{ t('globalDashboard.statKeys') }}</span>
+          </div>
+        </div>
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--cyan">
+            <icon-bar-chart />
+          </div>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">
+              {{ formatNumber(usageStats.total_requests) }}
+            </span>
+            <span class="global-dashboard__stat-label">
+              {{ t('globalDashboard.statRequests') }}
+            </span>
+          </div>
+        </div>
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--red">
+            <icon-storage />
+          </div>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">
+              {{ currencySymbol }}{{ formatCost(usageStats.total_cost) }}
+            </span>
+            <span class="global-dashboard__stat-label">{{ t('globalDashboard.statCost') }}</span>
+          </div>
+        </div>
+        <div class="global-dashboard__stat-item">
+          <div class="global-dashboard__stat-icon global-dashboard__stat-icon--purple">
+            <icon-code />
+          </div>
+          <div class="global-dashboard__stat-info">
+            <span class="global-dashboard__stat-value">
+              {{ formatTokens(usageStats.total_tokens) }}
+            </span>
+            <span class="global-dashboard__stat-label">{{ t('globalDashboard.statTokens') }}</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Empty state -->
-    <a-empty v-else class="global-dashboard__empty">
-      <template #image>
-        <icon-public :size="64" />
-      </template>
-      <div class="global-dashboard__empty-title">{{ t('globalDashboard.emptyTitle') }}</div>
-      <div class="global-dashboard__empty-desc">{{ t('globalDashboard.emptyDesc') }}</div>
-      <a-button type="primary" @click="router.push({ name: 'globalOrganizations' })">
-        <template #icon><icon-plus /></template>
-        {{ t('globalDashboard.createFirst') }}
-      </a-button>
-    </a-empty>
+      <!-- Trend Chart -->
+      <a-card
+        v-if="dailyTrend.length"
+        class="general-card global-dashboard__chart-card"
+        :title="t('globalDashboard.trendTitle')"
+        :bordered="false"
+      >
+        <TrendChart :data="dailyTrend" />
+      </a-card>
+
+      <!-- Empty State -->
+      <a-empty v-if="!loading && !orgs.length" class="global-dashboard__empty">
+        <template #image>
+          <icon-public :size="64" />
+        </template>
+        <div class="global-dashboard__empty-title">{{ t('globalDashboard.emptyTitle') }}</div>
+        <div class="global-dashboard__empty-desc">{{ t('globalDashboard.emptyDesc') }}</div>
+        <a-button type="primary" @click="router.push({ name: 'globalOrganizations' })">
+          <template #icon><icon-plus /></template>
+          {{ t('globalDashboard.createFirst') }}
+        </a-button>
+      </a-empty>
+    </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
-import type { Organization } from '@/types'
-import { Message } from '@arco-design/web-vue'
+import { orgApi } from '@/api/rbac'
+import { usageApi } from '@/api/usage'
+import type { Organization, UsageStats, DailyTrend } from '@/types'
+import TrendChart from '@/views/dashboard/components/trend-chart.vue'
 
 const { t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 
-const entering = ref<number | null>(null)
+const loading = ref(true)
 
-const orgs = computed(() => userStore.availableOrgs)
+// Org data — used as primary source for org/member/key counts
+const orgs = ref<Organization[]>([])
 
-const totalMembers = computed(() => orgs.value.reduce((sum, o) => sum + (o.member_count ?? 0), 0))
+// Usage data
+const usageStats = ref<UsageStats>({
+  total_requests: 0,
+  total_tokens: 0,
+  total_cost: 0,
+  avg_latency: 0,
+  cost_by_currency: {},
+})
+const dailyTrend = ref<DailyTrend[]>([])
 
-const totalKeys = computed(() => orgs.value.reduce((sum, o) => sum + (o.key_count ?? 0), 0))
+// Display values: prefer stats API fields, fallback to org list computation
+const displayOrgCount = computed(() => usageStats.value.organization_count ?? orgs.value.length)
 
-const COLORS = [
-  '#165DFF',
-  '#00B42A',
-  '#FF7D00',
-  '#722ED1',
-  '#0FC6C2',
-  '#F77234',
-  '#3491FA',
-  '#9FDB1D',
-]
+const displayMemberCount = computed(
+  () =>
+    usageStats.value.member_count ?? orgs.value.reduce((sum, o) => sum + (o.member_count ?? 0), 0),
+)
 
-function avatarColor(org: Organization) {
-  let hash = 0
-  const name = org.display_name || org.name
-  for (const ch of name) {
-    hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
-  }
-  return COLORS[Math.abs(hash) % COLORS.length]
+const displayKeyCount = computed(
+  () =>
+    usageStats.value.total_api_keys ?? orgs.value.reduce((sum, o) => sum + (o.key_count ?? 0), 0),
+)
+
+const currencySymbol = computed(() => {
+  const currencies = Object.keys(usageStats.value.cost_by_currency || {})
+  if (currencies.length === 0) return '¥'
+  const map: Record<string, string> = { USD: '$', CNY: '¥', EUR: '€', GBP: '£' }
+  const symbol = map[currencies[0]]
+  // Use mapped symbol if known, otherwise fallback to ¥
+  return symbol || '¥'
+})
+
+// Formatters
+function formatNumber(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
+  return String(Math.round(value))
 }
 
-async function handleEnterOrg(org: Organization) {
-  if (entering.value) return
-  entering.value = org.id
+function formatCost(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`
+  return value.toFixed(2)
+}
+
+function formatTokens(value: number): string {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
+  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
+  return String(value)
+}
+
+// Data fetching
+async function fetchDashboardData() {
+  loading.value = true
   try {
-    await userStore.switchOrg(org.id)
-    router.push(`/org/${org.id}/dashboard`)
-  } catch {
-    Message.error(t('org.switcher.switchFailed'))
+    const [orgsRes, statsRes, dailyRes] = await Promise.allSettled([
+      orgApi.list(),
+      usageApi.stats(),
+      usageApi.daily({ days: 7 }),
+    ])
+
+    if (orgsRes.status === 'fulfilled') {
+      orgs.value = orgsRes.value.data
+    }
+
+    if (statsRes.status === 'fulfilled') {
+      usageStats.value = { ...usageStats.value, ...statsRes.value.data }
+    }
+
+    if (dailyRes.status === 'fulfilled') {
+      dailyTrend.value = dailyRes.value.data
+    }
   } finally {
-    entering.value = null
+    loading.value = false
   }
 }
+
+onMounted(() => {
+  fetchDashboardData()
+})
 </script>
 
 <style scoped lang="less">
@@ -171,87 +223,101 @@ async function handleEnterOrg(org: Organization) {
     margin: 0;
   }
 
+  // KPI Stats Bar
   &__stats {
-    display: flex;
-    gap: 32px;
-    background: var(--color-bg-2);
-    border: 1px solid var(--color-border-2);
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 24px;
-  }
-
-  &__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(6, 1fr);
     gap: 16px;
+    margin-bottom: 16px;
   }
 
-  &__org-card {
+  &__stat-item {
     background: var(--color-bg-2);
     border: 1px solid var(--color-border-2);
     border-radius: 8px;
     padding: 16px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 12px;
     transition:
       box-shadow 0.2s,
       border-color 0.2s;
 
     &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       border-color: var(--color-border-3);
     }
   }
 
-  &__org-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  &__org-identity {
+  &__stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-width: 0;
-    flex: 1;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 20px;
+
+    &--blue {
+      background: rgba(22, 93, 255, 0.1);
+      color: #165dff;
+    }
+    &--green {
+      background: rgba(0, 180, 42, 0.1);
+      color: #00b42a;
+    }
+    &--orange {
+      background: rgba(255, 125, 0, 0.1);
+      color: #ff7d00;
+    }
+    &--cyan {
+      background: rgba(15, 198, 194, 0.1);
+      color: #0fc6c2;
+    }
+    &--red {
+      background: rgba(245, 63, 63, 0.1);
+      color: #f53f3f;
+    }
+    &--purple {
+      background: rgba(114, 46, 209, 0.1);
+      color: #722ed1;
+    }
   }
 
-  &__org-name {
-    font-size: 15px;
-    font-weight: 600;
+  &__stat-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__stat-value {
+    font-size: 20px;
+    font-weight: 700;
     color: var(--color-text-1);
+    line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  &__org-slug {
+  &__stat-label {
     font-size: 12px;
     color: var(--color-text-3);
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    line-height: 1;
+    margin-top: 4px;
   }
 
-  &__org-stats {
-    display: flex;
-    gap: 16px;
-    font-size: 13px;
-    color: var(--color-text-2);
+  // Chart
+  &__chart-card {
+    margin-bottom: 24px;
 
-    span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    :deep(.arco-card-body) {
+      padding-top: 12px;
     }
   }
 
-  &__org-stat-icon {
-    color: var(--color-text-3);
-    font-size: 14px;
-  }
-
+  // Empty
   &__empty {
     padding: 64px 0;
   }
@@ -267,6 +333,19 @@ async function handleEnterOrg(org: Organization) {
     font-size: 14px;
     color: var(--color-text-3);
     margin: 4px 0 16px;
+  }
+}
+
+// Responsive: stack KPI on smaller screens
+@media (max-width: 1200px) {
+  .global-dashboard__stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .global-dashboard__stats {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>
