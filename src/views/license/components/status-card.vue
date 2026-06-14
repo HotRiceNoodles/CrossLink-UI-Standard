@@ -64,9 +64,22 @@
       </a-grid-item>
     </a-grid>
 
-    <!-- Community note -->
-    <a-alert v-if="license?.tier === 'community'" type="info" style="margin-top: 16px">
+    <!-- True community build: no fingerprint, no activation needed -->
+    <a-alert
+      v-if="license?.tier === 'community' && !hasFingerprint"
+      type="info"
+      style="margin-top: 16px"
+    >
       {{ t('license.communityNote') }}
+    </a-alert>
+
+    <!-- Pro-capable build, not activated: fingerprint present, prompt upgrade -->
+    <a-alert
+      v-if="license?.tier === 'community' && hasFingerprint"
+      type="info"
+      style="margin-top: 16px"
+    >
+      {{ t('license.upgradePrompt') }}
     </a-alert>
   </a-card>
 </template>
@@ -89,6 +102,10 @@ const tierLabelFn = useTierLabel()
 
 const tierLabel = computed(() => tierLabelFn(props.license?.tier || 'community'))
 const editionLabel = computed(() => tierLabelFn(props.license?.edition || 'community'))
+
+// A licensing-capable build returns a non-empty fingerprint; a true community
+// build returns none.
+const hasFingerprint = computed(() => !!props.license?.fingerprint?.trim())
 
 const validityColor = computed(() => (props.license?.is_valid ? 'green' : 'red'))
 

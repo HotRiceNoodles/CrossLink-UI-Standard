@@ -30,11 +30,11 @@ const activateLoading = ref(false)
 const importLoading = ref(false)
 const license = ref<LicenseStatus | null>(null)
 
-const canManage = computed(() => {
-  if (!license.value) return false
-  if (!license.value.license_management) return false
-  return userStore.hasPermission('license:manage')
-})
+// A build that exposes a device fingerprint supports licensing; a true
+// community build returns an empty fingerprint and cannot be activated.
+const hasFingerprint = computed(() => !!license.value?.fingerprint?.trim())
+
+const canManage = computed(() => hasFingerprint.value && userStore.hasPermission('license:manage'))
 
 async function fetchLicenseStatus() {
   try {

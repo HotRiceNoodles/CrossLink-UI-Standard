@@ -854,6 +854,8 @@ export default {
     gracePeriod: 'Grace Period',
     communityNote:
       'Community edition requires no activation. Upgrade to Pro or Enterprise for more features.',
+    upgradePrompt:
+      'You are on Community edition. Import a license to upgrade to Pro or Enterprise.',
 
     activate: 'Online Activation',
     activateDesc: 'Enter your license key to activate online.',

@@ -849,6 +849,7 @@ export default {
     daysRemaining: '剩余 {0} 天',
     gracePeriod: '宽限期',
     communityNote: '社区版无需激活，开箱即用。如需更多功能，可升级至专业版或企业版。',
+    upgradePrompt: '当前为社区版，导入授权许可即可升级至专业版或企业版。',
 
     activate: '在线激活',
     activateDesc: '输入授权密钥，通过联网验证激活您的授权。',
