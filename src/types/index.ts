@@ -176,7 +176,7 @@ export interface UsageStats {
   total_requests: number
   total_tokens: number
   total_cost: number
-  avg_latency: number
+  avg_latency_ms: number
   cost_by_currency: Record<string, number>
   organization_count?: number
   member_count?: number

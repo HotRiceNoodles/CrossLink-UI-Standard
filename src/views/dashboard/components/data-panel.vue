@@ -65,7 +65,7 @@
         <div class="kpi-inner">
           <div class="kpi-info">
             <a-statistic
-              :value="stats.avg_latency"
+              :value="stats.avg_latency_ms"
               :show-group-separator="true"
               :animation="true"
               :precision="0"

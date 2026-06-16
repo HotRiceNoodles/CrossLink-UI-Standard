@@ -49,7 +49,7 @@ const usageStats = ref<UsageStats>({
   total_requests: 0,
   total_tokens: 0,
   total_cost: 0,
-  avg_latency: 0,
+  avg_latency_ms: 0,
   cost_by_currency: {},
 })
 
