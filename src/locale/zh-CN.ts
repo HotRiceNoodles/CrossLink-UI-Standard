@@ -212,6 +212,9 @@ export default {
     currencyPlaceholder: '请选择币种',
     routingStrategyLabel: '路由策略',
     routingStrategyPlaceholder: '请选择路由策略',
+    supportsResponsesLabel: '上游原生支持 /v1/responses',
+    supportsResponsesHelper:
+      '开启后，/v1/responses 请求将原样透传至上游（适用于 OpenAI、Azure 等）；关闭时，请求会被翻译为 Chat Completions。',
     statusLabel: '状态',
     statusPlaceholder: '请选择状态',
     providerPlaceholder: '请选择供应商',

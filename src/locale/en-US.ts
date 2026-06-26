@@ -212,6 +212,9 @@ export default {
     currencyPlaceholder: 'Select currency',
     routingStrategyLabel: 'Routing Strategy',
     routingStrategyPlaceholder: 'Select routing strategy',
+    supportsResponsesLabel: 'Upstream natively supports /v1/responses',
+    supportsResponsesHelper:
+      'When enabled, /v1/responses requests are passed through to the upstream verbatim (e.g. OpenAI, Azure). When disabled, requests are translated to Chat Completions.',
     statusLabel: 'Status',
     statusPlaceholder: 'Select status',
     providerPlaceholder: 'Select provider',

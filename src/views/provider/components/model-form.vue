@@ -135,6 +135,11 @@
         </a-grid-item>
       </a-grid>
 
+      <a-form-item field="supports_responses" :label="t('model.supportsResponsesLabel')">
+        <a-switch v-model="supportsResponses" />
+        <span class="supports-responses-helper">{{ t('model.supportsResponsesHelper') }}</span>
+      </a-form-item>
+
       <a-form-item v-if="isEdit" field="status" :label="t('model.statusLabel')">
         <a-select v-model="formData.status" :placeholder="t('model.statusPlaceholder')">
           <a-option :value="1" :label="t('common.enabled')" />
@@ -186,6 +191,7 @@ const emit = defineEmits<{
 
 const formRef = ref()
 const submitLoading = ref(false)
+const supportsResponses = ref(false)
 
 const isProviderLocked = computed(() => !props.isEdit && !!props.defaultProviderId)
 
@@ -231,8 +237,10 @@ watch(
         routing_strategy: props.model.routing_strategy,
         status: props.model.status,
       })
+      supportsResponses.value = Boolean(props.model.extra_config?.supports_responses)
     } else {
       Object.assign(formData, createEmptyForm())
+      supportsResponses.value = false
     }
   },
 )
@@ -247,6 +255,15 @@ async function handleSubmit() {
 
   submitLoading.value = true
   try {
+    // Preserve any pre-existing extra_config keys and surface the
+    // /v1/responses passthrough flag the gateway reads (supports_responses).
+    const baseExtraConfig =
+      (props.isEdit && props.model?.extra_config) || formData.extra_config || {}
+    const extra_config: Record<string, unknown> = {
+      ...baseExtraConfig,
+      supports_responses: supportsResponses.value,
+    }
+
     const payload: Partial<ModelCreateRequest> = {
       provider_id: formData.provider_id,
       model_name: formData.model_name,
@@ -258,6 +275,7 @@ async function handleSubmit() {
       output_price: formData.output_price ?? null,
       currency: formData.currency,
       routing_strategy: formData.routing_strategy,
+      extra_config,
     }
 
     if (props.isEdit && props.model) {
@@ -280,3 +298,13 @@ async function handleSubmit() {
   }
 }
 </script>
+
+<style scoped>
+.supports-responses-helper {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-text-3);
+  font-size: 12px;
+  line-height: 1.5;
+}
+</style>
