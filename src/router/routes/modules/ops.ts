@@ -13,6 +13,18 @@ const route: RouteRecordRaw = {
       component: () => import('@/views/ops/request-logs/index.vue'),
       meta: { menuKey: 'requestLogs', icon: 'icon-file' },
     },
+    {
+      path: 'request-debug',
+      name: 'requestDebug',
+      component: () => import('@/views/ops/request-debug/index.vue'),
+      meta: { menuKey: 'requestDebug', icon: 'icon-bug', requiredPermission: 'debug:list' },
+    },
+    {
+      path: 'request-debug/:id',
+      name: 'requestDebugDetail',
+      component: () => import('@/views/ops/request-debug/detail.vue'),
+      meta: { requiredPermission: 'debug:list', hideInMenu: true },
+    },
   ],
 }
 

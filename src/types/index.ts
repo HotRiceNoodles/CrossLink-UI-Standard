@@ -276,3 +276,4 @@ export interface UsageLog {
 export * from './auth-module'
 export * from './playground'
 export * from './safety'
+export * from './debug'

@@ -10,5 +10,6 @@ declare module 'vue-router' {
     requiresOrg?: boolean
     requiresPlatformAdmin?: boolean
     requiredPermission?: string
+    hideInMenu?: boolean
   }
 }

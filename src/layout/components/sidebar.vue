@@ -22,7 +22,10 @@
             <component :is="route.meta?.icon as string" />
           </template>
           <template #title>{{ t(`menu.${route.meta?.menuKey}`) }}</template>
-          <a-menu-item v-for="child in route.children" :key="child.name as string">
+          <a-menu-item
+            v-for="child in route.children.filter((c) => !c.meta?.hideInMenu)"
+            :key="child.name as string"
+          >
             <template #icon>
               <component :is="child.meta?.icon as string" />
             </template>
