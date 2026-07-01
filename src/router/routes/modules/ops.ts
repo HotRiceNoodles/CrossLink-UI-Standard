@@ -20,7 +20,7 @@ const route: RouteRecordRaw = {
       meta: { menuKey: 'requestDebug', icon: 'icon-bug', requiredPermission: 'debug:list' },
     },
     {
-      path: 'request-debug/:id',
+      path: 'request-debug/:seq',
       name: 'requestDebugDetail',
       component: () => import('@/views/ops/request-debug/detail.vue'),
       meta: { requiredPermission: 'debug:list', hideInMenu: true },

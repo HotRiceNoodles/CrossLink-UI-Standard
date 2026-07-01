@@ -144,7 +144,7 @@ import { debugApi } from '@/api/debug'
 import { useLoading } from '@/hooks/loading'
 import type { AnalysisResult } from '@/types'
 
-const props = defineProps<{ id: string }>()
+const props = defineProps<{ seq: number | string }>()
 const { t } = useI18n()
 const { loading, setLoading } = useLoading()
 
@@ -153,7 +153,7 @@ const result = ref<AnalysisResult | null>(null)
 async function fetchAnalysis() {
   setLoading(true)
   try {
-    const res = await debugApi.analysis(props.id)
+    const res = await debugApi.analysis(props.seq)
     result.value = res.data
   } catch {
     result.value = null
@@ -162,7 +162,7 @@ async function fetchAnalysis() {
   }
 }
 
-watch(() => props.id, fetchAnalysis, { immediate: true })
+watch(() => props.seq, fetchAnalysis, { immediate: true })
 
 function rawText(v: unknown): string {
   if (v == null) return ''

@@ -4,6 +4,7 @@ export type HttpHeaders = Record<string, string[]>
 
 // GET /debug/entries — list item (summary)
 export interface DebugEntrySummary {
+  seq: number
   id: string
   timestamp: string
   duration_ms: number
@@ -38,8 +39,9 @@ export interface UpstreamCall {
   error: string
 }
 
-// GET /debug/entries/:id — full entry detail
+// GET /debug/entries/:seq — full entry detail
 export interface DebugEntryDetail {
+  seq: number
   id: string
   timestamp: string
   duration_ms: number

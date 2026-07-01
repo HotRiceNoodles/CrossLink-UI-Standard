@@ -28,7 +28,7 @@
             <upstream-tab :calls="detail.upstream_calls" />
           </a-tab-pane>
           <a-tab-pane v-if="isProOrAbove" key="analysis" :title="t('requestDebug.tabAnalysis')">
-            <analysis-tab :id="detail.id" />
+            <analysis-tab :seq="detail.seq" />
           </a-tab-pane>
         </a-tabs>
       </a-spin>
@@ -67,11 +67,11 @@ function statusColor(code: number): string {
 }
 
 async function fetchDetail() {
-  const id = route.params.id as string
-  if (!id) return
+  const seq = route.params.seq as string
+  if (!seq) return
   setLoading(true)
   try {
-    const res = await debugApi.detail(id)
+    const res = await debugApi.detail(seq)
     detail.value = res.data
   } catch {
     detail.value = null

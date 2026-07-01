@@ -281,7 +281,7 @@ async function onClear() {
 function openDetail(record: DebugEntrySummary) {
   router.push({
     name: 'requestDebugDetail',
-    params: { id: record.id },
+    params: { seq: record.seq },
     query: record.model ? { model: record.model } : undefined,
   })
 }
