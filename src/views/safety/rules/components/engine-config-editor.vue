@@ -44,7 +44,7 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
-import { engineSchemaMap, getDefaultsForEngine } from '@/config/engine-schema'
+import { engineSchemaMap } from '../engine-schema'
 import type { GuardrailEngineType, ConfigEditorMode, ConfigFieldSchema } from '@/types'
 import EngineConfigForm from './engine-config-form.vue'
 

@@ -47,7 +47,9 @@
 
       <main class="layout-content">
         <router-view v-slot="{ Component }">
-          <component :is="Component" />
+          <keep-alive :include="['Dashboard', 'GlobalDashboard']">
+            <component :is="Component" />
+          </keep-alive>
         </router-view>
       </main>
     </div>
@@ -64,7 +66,7 @@ import { useI18n } from 'vue-i18n'
 import { useBreakpoints } from '@vueuse/core'
 import { useAppStore, useUserStore } from '@/store'
 import { changeLanguage, getCurrentLocale } from '@/locale'
-import ChangePasswordModal from '@/views/profile/components/change-password-modal.vue'
+import ChangePasswordModal from './components/change-password-modal.vue'
 import { authApi } from '@/api/auth'
 import { Message, Modal } from '@arco-design/web-vue'
 import Sidebar from './components/sidebar.vue'

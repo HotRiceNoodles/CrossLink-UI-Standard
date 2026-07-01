@@ -347,8 +347,8 @@ import { Message } from '@arco-design/web-vue'
 import { guardrailApi } from '@/api/safety'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
-import { formatTime } from '@/utils/format'
-import { getDefaultsForEngine } from '@/config/engine-schema'
+import { logger } from '@/logger'
+import { getDefaultsForEngine } from './engine-schema'
 import type {
   GuardrailRule,
   GuardrailConfig,
@@ -379,8 +379,9 @@ async function fetchModels() {
   try {
     const res = await modelApi.list()
     modelOptions.value = [...new Set(res.data.map((m: any) => m.model_name))].sort()
-  } catch {
-    // silently fail — model dropdown will just be empty
+  } catch (e) {
+    // Non-critical: model dropdown is best-effort, but surface the failure in the debug log.
+    logger.warn('Failed to load model options', e, 'app')
   }
 }
 
