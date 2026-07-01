@@ -141,7 +141,7 @@ const secondaryMetrics = computed<SecMetric[]>(() => {
       display: fmtNum(s.total_sessions),
     },
     {
-      icon: 'icon-timing',
+      icon: 'icon-clock-circle',
       tone: 'green',
       label: t('dashboard.firstTokenLatency'),
       display: s.avg_first_token_ms == null ? '—' : formatLatency(s.avg_first_token_ms),

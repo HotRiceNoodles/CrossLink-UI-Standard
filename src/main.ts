@@ -59,6 +59,10 @@ import {
   IconList,
   IconNotification,
   IconBug,
+  IconLayers,
+  IconClockCircle,
+  IconCommon,
+  IconCalendar,
 } from '@arco-design/web-vue/es/icon'
 
 const icons = [
@@ -108,6 +112,10 @@ const icons = [
   IconList,
   IconNotification,
   IconBug,
+  IconLayers,
+  IconClockCircle,
+  IconCommon,
+  IconCalendar,
 ]
 
 logger.setLevel(import.meta.env.DEV ? 'debug' : 'warn')

@@ -6,7 +6,7 @@
         <div class="dashboard-header">
           <Banner :version="systemInfo?.version" :tier="license?.tier" />
           <div class="range-toolbar">
-            <icon-clock-circle class="range-icon" />
+            <icon-calendar class="range-icon" />
             <span class="range-label">{{ t('dashboard.rangeLabel') }}</span>
             <a-radio-group
               v-model="range"
