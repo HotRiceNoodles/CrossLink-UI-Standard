@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" :title="t('dashboard.requestTrend')">
+  <a-card class="general-card" :title="cardTitle">
     <Chart :option="chartOption" height="320px" width="100%" />
   </a-card>
 </template>
@@ -13,9 +13,15 @@ import type { DailyTrend } from '@/types'
 
 const { t } = useI18n()
 
-const props = defineProps<{
-  data: DailyTrend[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    data: DailyTrend[]
+    title?: string
+  }>(),
+  { title: '' },
+)
+
+const cardTitle = computed(() => props.title || t('dashboard.requestTrend'))
 
 const chartOption = computed<EChartsOption>(() => {
   const dates = (props.data || []).map((item) => {

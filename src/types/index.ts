@@ -172,6 +172,10 @@ export interface KeyCreateResponse {
 }
 
 // Usage
+// NOTE: the backend `/usage/stats` handler returns far more fields than the
+// dashboard previously modeled. All extended fields are optional so partial
+// payloads (e.g. org-scoped queries that omit member_count/total_api_keys)
+// still type-check.
 export interface UsageStats {
   total_requests: number
   total_tokens: number
@@ -181,6 +185,105 @@ export interface UsageStats {
   organization_count?: number
   member_count?: number
   total_api_keys?: number
+  // — extended fields (already returned by the backend) —
+  total_sessions?: number
+  input_tokens?: number
+  output_tokens?: number
+  reasoning_tokens?: number
+  cache_read_tokens?: number
+  cost_per_1k_tokens?: number
+  cost_per_request?: number
+  avg_first_token_ms?: number
+  error_rate?: number
+  active_api_keys?: number
+  fallback_rate?: number
+  retry_rate?: number
+  guardrail_block_rate?: number
+  currency?: string
+}
+
+// DataLens OLAP query engine (Pro+). Mirrors backend QueryParams/QueryResult
+// in internal/admin/datalens.go and internal/repository/datalens_store.go.
+export type DataLensDimensionKey =
+  | 'time'
+  | 'model'
+  | 'team'
+  | 'key'
+  | 'provider'
+  | 'status'
+  | 'currency'
+export type DataLensMetricKey =
+  | 'requests'
+  | 'cost'
+  | 'input_tokens'
+  | 'output_tokens'
+  | 'total_tokens'
+  | 'reasoning_tokens'
+  | 'cache_read_tokens'
+  | 'avg_latency'
+  | 'avg_ttft'
+  | 'cost_per_1k'
+  | 'cost_per_request'
+  | 'error_rate'
+  | 'fallback_rate'
+  | 'retry_rate'
+  | 'guardrail_rate'
+  | 'cache_hit_rate'
+
+export interface DataLensFilter {
+  dimension: string
+  operator:
+    | 'eq'
+    | 'neq'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'not_in'
+    | 'between'
+    | 'is_null'
+    | 'is_not_null'
+  value?: string | number | Array<string | number>
+}
+
+export interface DataLensTimeRange {
+  type: 'preset' | 'absolute'
+  preset?: 'last_7d' | 'last_30d' | 'last_90d' | 'this_month' | 'last_month'
+  start?: string
+  end?: string
+}
+
+export interface DataLensQueryParams {
+  dimensions?: DataLensDimensionKey[]
+  metrics: DataLensMetricKey[]
+  filters?: DataLensFilter[]
+  time_range: DataLensTimeRange
+  granularity?: 'hour' | 'day' | 'week' | 'month'
+  sort_by?: string
+  sort_order?: 'asc' | 'desc'
+  limit?: number
+}
+
+export interface DataLensColumn {
+  key: string
+  label: string
+  type: string
+}
+
+export interface DataLensQueryMeta {
+  query_time_ms?: number
+  data_source?: string
+  currency?: string
+  last_aggregated_at?: string
+  stale_warning?: boolean
+}
+
+export interface DataLensQueryResult {
+  columns: DataLensColumn[]
+  rows: Record<string, string | number>[]
+  total: number
+  meta?: DataLensQueryMeta
 }
 
 export interface DailyTrend {

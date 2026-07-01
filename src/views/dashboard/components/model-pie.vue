@@ -1,5 +1,5 @@
 <template>
-  <a-card class="general-card" :title="t('dashboard.modelDistribution')">
+  <a-card class="general-card" :title="cardTitle">
     <Chart :option="chartOption" height="320px" width="100%" />
   </a-card>
 </template>
@@ -26,9 +26,15 @@ const COLORS = [
   '#4CDF48',
 ]
 
-const props = defineProps<{
-  data: ModelDistribution[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    data: ModelDistribution[]
+    title?: string
+  }>(),
+  { title: '' },
+)
+
+const cardTitle = computed(() => props.title || t('dashboard.modelDistribution'))
 
 const chartOption = computed<EChartsOption>(() => {
   const seriesData = (props.data || []).map((item) => ({
