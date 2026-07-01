@@ -149,6 +149,7 @@ export default {
       '90d': 'Last 90 days',
     },
     rangeLabel: 'Time range',
+    vsLastPeriod: 'vs. previous period',
   },
   provider: {
     title: 'Providers',

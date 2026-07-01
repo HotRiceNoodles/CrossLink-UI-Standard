@@ -23,7 +23,13 @@
         </div>
 
         <!-- KPI cards (primary + secondary) -->
-        <DataPanel :stats="usageStats" :member-count="memberCount" :key-count="keyCount" />
+        <DataPanel
+          :stats="usageStats"
+          :member-count="memberCount"
+          :key-count="keyCount"
+          :deltas="kpiDeltas"
+          :daily-trend="dailyTrend"
+        />
 
         <!-- Core charts: traffic trend + model distribution -->
         <a-grid :cols="24" :col-gap="16" :row-gap="16" class="chart-section">
@@ -57,8 +63,9 @@
             <TopNTable
               :title="t('dashboard.topModels')"
               :rows="topModels"
-              :columns="topNColumns"
+              :columns="topNColumnsBar"
               :currency-symbol="currencySymbol"
+              badge
             />
           </a-grid-item>
           <template v-if="userStore.isProOrAbove">
@@ -133,7 +140,7 @@ defineOptions({ name: 'Dashboard' })
 const { t } = useI18n()
 const userStore = useUserStore()
 const { loading, setLoading } = useLoading(true)
-const { range, days, dateBounds, datalensTimeRange } = useRange('7d')
+const { range, days, dateBounds, prevDateBounds, datalensTimeRange } = useRange('7d')
 
 const usageStats = ref<UsageStats>({
   total_requests: 0,
@@ -148,6 +155,8 @@ const systemInfo = ref<SystemInfoType | null>(null)
 const license = ref<LicenseStatus | null>(null)
 const memberCount = ref<number | null>(null)
 const keyCount = ref<number | null>(null)
+// previous-period stats for period-over-period deltas (null until fetched)
+const prevStats = ref<UsageStats | null>(null)
 
 // — Pro (DataLens) state —
 const perfLabels = ref<string[]>([])
@@ -160,6 +169,7 @@ const topTeams = ref<TopNRow[]>([])
 const topNLoading = ref(false)
 
 const TOPN_METRICS: DataLensMetricKey[] = ['requests', 'total_tokens', 'cost']
+// keys/teams tables: plain numeric columns (narrow cards)
 const topNColumns = computed(() => [
   {
     key: 'requests' as DataLensMetricKey,
@@ -170,6 +180,20 @@ const topNColumns = computed(() => [
     key: 'total_tokens' as DataLensMetricKey,
     label: t('dashboard.topnTokens'),
     kind: 'tokens' as const,
+  },
+  { key: 'cost' as DataLensMetricKey, label: t('dashboard.topnCost'), kind: 'currency' as const },
+])
+// models table: token column gets a relative bar for at-a-glance comparison
+const topNColumnsBar = computed(() => [
+  {
+    key: 'requests' as DataLensMetricKey,
+    label: t('dashboard.topnRequests'),
+    kind: 'number' as const,
+  },
+  {
+    key: 'total_tokens' as DataLensMetricKey,
+    label: t('dashboard.topnTokens'),
+    kind: 'bar' as const,
   },
   { key: 'cost' as DataLensMetricKey, label: t('dashboard.topnCost'), kind: 'currency' as const },
 ])
@@ -197,14 +221,27 @@ const rangeLabel = computed(() =>
 const trendTitle = computed(() => `${t('dashboard.requestTrend')} · ${rangeLabel.value}`)
 const modelTitle = computed(() => `${t('dashboard.modelDistribution')} · ${rangeLabel.value}`)
 
+/** % change vs previous period; undefined when prev is missing/zero (avoid misleading ∞). */
+function pctDelta(cur: number, prev: number | undefined): number | undefined {
+  if (prev === undefined || prev === 0) return undefined
+  return ((cur - prev) / prev) * 100
+}
+const kpiDeltas = computed(() => ({
+  requests: pctDelta(usageStats.value.total_requests, prevStats.value?.total_requests),
+  cost: pctDelta(usageStats.value.total_cost, prevStats.value?.total_cost),
+  tokens: pctDelta(usageStats.value.total_tokens, prevStats.value?.total_tokens),
+  latency: pctDelta(usageStats.value.avg_latency_ms, prevStats.value?.avg_latency_ms),
+}))
+
 function onRangeChange() {
   fetchDashboardData()
 }
 
 async function fetchCore() {
-  const [statsRes, dailyRes, modelsRes, sysRes, licRes, keysRes, usersRes] =
+  const [statsRes, prevStatsRes, dailyRes, modelsRes, sysRes, licRes, keysRes, usersRes] =
     await Promise.allSettled([
       usageApi.stats({ ...dateBounds.value }),
+      usageApi.stats({ ...prevDateBounds.value }),
       usageApi.daily({ days: days.value }),
       usageApi.models({ days: days.value }),
       systemApi.info(),
@@ -214,6 +251,7 @@ async function fetchCore() {
     ])
 
   if (statsRes.status === 'fulfilled') usageStats.value = statsRes.value.data
+  prevStats.value = prevStatsRes.status === 'fulfilled' ? prevStatsRes.value.data : null
   if (dailyRes.status === 'fulfilled') dailyTrend.value = dailyRes.value.data
   if (modelsRes.status === 'fulfilled') modelDistribution.value = modelsRes.value.data
   if (sysRes.status === 'fulfilled') systemInfo.value = sysRes.value.data

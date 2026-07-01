@@ -52,6 +52,20 @@ export function useRange(defaultPreset: RangePreset = '7d') {
     }
   })
 
+  /**
+   * Same-length window immediately before the current period, for period-over-
+   * period deltas. End of the previous window is the day before `dateBounds.start`.
+   */
+  const prevDateBounds = computed(() => {
+    const curStart = dayjs(dateBounds.value.start_date)
+    const prevEnd = curStart.subtract(1, 'day')
+    const prevStart = prevEnd.subtract(days.value - 1, 'day')
+    return {
+      start_date: prevStart.format('YYYY-MM-DD'),
+      end_date: prevEnd.format('YYYY-MM-DD'),
+    }
+  })
+
   /** DataLens time_range — "today" has no preset, so use absolute bounds. */
   const datalensTimeRange = computed<DataLensTimeRange>(() => {
     if (range.value === 'today') {
@@ -63,5 +77,5 @@ export function useRange(defaultPreset: RangePreset = '7d') {
     return { type: 'preset', preset: presetMap[range.value] }
   })
 
-  return { range, days, dateBounds, datalensTimeRange }
+  return { range, days, dateBounds, prevDateBounds, datalensTimeRange }
 }

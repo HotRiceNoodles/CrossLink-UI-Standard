@@ -8,6 +8,8 @@
           :label="t('dashboard.totalRequests')"
           icon="icon-eye"
           tone="blue"
+          :delta="deltas.requests"
+          :sparkline="series.count"
         />
       </a-grid-item>
       <a-grid-item :span="6">
@@ -18,6 +20,8 @@
           tone="red"
           :precision="2"
           :prefix="currencySymbol"
+          :delta="deltas.cost"
+          :sparkline="series.cost"
         />
       </a-grid-item>
       <a-grid-item :span="6">
@@ -27,6 +31,8 @@
           icon="icon-code"
           tone="purple"
           :format="formatTokensCompact"
+          :delta="deltas.tokens"
+          :sparkline="series.tokens"
         />
       </a-grid-item>
       <a-grid-item :span="6">
@@ -36,6 +42,8 @@
           icon="icon-send"
           tone="green"
           :format="formatLatency"
+          :delta="deltas.latency"
+          :invert-trend="true"
         />
       </a-grid-item>
     </a-grid>
@@ -63,15 +71,38 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import KpiCard from './kpi-card.vue'
 import { formatTokensCompact, formatLatency } from '@/utils/format'
-import type { UsageStats } from '@/types'
+import type { UsageStats, DailyTrend } from '@/types'
 
 const { t } = useI18n()
 
-const props = defineProps<{
-  stats: UsageStats
-  memberCount: number | null
-  keyCount: number | null
-}>()
+/** Period-over-period deltas (percentage points) for the four primary metrics. */
+export interface KpiDeltas {
+  requests?: number
+  cost?: number
+  tokens?: number
+  latency?: number
+}
+
+const props = withDefaults(
+  defineProps<{
+    stats: UsageStats
+    memberCount: number | null
+    keyCount: number | null
+    deltas?: KpiDeltas
+    dailyTrend?: DailyTrend[]
+  }>(),
+  {
+    deltas: () => ({}),
+    dailyTrend: () => [],
+  },
+)
+
+// sparkline source series derived from the daily trend (no extra API call)
+const series = computed(() => ({
+  count: props.dailyTrend.map((d) => d.count),
+  tokens: props.dailyTrend.map((d) => d.tokens),
+  cost: props.dailyTrend.map((d) => d.cost),
+}))
 
 const CURRENCY_SYMBOL: Record<string, string> = { USD: '$', CNY: '¥', EUR: '€', GBP: '£' }
 

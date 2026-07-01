@@ -148,6 +148,7 @@ export default {
       '90d': '近 90 天',
     },
     rangeLabel: '时间范围',
+    vsLastPeriod: '较上一周期',
   },
   provider: {
     title: '供应商管理',
