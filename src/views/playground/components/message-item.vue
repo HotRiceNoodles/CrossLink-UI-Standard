@@ -13,23 +13,26 @@
 
       <!-- Thinking / Reasoning section (collapsible) -->
       <div
-        v-if="message.role === 'assistant' && message.reasoning_content"
+        v-if="message.role === 'assistant' && effectiveReasoning"
         class="thinking-section"
+        :class="{ 'is-thinking': inThinkingPhase }"
       >
         <div class="thinking-header" @click="thinkingExpanded = !thinkingExpanded">
-          <icon-thunderbolt class="thinking-icon" />
-          <span class="thinking-label">{{ t('playground.thinking') }}</span>
+          <icon-thunderbolt class="thinking-icon" :class="{ pulsing: inThinkingPhase }" />
+          <span class="thinking-label">{{ thinkingLabel }}</span>
           <span class="thinking-toggle">
             {{ thinkingExpanded ? t('playground.hideThinking') : t('playground.showThinking') }}
           </span>
           <icon-down v-if="!thinkingExpanded" class="thinking-arrow" />
           <icon-up v-else class="thinking-arrow" />
         </div>
-        <div v-if="thinkingExpanded" class="thinking-content">
-          <span v-if="streaming && !message.reasoning_content" class="streaming-cursor" />
-          <template v-else>{{ message.reasoning_content }}</template>
-          <span v-if="streaming && message.reasoning_content" class="streaming-cursor" />
-        </div>
+        <div
+          v-if="thinkingExpanded"
+          class="thinking-content markdown-body"
+          @click="onCodeClick"
+          v-html="renderedReasoning"
+        />
+        <span v-if="inThinkingPhase && thinkingExpanded" class="streaming-cursor" />
       </div>
 
       <!-- Main response content -->
@@ -40,7 +43,7 @@
         v-html="renderedContent"
       />
       <div v-else class="message-text">{{ message.content }}</div>
-      <span v-if="streaming && !message.reasoning_content" class="streaming-cursor" />
+      <span v-if="streaming && !inThinkingPhase" class="streaming-cursor" />
 
       <!-- Usage info below assistant message -->
       <div v-if="message.role === 'assistant' && usage && !streaming" class="message-usage">
@@ -62,11 +65,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { copyToClipboard } from '@/utils/clipboard'
 import { renderMarkdown } from '@/utils/render-markdown'
+import { splitThinking } from '@/utils/parse-thinking'
 import type { PlaygroundMessage } from '@/types'
 
 const props = defineProps<{
@@ -79,17 +83,79 @@ const { t } = useI18n()
 
 const thinkingExpanded = ref(false)
 
-// Auto-expand thinking during streaming, collapse when done
+// Pull <think>…</think> blocks out of inline content so reasoning models that
+// embed chain-of-thought in `content` (DeepSeek-R1, QwQ, …) render it in the
+// collapsible block instead of polluting the answer. Also honors the dedicated
+// `reasoning_content` field — both sources are merged here at render time, so
+// the stored message stays untouched and reversible.
+const segments = computed(() => splitThinking(props.message.content || ''))
+const effectiveReasoning = computed(() => {
+  const field = (props.message.reasoning_content || '').trim()
+  const inline = segments.value.reasoning
+  if (field && inline) return `${field}\n${inline}`
+  return field || inline
+})
+const effectiveContent = computed(() => segments.value.content)
+
+const renderedReasoning = computed(() => renderMarkdown(effectiveReasoning.value, t('common.copy')))
+const renderedContent = computed(() => renderMarkdown(effectiveContent.value, t('common.copy')))
+
+// "Thinking phase" = reasoning is streaming in and the answer has not started
+// yet. Drives the live timer and the pulsing indicator.
+const inThinkingPhase = computed(
+  () => !!props.streaming && !!effectiveReasoning.value && !effectiveContent.value.trim(),
+)
+
+const elapsedSec = ref(0)
+let timerId: ReturnType<typeof setInterval> | null = null
+
+function stopTimer() {
+  if (timerId !== null) {
+    clearInterval(timerId)
+    timerId = null
+  }
+}
+function startTimer() {
+  stopTimer()
+  elapsedSec.value = 0
+  timerId = setInterval(() => {
+    elapsedSec.value += 1
+  }, 1000)
+}
+
+watch(
+  inThinkingPhase,
+  (active) => {
+    if (active) startTimer()
+    else stopTimer()
+  },
+  { immediate: true },
+)
+onBeforeUnmount(stopTimer)
+
+const thinkingLabel = computed(() => {
+  if (inThinkingPhase.value) {
+    return t('playground.thinkingFor', { s: elapsedSec.value })
+  }
+  if (elapsedSec.value > 0) {
+    return t('playground.thoughtFor', { s: elapsedSec.value })
+  }
+  return t('playground.thinking')
+})
+
+// Expand as soon as reasoning appears mid-stream; collapse when the stream ends
+// (default-collapsed after done — matches ChatGPT/DeepSeek).
 watch(
   () => props.streaming,
   (isStreaming) => {
-    if (isStreaming && props.message.reasoning_content) {
-      thinkingExpanded.value = true
-    } else if (!isStreaming) {
-      thinkingExpanded.value = false
-    }
+    if (!isStreaming) thinkingExpanded.value = false
   },
-  { immediate: true },
+)
+watch(
+  () => effectiveReasoning.value,
+  (reasoning) => {
+    if (props.streaming && reasoning) thinkingExpanded.value = true
+  },
 )
 
 const roleLabel = computed(() => {
@@ -97,10 +163,6 @@ const roleLabel = computed(() => {
   if (props.message.role === 'assistant') return t('playground.roleAssistant')
   return t('playground.roleSystem')
 })
-
-const renderedContent = computed(() =>
-  renderMarkdown(props.message.content || '', t('common.copy')),
-)
 
 // Event-delegated copy handler — replaces the former global window.__copyCode
 function onCodeClick(e: MouseEvent) {
@@ -193,8 +255,14 @@ function onCodeClick(e: MouseEvent) {
 .thinking-section {
   margin-bottom: 8px;
   border: 1px solid var(--color-border-2);
+  border-left: 3px solid rgb(var(--warning-6));
   border-radius: 8px;
   overflow: hidden;
+  background: var(--color-fill-1);
+
+  &.is-thinking {
+    border-left-color: rgb(var(--arcoblue-6));
+  }
 }
 
 .thinking-header {
@@ -203,18 +271,23 @@ function onCodeClick(e: MouseEvent) {
   gap: 6px;
   padding: 8px 12px;
   cursor: pointer;
-  background: var(--color-fill-1);
+  background: var(--color-fill-2);
   user-select: none;
   transition: background-color 0.2s;
 
   &:hover {
-    background: var(--color-fill-2);
+    background: var(--color-fill-3);
   }
 }
 
 .thinking-icon {
   font-size: 14px;
   color: rgb(var(--warning-6));
+
+  &.pulsing {
+    color: rgb(var(--arcoblue-6));
+    animation: pulse 1.2s ease-in-out infinite;
+  }
 }
 
 .thinking-label {
@@ -222,6 +295,7 @@ function onCodeClick(e: MouseEvent) {
   font-weight: 600;
   color: var(--color-text-2);
   flex: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .thinking-toggle {
@@ -234,13 +308,13 @@ function onCodeClick(e: MouseEvent) {
   color: var(--color-text-3);
 }
 
+// Reasoning body — markdown rendered, but visually muted & smaller than the
+// answer so the two stay distinct.
 .thinking-content {
   padding: 10px 12px;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--color-text-2);
-  white-space: pre-wrap;
-  word-break: break-word;
+  color: var(--color-text-3);
   background: var(--color-fill-1);
   border-top: 1px solid var(--color-border-1);
   max-height: 300px;
@@ -268,6 +342,16 @@ function onCodeClick(e: MouseEvent) {
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
   }
 }
 </style>

@@ -1050,6 +1050,8 @@ export default {
     roleUser: 'You',
     roleAssistant: 'Assistant',
     thinking: 'Thinking',
+    thinkingFor: 'Thinking · {s}s',
+    thoughtFor: 'Thought for {s}s',
     showThinking: 'Show thinking',
     hideThinking: 'Hide thinking',
     tabChat: 'Chat',

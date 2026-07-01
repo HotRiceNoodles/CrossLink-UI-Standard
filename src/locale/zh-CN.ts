@@ -1043,6 +1043,8 @@ export default {
     roleUser: '你',
     roleAssistant: '助手',
     thinking: '思考过程',
+    thinkingFor: '思考中 · {s}s',
+    thoughtFor: '已深度思考 · {s}s',
     showThinking: '展开思考',
     hideThinking: '收起思考',
     tabChat: '对话',
