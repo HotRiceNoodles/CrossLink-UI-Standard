@@ -18,7 +18,15 @@
       </template>
 
       <a-spin :loading="loading" style="width: 100%">
-        <div v-if="!loading && !detail" class="empty">{{ t('requestDebug.empty') }}</div>
+        <div v-if="!loading && error" class="empty error-state">
+          <icon-close-circle-fill />
+          <span>{{ t('requestDebug.fetchFail') }}</span>
+          <a-button size="small" type="text" @click="fetchDetail">
+            <template #icon><icon-refresh /></template>
+            {{ t('common.refresh') }}
+          </a-button>
+        </div>
+        <div v-else-if="!loading && !detail" class="empty">{{ t('requestDebug.empty') }}</div>
 
         <a-tabs v-if="detail" default-active-key="raw" type="rounded">
           <a-tab-pane key="raw" :title="t('requestDebug.tabRaw')">
@@ -59,6 +67,9 @@ const userStore = useUserStore()
 const { loading, setLoading } = useLoading()
 
 const detail = ref<DebugEntryDetail | null>(null)
+// Distinguish a fetch failure from a genuinely empty result so the UI doesn't
+// mask errors as "no data".
+const error = ref(false)
 // detail payload has no model field — carry it from the list row via query
 const model = computed(() => (route.query.model as string) || '')
 
@@ -73,11 +84,13 @@ async function fetchDetail() {
   const seq = route.params.seq as string
   if (!seq) return
   setLoading(true)
+  error.value = false
   try {
     const res = await debugApi.detail(seq)
     detail.value = res.data
   } catch {
     detail.value = null
+    error.value = true
   } finally {
     setLoading(false)
   }
@@ -120,6 +133,18 @@ watch(() => route.params.seq, fetchDetail, { immediate: true })
     padding: 48px 0;
     text-align: center;
     color: var(--color-text-4);
+  }
+
+  .error-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgb(var(--red-6));
+
+    :deep(svg) {
+      font-size: 16px;
+    }
   }
 }
 </style>
