@@ -8,6 +8,7 @@ const route: RouteRecordRaw = {
     menuKey: 'dashboard',
     icon: 'icon-dashboard',
     order: 0,
+    requiredPermission: 'usage:stats',
   },
 }
 

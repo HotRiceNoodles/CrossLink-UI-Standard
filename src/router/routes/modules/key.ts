@@ -8,6 +8,7 @@ const route: RouteRecordRaw = {
     menuKey: 'key',
     icon: 'icon-lock',
     order: 3,
+    requiredPermission: 'key:list',
   },
 }
 

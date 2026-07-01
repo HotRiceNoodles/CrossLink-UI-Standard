@@ -8,6 +8,7 @@ const route: RouteRecordRaw = {
     menuKey: 'model',
     icon: 'icon-mind-mapping',
     order: 2,
+    requiredPermission: 'model:list',
   },
 }
 

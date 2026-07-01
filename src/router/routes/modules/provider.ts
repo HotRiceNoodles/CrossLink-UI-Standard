@@ -8,6 +8,7 @@ const route: RouteRecordRaw = {
     menuKey: 'provider',
     icon: 'icon-storage',
     order: 1,
+    requiredPermission: 'provider:list',
   },
 }
 

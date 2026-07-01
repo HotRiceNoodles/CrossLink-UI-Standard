@@ -16,6 +16,7 @@ const route: RouteRecordRaw = {
       path: '',
       name: 'authMembers',
       component: () => import('@/views/auth/members/index.vue'),
+      meta: { requiredPermission: 'user:list' },
     },
     // 旧路由重定向
     { path: 'users', redirect: { name: 'authMembers' } },

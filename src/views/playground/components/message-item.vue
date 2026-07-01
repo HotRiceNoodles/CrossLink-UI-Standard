@@ -33,7 +33,12 @@
       </div>
 
       <!-- Main response content -->
-      <div v-if="message.role === 'assistant'" class="markdown-body" v-html="renderedContent" />
+      <div
+        v-if="message.role === 'assistant'"
+        class="markdown-body"
+        @click="onCodeClick"
+        v-html="renderedContent"
+      />
       <div v-else class="message-text">{{ message.content }}</div>
       <span v-if="streaming && !message.reasoning_content" class="streaming-cursor" />
 
@@ -60,8 +65,54 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import MarkdownIt from 'markdown-it'
-import hljs from 'highlight.js'
+import DOMPurify from 'dompurify'
+import hljs from 'highlight.js/lib/core'
+import javascript from 'highlight.js/lib/languages/javascript'
+import typescript from 'highlight.js/lib/languages/typescript'
+import python from 'highlight.js/lib/languages/python'
+import go from 'highlight.js/lib/languages/go'
+import rust from 'highlight.js/lib/languages/rust'
+import java from 'highlight.js/lib/languages/java'
+import bash from 'highlight.js/lib/languages/bash'
+import shell from 'highlight.js/lib/languages/shell'
+import json from 'highlight.js/lib/languages/json'
+import yaml from 'highlight.js/lib/languages/yaml'
+import markdown from 'highlight.js/lib/languages/markdown'
+import sql from 'highlight.js/lib/languages/sql'
+import xml from 'highlight.js/lib/languages/xml'
+import css from 'highlight.js/lib/languages/css'
+import cpp from 'highlight.js/lib/languages/cpp'
+import csharp from 'highlight.js/lib/languages/csharp'
+import php from 'highlight.js/lib/languages/php'
+import ruby from 'highlight.js/lib/languages/ruby'
+import plaintext from 'highlight.js/lib/languages/plaintext'
+import 'highlight.js/styles/github-dark.css'
+import { Message } from '@arco-design/web-vue'
+import { copyToClipboard } from '@/utils/clipboard'
 import type { PlaygroundMessage } from '@/types'
+
+// On-demand language registration (avoids pulling highlight.js' full ~1MB bundle)
+hljs.registerLanguage('javascript', javascript)
+hljs.registerLanguage('typescript', typescript)
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('go', go)
+hljs.registerLanguage('rust', rust)
+hljs.registerLanguage('java', java)
+hljs.registerLanguage('bash', bash)
+hljs.registerLanguage('shell', shell)
+hljs.registerLanguage('json', json)
+hljs.registerLanguage('yaml', yaml)
+hljs.registerLanguage('markdown', markdown)
+hljs.registerLanguage('sql', sql)
+hljs.registerLanguage('xml', xml)
+hljs.registerLanguage('html', xml)
+hljs.registerLanguage('css', css)
+hljs.registerLanguage('cpp', cpp)
+hljs.registerLanguage('csharp', csharp)
+hljs.registerLanguage('php', php)
+hljs.registerLanguage('ruby', ruby)
+hljs.registerLanguage('plaintext', plaintext)
+hljs.registerLanguage('text', plaintext)
 
 const props = defineProps<{
   message: PlaygroundMessage
@@ -94,36 +145,52 @@ const roleLabel = computed(() => {
 
 const md = new MarkdownIt({
   highlight(str: string, lang: string) {
+    // lang comes from the untrusted fence info-string — escape before interpolation
+    const safeLang = md.utils.escapeHtml(lang)
+    const copyBtn = `<button class="code-copy-btn" type="button">${t('common.copy')}</button>`
     if (lang && hljs.getLanguage(lang)) {
       try {
-        return `<pre class="code-block"><div class="code-header"><span class="code-lang">${lang}</span><button class="code-copy-btn" onclick="window.__copyCode(this)">${t('common.copy')}</button></div><code class="hljs">${hljs.highlight(str, { language: lang }).value}</code></pre>`
+        return `<pre class="code-block"><div class="code-header"><span class="code-lang">${safeLang}</span>${copyBtn}</div><code class="hljs">${hljs.highlight(str, { language: lang }).value}</code></pre>`
       } catch {
         // fall through
       }
     }
-    return `<pre class="code-block"><div class="code-header"><button class="code-copy-btn" onclick="window.__copyCode(this)">${t('common.copy')}</button></div><code class="hljs">${hljs.highlightAuto(str).value}</code></pre>`
+    return `<pre class="code-block"><div class="code-header">${copyBtn}</div><code class="hljs">${hljs.highlightAuto(str).value}</code></pre>`
   },
   html: false,
   linkify: true,
   breaks: true,
 })
 
-const renderedContent = computed(() => md.render(props.message.content || ''))
-</script>
+// Reject dangerous URL schemes in markdown links/images (defense-in-depth; DOMPurify also strips them)
+const SAFE_LINK_RE = /^(https?:|mailto:|tel:|data:image\/|\/|\.\/|\.\.\/|#)/i
+md.validateLink = (url: string) => SAFE_LINK_RE.test(url.trim())
 
-<script lang="ts">
-// Global copy handler for code blocks
-;(window as unknown as Record<string, unknown>).__copyCode = function (btn: HTMLButtonElement) {
+const renderedContent = computed(() =>
+  DOMPurify.sanitize(md.render(props.message.content || ''), {
+    USE_PROFILES: { html: true },
+    // the rendered code-block uses class-based copy buttons (no inline handlers); keep classes/styles
+    ADD_ATTR: ['target'],
+  }),
+)
+
+// Event-delegated copy handler — replaces the former global window.__copyCode
+function onCodeClick(e: MouseEvent) {
+  const target = e.target as HTMLElement | null
+  const btn = target?.closest('.code-copy-btn') as HTMLButtonElement | null
+  if (!btn) return
   const pre = btn.closest('.code-block')
   const code = pre?.querySelector('code')
   if (!code) return
-  navigator.clipboard.writeText(code.textContent || '').then(() => {
-    const original = btn.textContent
-    btn.textContent = '✓'
-    setTimeout(() => {
-      btn.textContent = original
-    }, 1500)
-  })
+  copyToClipboard(code.textContent || '')
+    .then(() => {
+      const original = btn.textContent
+      btn.textContent = '✓'
+      setTimeout(() => {
+        btn.textContent = original
+      }, 1500)
+    })
+    .catch(() => Message.error(t('common.copyFail')))
 }
 </script>
 

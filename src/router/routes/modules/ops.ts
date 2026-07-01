@@ -11,7 +11,7 @@ const route: RouteRecordRaw = {
       path: 'request-logs',
       name: 'requestLogs',
       component: () => import('@/views/ops/request-logs/index.vue'),
-      meta: { menuKey: 'requestLogs', icon: 'icon-file' },
+      meta: { menuKey: 'requestLogs', icon: 'icon-file', requiredPermission: 'usage:list' },
     },
     {
       path: 'request-debug',

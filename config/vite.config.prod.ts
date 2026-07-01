@@ -15,6 +15,8 @@ export default mergeConfig(
               if (id.includes('echarts')) return 'echarts'
               if (id.includes('@arco-design')) return 'arco'
               if (id.includes('vue') || id.includes('pinia') || id.includes('@vueuse')) return 'vue'
+              if (id.includes('highlight.js')) return 'highlight'
+              if (id.includes('markdown-it') || id.includes('dompurify')) return 'markdown'
               if (id.includes('dayjs') || id.includes('nprogress') || id.includes('axios'))
                 return 'vendor-libs'
             }
