@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { debugApi } from '@/api/debug'
@@ -80,7 +80,10 @@ async function fetchDetail() {
   }
 }
 
-fetchDetail()
+// Re-fetch whenever the :seq param changes — Vue Router reuses this component
+// instance across navigations between detail entries, so a bare setup call would
+// leave stale data when only the param differs.
+watch(() => route.params.seq, fetchDetail, { immediate: true })
 </script>
 
 <style scoped lang="less">
