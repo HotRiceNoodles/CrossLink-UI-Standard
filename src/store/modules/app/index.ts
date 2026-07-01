@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, watch, type Ref } from 'vue'
 import { loadPersistedSettings, persistSettings } from '../../plugins/persist'
 
 export const useAppStore = defineStore('app', () => {
@@ -29,9 +29,18 @@ export const useAppStore = defineStore('app', () => {
       device: 'desktop' | 'mobile'
     }>,
   ) {
+    // Explicit ref map so TypeScript can verify every key maps to a real ref.
+    const refs: Record<string, Ref<unknown>> = {
+      navbar,
+      menu,
+      menuCollapse,
+      menuWidth,
+      footer,
+      device,
+    }
     Object.entries(settings).forEach(([key, value]) => {
-      if (value !== undefined && key in { navbar, menu, menuCollapse, menuWidth, footer, device }) {
-        ;(this as any)[key].value = value
+      if (value !== undefined && key in refs) {
+        refs[key].value = value
       }
     })
   }

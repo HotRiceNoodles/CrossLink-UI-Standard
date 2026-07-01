@@ -22,7 +22,6 @@ export const playgroundApi = {
         Authorization: `Bearer ${token}`,
         'X-Requested-With': 'XMLHttpRequest',
       },
-      credentials: 'include',
       body: JSON.stringify({ ...data, stream: true }),
       signal,
     })

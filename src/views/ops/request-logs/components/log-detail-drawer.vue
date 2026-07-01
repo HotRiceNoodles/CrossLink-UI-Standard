@@ -57,7 +57,7 @@
         <div class="usage-overview">
           <div class="usage-metric">
             <span class="usage-metric-value">
-              {{ formatTokens(log.input_tokens + log.output_tokens) }}
+              {{ formatTokensLocale(log.input_tokens + log.output_tokens) }}
             </span>
             <span class="usage-metric-label">{{ t('logDetail.totalTokens') }}</span>
           </div>
@@ -78,7 +78,7 @@
               <div class="token-bar-fill bar-input" :style="{ width: inputPercent + '%' }"></div>
             </div>
             <span class="token-bar-value">
-              {{ formatTokens(log.input_tokens) }} ({{ inputPercent }}%)
+              {{ formatTokensLocale(log.input_tokens) }} ({{ inputPercent }}%)
             </span>
           </div>
           <div class="token-bar-item">
@@ -87,7 +87,7 @@
               <div class="token-bar-fill bar-output" :style="{ width: outputPercent + '%' }"></div>
             </div>
             <span class="token-bar-value">
-              {{ formatTokens(log.output_tokens) }} ({{ outputPercent }}%)
+              {{ formatTokensLocale(log.output_tokens) }} ({{ outputPercent }}%)
             </span>
           </div>
         </div>
@@ -279,6 +279,7 @@ import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
+import { formatLatency, formatTokensLocale } from '@/utils/format'
 
 const props = defineProps<{
   visible: boolean
@@ -366,15 +367,6 @@ function formatContent(content: string): string {
 // Shared formatters
 function formatTime(val: string) {
   return dayjs(val).format('YYYY-MM-DD HH:mm:ss')
-}
-
-function formatTokens(val: number) {
-  return val.toLocaleString()
-}
-
-function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
 }
 </script>
 

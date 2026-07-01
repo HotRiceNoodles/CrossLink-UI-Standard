@@ -213,7 +213,7 @@ import { debugApi } from '@/api/debug'
 import { settingsApi } from '@/api/settings'
 import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store'
-import { formatTime } from '@/utils/format'
+import { formatTime, formatLatency, statusClass } from '@/utils/format'
 import type { DebugEntrySummary } from '@/types'
 
 const { t } = useI18n()
@@ -333,18 +333,6 @@ function stopTimer() {
 watch(autoRefresh, (on) => (on ? startTimer() : stopTimer()))
 
 // --- formatters ---
-function statusClass(code: number): string {
-  if (code >= 200 && code < 300) return 'success'
-  if (code >= 400 && code < 500) return 'warn'
-  if (code >= 500) return 'error'
-  return 'default'
-}
-
-function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
-}
-
 function latencyClass(ms: number): string {
   if (ms > 5000) return 'latency-slow'
   if (ms > 2000) return 'latency-medium'

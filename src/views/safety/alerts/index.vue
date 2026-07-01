@@ -264,6 +264,7 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { alertLogApi } from '@/api/safety'
+import { logger } from '@/logger'
 import { formatTime } from '@/utils/format'
 import AlertDetail from './components/alert-detail.vue'
 import type { GuardrailAlertLog, GuardrailEngineType, AlertLogQuery } from '@/types'
@@ -306,8 +307,9 @@ async function fetchStats() {
     // Critical alerts
     const criticalRes = await alertLogApi.stats({ severity: 'critical' })
     criticalCount.value = criticalRes.data?.by_rule?.reduce((sum, b) => sum + b.count, 0) ?? 0
-  } catch {
-    // silently fail for stats
+  } catch (e) {
+    // Non-critical: stats are best-effort, but surface the failure in the debug log.
+    logger.warn('Failed to load alert stats', e, 'app')
   } finally {
     statsLoading.value = false
   }
@@ -354,9 +356,8 @@ async function fetchData() {
   try {
     const res = await alertLogApi.list(buildQuery())
     logs.value = res.data ?? []
-    // Backend returns flat { total, page, page_size } instead of nested pagination
-    const total = (res as any).total ?? res.pagination?.total ?? 0
-    pagination.total = total
+    // Backend returns a flat { total, page, page_size } envelope (see AlertLogListResponse)
+    pagination.total = res.total ?? res.pagination?.total ?? 0
   } catch {
     Message.error(t('common.operationFail'))
   } finally {

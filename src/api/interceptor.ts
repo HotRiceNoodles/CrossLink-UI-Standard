@@ -6,7 +6,6 @@ import { logger } from '@/logger/core'
 const request = axios.create({
   baseURL: '/admin/api',
   timeout: 30000,
-  withCredentials: true,
   headers: {
     'X-Requested-With': 'XMLHttpRequest',
   },
@@ -20,15 +19,24 @@ request.interceptors.request.use((config) => {
   return config
 })
 
+/**
+ * Shared 401 handler — clears the token and redirects to login.
+ * Auth is JWT-Bearer only (no session cookies), so this is the single
+ * sign-out path for both the axios interceptor and the raw fetch stream.
+ */
+export function handleUnauthorized(): void {
+  clearToken()
+  // 延迟导入避免循环依赖，由 router guard 处理跳转
+  import('@/router').then(({ default: router }) => {
+    router.push({ name: 'login' })
+  })
+}
+
 request.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      clearToken()
-      // 延迟导入避免循环依赖，由 router guard 处理跳转
-      import('@/router').then(({ default: router }) => {
-        router.push({ name: 'login' })
-      })
+      handleUnauthorized()
     }
 
     // Handle force_password_change: backend blocks all requests except the change-password endpoint

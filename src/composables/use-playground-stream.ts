@@ -1,5 +1,6 @@
 import { ref, readonly } from 'vue'
 import { playgroundApi } from '@/api/playground'
+import { handleUnauthorized } from '@/api/interceptor'
 import type {
   PlaygroundRequest,
   PlaygroundStreamResult,
@@ -32,11 +33,19 @@ export function usePlaygroundStream() {
       const response = await playgroundApi.stream(request, abortController.signal)
 
       if (!response.ok) {
+        // The stream uses raw fetch (bypasses the axios interceptor), so handle
+        // 401 explicitly to keep parity with the rest of the app.
+        if (response.status === 401) {
+          handleUnauthorized()
+        }
         const errBody = await response.json().catch(() => null)
         throw new Error(errBody?.error || `HTTP ${response.status}`)
       }
 
-      const reader = response.body!.getReader()
+      if (!response.body) {
+        throw new Error('Stream response has no body')
+      }
+      const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
 

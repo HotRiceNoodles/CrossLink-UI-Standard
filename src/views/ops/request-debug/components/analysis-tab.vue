@@ -119,8 +119,10 @@
                 <a
                   v-for="(img, i) in step.detail?.images || []"
                   :key="i"
-                  :href="img.url"
+                  :href="safeUrl(img.url)"
                   target="_blank"
+                  rel="noopener noreferrer"
+                  :hidden="!safeUrl(img.url)"
                   class="step-image-link"
                 >
                   [{{ t('requestDebug.typeImage')
@@ -142,6 +144,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { debugApi } from '@/api/debug'
 import { useLoading } from '@/hooks/loading'
+import { safeUrl } from '@/utils/url'
 import type { AnalysisResult } from '@/types'
 
 const props = defineProps<{ seq: number | string }>()

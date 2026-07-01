@@ -6,6 +6,7 @@ import type {
   GuardrailTestResult,
   GuardrailAlertLog,
   AlertLogQuery,
+  AlertLogListResponse,
   AlertLogStats,
   AlertLogStatsQuery,
 } from '@/types'
@@ -37,7 +38,10 @@ export const guardrailApi = {
 
 export const alertLogApi = {
   list: (params: AlertLogQuery) =>
-    get<GuardrailAlertLog[]>('/guardrail-alerts/logs', params as Record<string, unknown>),
+    get<GuardrailAlertLog[]>(
+      '/guardrail-alerts/logs',
+      params as Record<string, unknown>,
+    ) as Promise<AlertLogListResponse>,
   detail: (id: number) => get<GuardrailAlertLog>(`/guardrail-alerts/logs/${id}`),
   stats: (params?: AlertLogStatsQuery) =>
     get<AlertLogStats>('/guardrail-alerts/logs/stats', params as Record<string, unknown>),

@@ -173,7 +173,7 @@
             align="center"
           >
             <template #cell="{ record }">
-              <span class="cell-status" :class="'status-' + statusCodeClass(record.status_code)">
+              <span class="cell-status" :class="'status-' + statusClass(record.status_code)">
                 {{ record.status_code }}
               </span>
             </template>
@@ -186,7 +186,7 @@
             align="right"
           >
             <template #cell="{ record }">
-              <span class="cell-num">{{ formatTokens(record.input_tokens) }}</span>
+              <span class="cell-num">{{ formatTokensLocale(record.input_tokens) }}</span>
             </template>
           </a-table-column>
 
@@ -197,7 +197,7 @@
             align="right"
           >
             <template #cell="{ record }">
-              <span class="cell-num">{{ formatTokens(record.output_tokens) }}</span>
+              <span class="cell-num">{{ formatTokensLocale(record.output_tokens) }}</span>
             </template>
           </a-table-column>
 
@@ -285,7 +285,8 @@ import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
 import { useLoading } from '@/hooks/loading'
-import { formatTime } from '@/utils/format'
+import { formatTime, formatLatency, statusClass, formatTokensLocale } from '@/utils/format'
+import { logger } from '@/logger'
 import { getCurrencySymbol } from '@/utils/currency'
 import LogDetailDrawer from './components/log-detail-drawer.vue'
 import type { UsageLog, UsageQuery, Provider, APIKey } from '@/types'
@@ -391,8 +392,9 @@ async function loadFilterOptions() {
       label: k.name,
       value: k.id,
     }))
-  } catch {
-    // Silently fail - filters are optional
+  } catch (e) {
+    // Non-critical: filter options are best-effort, but surface the failure in the debug log.
+    logger.warn('Failed to load request-log filter options', e, 'app')
   }
 }
 
@@ -445,23 +447,6 @@ function openDrawer(record: UsageLog) {
 }
 
 // Formatters
-function statusCodeClass(code: number): string {
-  if (code >= 200 && code < 300) return 'success'
-  if (code === 429) return 'rate-limit'
-  if (code >= 400 && code < 500) return 'warn'
-  if (code >= 500) return 'error'
-  return 'default'
-}
-
-function formatTokens(val: number) {
-  return val.toLocaleString()
-}
-
-function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
-}
-
 function latencyClass(ms: number): string {
   if (ms > 5000) return 'latency-slow'
   if (ms > 2000) return 'latency-medium'

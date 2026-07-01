@@ -78,12 +78,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Message } from '@arco-design/web-vue'
-import { copyToClipboard } from '@/utils/clipboard'
+import { formatLatency } from '@/utils/format'
+import { useCopyWithFeedback } from '@/composables/use-copy-with-feedback'
 import type { DebugEntryDetail, HttpHeaders } from '@/types'
 
 const props = defineProps<{ entry: DebugEntryDetail; model?: string }>()
 const { t } = useI18n()
+const { copy } = useCopyWithFeedback()
 
 const model = computed(() => props.model)
 
@@ -101,20 +102,6 @@ function headerText(h: HttpHeaders | undefined): string {
     .sort()
     .map((k) => `${k}: ${h[k].join(', ')}`)
     .join('\n')
-}
-
-async function copy(text: string) {
-  try {
-    await copyToClipboard(text)
-    Message.success(t('common.copied'))
-  } catch {
-    Message.error(t('common.copyFail'))
-  }
-}
-
-function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
 }
 </script>
 

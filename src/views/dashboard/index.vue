@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onActivated } from 'vue'
 import { usageApi } from '@/api/usage'
 import { systemApi } from '@/api/system'
 import { licenseApi } from '@/api/license'
@@ -42,6 +42,9 @@ import DataPanel from './components/data-panel.vue'
 import TrendChart from './components/trend-chart.vue'
 import ModelPie from './components/model-pie.vue'
 import SystemInfoCard from './components/system-info.vue'
+
+// Named so <keep-alive :include="['Dashboard','GlobalDashboard']"> can target it.
+defineOptions({ name: 'Dashboard' })
 
 const loading = ref(true)
 
@@ -90,6 +93,12 @@ async function fetchDashboardData() {
 }
 
 onMounted(() => {
+  fetchDashboardData()
+})
+
+// keep-alive refresh: re-fetch on reactivation so cached data doesn't go stale,
+// while preserving component/DOM state (scroll, filters).
+onActivated(() => {
   fetchDashboardData()
 })
 </script>

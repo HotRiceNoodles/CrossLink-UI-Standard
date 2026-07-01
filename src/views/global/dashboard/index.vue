@@ -70,7 +70,7 @@
           </div>
           <div class="global-dashboard__stat-info">
             <span class="global-dashboard__stat-value">
-              {{ formatTokens(usageStats.total_tokens) }}
+              {{ formatTokensCompact(usageStats.total_tokens) }}
             </span>
             <span class="global-dashboard__stat-label">{{ t('globalDashboard.statTokens') }}</span>
           </div>
@@ -104,14 +104,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
 import { orgApi } from '@/api/rbac'
 import { usageApi } from '@/api/usage'
+import { formatCost, formatTokensCompact } from '@/utils/format'
 import type { Organization, UsageStats, DailyTrend } from '@/types'
 import TrendChart from '@/views/dashboard/components/trend-chart.vue'
+
+// Named so <keep-alive :include="['Dashboard','GlobalDashboard']"> can target it.
+defineOptions({ name: 'GlobalDashboard' })
 
 const { t } = useI18n()
 const router = useRouter()
@@ -161,18 +165,6 @@ function formatNumber(value: number): string {
   return String(Math.round(value))
 }
 
-function formatCost(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`
-  return value.toFixed(2)
-}
-
-function formatTokens(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`
-  if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`
-  return String(value)
-}
-
 // Data fetching
 async function fetchDashboardData() {
   loading.value = true
@@ -200,6 +192,11 @@ async function fetchDashboardData() {
 }
 
 onMounted(() => {
+  fetchDashboardData()
+})
+
+// keep-alive refresh: re-fetch on reactivation so cached data doesn't go stale.
+onActivated(() => {
   fetchDashboardData()
 })
 </script>

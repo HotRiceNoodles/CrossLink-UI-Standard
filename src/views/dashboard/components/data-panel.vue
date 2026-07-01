@@ -28,7 +28,7 @@
               :show-group-separator="true"
               :animation="true"
               :value-style="{ fontSize: '28px', fontWeight: 700 }"
-              :format="formatTokens"
+              :format="formatTokensCompact"
             />
             <span class="kpi-label">{{ t('dashboard.tokenUsage') }}</span>
           </div>
@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { formatTokensCompact } from '@/utils/format'
 import type { UsageStats } from '@/types'
 
 const { t } = useI18n()
@@ -105,16 +106,6 @@ const currencySymbol = computed(() => {
   }
   return map[currencies[0]] || currencies[0]
 })
-
-function formatTokens(value: number): string {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`
-  }
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}K`
-  }
-  return String(value)
-}
 </script>
 
 <style scoped lang="less">

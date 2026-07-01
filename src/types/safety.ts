@@ -1,5 +1,7 @@
 // 内容安全模块类型定义
 
+import type { ApiResponse } from './index'
+
 // 引擎类型枚举
 export type GuardrailEngineType =
   | 'keyword_filter'
@@ -29,7 +31,7 @@ export interface GuardrailRule {
   type: GuardrailEngineType
   direction: GuardrailDirection
   enabled: boolean
-  config: Record<string, any>
+  config: Record<string, unknown>
   severity: GuardrailSeverity
   action: GuardrailAction
   model_filter?: string
@@ -43,7 +45,7 @@ export interface GuardrailCreateRequest {
   type: GuardrailEngineType
   direction: GuardrailDirection
   enabled?: boolean
-  config: Record<string, any>
+  config: Record<string, unknown>
   severity?: GuardrailSeverity
   action?: GuardrailAction
   model_filter?: string
@@ -103,6 +105,14 @@ export interface AlertLogQuery {
   start_time?: string
   end_time?: string
   include_content?: string
+}
+
+// 告警日志列表响应 — 后端 ListLogs 返回扁平信封 { data, total, page, page_size }，
+// 而非 ApiResponse 的嵌套 pagination。这里显式建模该契约。
+export interface AlertLogListResponse extends ApiResponse<GuardrailAlertLog[]> {
+  total?: number
+  page?: number
+  page_size?: number
 }
 
 // 告警统计

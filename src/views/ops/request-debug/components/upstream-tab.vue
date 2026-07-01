@@ -65,33 +65,13 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Message } from '@arco-design/web-vue'
-import { copyToClipboard } from '@/utils/clipboard'
+import { formatLatency, statusClass } from '@/utils/format'
+import { useCopyWithFeedback } from '@/composables/use-copy-with-feedback'
 import type { UpstreamCall } from '@/types'
 
 defineProps<{ calls: UpstreamCall[] }>()
 const { t } = useI18n()
-
-function statusClass(code: number): string {
-  if (code >= 200 && code < 300) return 'success'
-  if (code >= 400 && code < 500) return 'warn'
-  if (code >= 500) return 'error'
-  return 'default'
-}
-
-function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
-}
-
-async function copy(text: string) {
-  try {
-    await copyToClipboard(text)
-    Message.success(t('common.copied'))
-  } catch {
-    Message.error(t('common.copyFail'))
-  }
-}
+const { copy } = useCopyWithFeedback()
 </script>
 
 <style scoped lang="less">

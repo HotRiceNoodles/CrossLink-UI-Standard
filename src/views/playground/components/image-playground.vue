@@ -87,6 +87,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { playgroundApi } from '@/api/playground'
+import { safeUrl } from '@/utils/url'
 import type { PlaygroundImageData, PlaygroundImageRequest, ImageGenerationBatch } from '@/types'
 
 const props = defineProps<{
@@ -168,8 +169,9 @@ async function downloadImage(img: PlaygroundImageData, idx: number) {
     link.click()
     URL.revokeObjectURL(url)
   } catch {
-    // fallback: open in new tab
-    window.open(src, '_blank')
+    // fallback: open in new tab — only for safe (http/https/data:image) URLs
+    const safe = safeUrl(src)
+    if (safe) window.open(safe, '_blank', 'noopener,noreferrer')
   }
 }
 </script>
