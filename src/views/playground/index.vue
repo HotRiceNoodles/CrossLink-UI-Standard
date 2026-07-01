@@ -108,6 +108,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { modelApi } from '@/api/model'
 import { playgroundApi } from '@/api/playground'
+import { useLoading } from '@/hooks/loading'
 import { usePlaygroundStream } from '@/composables/use-playground-stream'
 import type { PlaygroundMessage, PlaygroundRequest, ProviderModel } from '@/types'
 import MessageItem from './components/message-item.vue'
@@ -122,7 +123,7 @@ const activeTab = ref<'chat' | 'image'>('chat')
 
 // Models
 const modelList = ref<ProviderModel[]>([])
-const modelsLoading = ref(true)
+const { loading: modelsLoading, setLoading: setModelsLoading } = useLoading(true)
 const selectedModel = ref('')
 
 // Messages
@@ -178,7 +179,7 @@ onMounted(async () => {
   } catch {
     // Models API may fail silently; empty state is shown
   } finally {
-    modelsLoading.value = false
+    setModelsLoading(false)
   }
 })
 

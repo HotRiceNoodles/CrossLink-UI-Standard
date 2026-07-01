@@ -38,6 +38,7 @@ import { ref, reactive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { systemApi } from '@/api/system'
+import { useLoading } from '@/hooks/loading'
 
 defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
@@ -45,7 +46,7 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 const { t } = useI18n()
 
 const formRef = ref()
-const loading = ref(false)
+const { loading, setLoading } = useLoading()
 
 const formData = reactive({
   old_password: '',
@@ -82,7 +83,7 @@ async function handleSubmit(done: (closed: boolean) => void) {
     return
   }
 
-  loading.value = true
+  setLoading(true)
   try {
     await systemApi.changePassword({
       old_password: formData.old_password,
@@ -98,7 +99,7 @@ async function handleSubmit(done: (closed: boolean) => void) {
     Message.error(error.response?.data?.error || t('profile.passwordChangeFail'))
     done(false)
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 </script>

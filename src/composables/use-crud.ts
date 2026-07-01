@@ -39,7 +39,7 @@ export function useCrud<
   const list = ref<T[]>([]) as { value: T[] }
   const isEdit = ref(false)
   const editingId = ref<number | string>()
-  const submitLoading = ref(false)
+  const { loading: submitLoading, setLoading: setSubmitLoading } = useLoading()
   const formRef = ref()
 
   const idField = options.idField ?? 'id'
@@ -134,7 +134,7 @@ export function useCrud<
       return
     }
 
-    submitLoading.value = true
+    setSubmitLoading(true)
     try {
       const raw = { ...formData, ...extra }
       const payload = options.transformPayload ? options.transformPayload(raw, isEdit.value) : raw
@@ -157,7 +157,7 @@ export function useCrud<
       const error = err as { response?: { data?: { error?: string } } }
       Message.error(error.response?.data?.error || t('common.operationFail'))
     } finally {
-      submitLoading.value = false
+      setSubmitLoading(false)
     }
     return undefined
   }

@@ -265,6 +265,7 @@ import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { alertLogApi } from '@/api/safety'
 import { logger } from '@/logger'
+import { useLoading } from '@/hooks/loading'
 import { formatTime } from '@/utils/format'
 import AlertDetail from './components/alert-detail.vue'
 import type { GuardrailAlertLog, GuardrailEngineType, AlertLogQuery } from '@/types'
@@ -285,13 +286,13 @@ const engineTypeOptions: GuardrailEngineType[] = [
 ]
 
 // ---------- Stats ----------
-const statsLoading = ref(false)
+const { loading: statsLoading, setLoading: setStatsLoading } = useLoading()
 const todayCount = ref(0)
 const weekCount = ref(0)
 const criticalCount = ref(0)
 
 async function fetchStats() {
-  statsLoading.value = true
+  setStatsLoading(true)
   try {
     const todayStart = dayjs().startOf('day').format()
     const weekStart = dayjs().startOf('week').format()
@@ -311,12 +312,12 @@ async function fetchStats() {
     // Non-critical: stats are best-effort, but surface the failure in the debug log.
     logger.warn('Failed to load alert stats', e, 'app')
   } finally {
-    statsLoading.value = false
+    setStatsLoading(false)
   }
 }
 
 // ---------- Filters & Pagination ----------
-const loading = ref(false)
+const { loading, setLoading } = useLoading()
 const logs = ref<GuardrailAlertLog[]>([])
 const filter = reactive({
   engine_type: '',
@@ -352,7 +353,7 @@ function buildQuery(): AlertLogQuery {
 }
 
 async function fetchData() {
-  loading.value = true
+  setLoading(true)
   try {
     const res = await alertLogApi.list(buildQuery())
     logs.value = res.data ?? []
@@ -361,7 +362,7 @@ async function fetchData() {
   } catch {
     Message.error(t('common.operationFail'))
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 
@@ -393,19 +394,19 @@ function resetFilter() {
 
 // ---------- Detail Drawer ----------
 const drawerVisible = ref(false)
-const detailLoading = ref(false)
+const { loading: detailLoading, setLoading: setDetailLoading } = useLoading()
 const detailLog = ref<GuardrailAlertLog | null>(null)
 
 async function openDetail(record: GuardrailAlertLog) {
   drawerVisible.value = true
-  detailLoading.value = true
+  setDetailLoading(true)
   try {
     const res = await alertLogApi.detail(record.id)
     detailLog.value = res.data
   } catch {
     detailLog.value = record
   } finally {
-    detailLoading.value = false
+    setDetailLoading(false)
   }
 }
 

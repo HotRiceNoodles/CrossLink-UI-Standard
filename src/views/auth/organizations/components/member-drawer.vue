@@ -98,6 +98,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { orgApi, authUserApi } from '@/api/rbac'
 import type { OrgMember, AuthUser } from '@/types'
+import { useLoading } from '@/hooks/loading'
 
 const { t } = useI18n()
 
@@ -105,22 +106,22 @@ const props = defineProps<{
   orgId: number
 }>()
 
-const loading = ref(false)
-const addLoading = ref(false)
+const { loading, setLoading } = useLoading()
+const { loading: addLoading, setLoading: setAddLoading } = useLoading()
 const members = ref<OrgMember[]>([])
 const userList = ref<AuthUser[]>([])
 const addForm = reactive({ user_id: undefined as number | undefined, role: 'member' })
 
 async function fetchMembers() {
   if (!props.orgId) return
-  loading.value = true
+  setLoading(true)
   try {
     const res = await orgApi.members(props.orgId)
     members.value = res.data
   } catch {
     Message.error(t('auth.organizations.fetchMembersFail'))
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 
@@ -135,7 +136,7 @@ async function fetchUsers() {
 
 async function handleAddMember() {
   if (!addForm.user_id || !addForm.role || !props.orgId) return
-  addLoading.value = true
+  setAddLoading(true)
   try {
     await orgApi.addMember(props.orgId, {
       user_id: addForm.user_id,
@@ -149,7 +150,7 @@ async function handleAddMember() {
     const error = err as { response?: { data?: { error?: string } } }
     Message.error(error.response?.data?.error || t('common.operationFail'))
   } finally {
-    addLoading.value = false
+    setAddLoading(false)
   }
 }
 

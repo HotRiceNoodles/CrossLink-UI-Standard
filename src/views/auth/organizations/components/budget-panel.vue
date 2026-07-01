@@ -52,6 +52,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { orgApi } from '@/api/rbac'
 import type { OrgBudget } from '@/types'
+import { useLoading } from '@/hooks/loading'
 
 const { t } = useI18n()
 
@@ -59,8 +60,8 @@ const props = defineProps<{
   orgId: number
 }>()
 
-const loading = ref(false)
-const calibrateLoading = ref(false)
+const { loading, setLoading } = useLoading()
+const { loading: calibrateLoading, setLoading: setCalibrateLoading } = useLoading()
 const budget = ref<OrgBudget | null>(null)
 
 const budgetColor = computed(() => {
@@ -73,20 +74,20 @@ const budgetColor = computed(() => {
 
 async function fetchBudget() {
   if (!props.orgId) return
-  loading.value = true
+  setLoading(true)
   try {
     const res = await orgApi.budget(props.orgId)
     budget.value = res.data
   } catch {
     Message.error(t('auth.organizations.fetchBudgetFail'))
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 
 async function handleCalibrate() {
   if (!props.orgId) return
-  calibrateLoading.value = true
+  setCalibrateLoading(true)
   try {
     await orgApi.calibrateBudget(props.orgId)
     Message.success(t('auth.organizations.calibrateSuccess'))
@@ -94,7 +95,7 @@ async function handleCalibrate() {
   } catch {
     Message.error(t('auth.organizations.calibrateFail'))
   } finally {
-    calibrateLoading.value = false
+    setCalibrateLoading(false)
   }
 }
 

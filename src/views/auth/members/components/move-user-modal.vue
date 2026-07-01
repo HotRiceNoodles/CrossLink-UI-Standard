@@ -38,6 +38,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Team } from '@/types'
 import type { UserRow } from '@/composables/use-team-users'
+import { useLoading } from '@/hooks/loading'
 
 const { t } = useI18n()
 
@@ -54,7 +55,7 @@ const emit = defineEmits<{
 }>()
 
 const selectedTeamId = ref<number | undefined>()
-const loading = ref(false)
+const { loading } = useLoading()
 
 // Filter out the current team
 const availableTeams = computed(() => {

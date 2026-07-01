@@ -196,7 +196,7 @@ const testingId = ref<number | null>(null)
 const testModalVisible = ref(false)
 const testTargetProvider = ref<Provider | null>(null)
 const testSelectedModel = ref<string>('')
-const testLoading = ref(false)
+const { loading: testLoading, setLoading: setTestLoading } = useLoading()
 const testResult = ref<TestResult | null>(null)
 
 // ---------- Filter ----------
@@ -321,7 +321,7 @@ async function executeTest() {
   const provider = testTargetProvider.value
   if (!provider) return
 
-  testLoading.value = true
+  setTestLoading(true)
   testResult.value = null
   testingId.value = provider.id
   probeStatusMap[provider.id] = 'testing'
@@ -338,7 +338,7 @@ async function executeTest() {
     probeStatusMap[provider.id] = 'fail'
     testResult.value = { success: false, error: t('provider.connectTestFail') }
   } finally {
-    testLoading.value = false
+    setTestLoading(false)
     testingId.value = null
   }
 }

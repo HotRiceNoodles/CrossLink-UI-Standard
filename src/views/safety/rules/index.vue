@@ -348,6 +348,7 @@ import { guardrailApi } from '@/api/safety'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { logger } from '@/logger'
+import { useLoading } from '@/hooks/loading'
 import { getDefaultsForEngine } from './engine-schema'
 import type {
   GuardrailRule,
@@ -529,7 +530,7 @@ const testModalVisible = ref(false)
 const testingRule = ref<GuardrailRule | null>(null)
 const testInput = ref('')
 const testResult = ref<GuardrailTestResult | null>(null)
-const testLoading = ref(false)
+const { loading: testLoading, setLoading: setTestLoading } = useLoading()
 
 function handleTest(record: GuardrailRule) {
   testingRule.value = record
@@ -543,14 +544,14 @@ async function executeTest() {
     Message.warning(t('safety.rules.testInput'))
     return
   }
-  testLoading.value = true
+  setTestLoading(true)
   try {
     const res = await guardrailApi.test(testingRule.value.id, testInput.value)
     testResult.value = res.data
   } catch {
     Message.error(t('common.operationFail'))
   } finally {
-    testLoading.value = false
+    setTestLoading(false)
   }
 }
 

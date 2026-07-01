@@ -147,6 +147,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { systemApi } from '@/api/system'
 import { licenseApi } from '@/api/license'
+import { useLoading } from '@/hooks/loading'
 import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
 import { useTierLabel } from '@/utils/license'
@@ -156,17 +157,17 @@ const { t } = useI18n()
 const userStore = useUserStore()
 const tierLabel = useTierLabel()
 
-const loading = ref(true)
+const { loading, setLoading } = useLoading(true)
 const systemInfo = ref<SystemInfo | null>(null)
 const license = ref<LicenseStatus | null>(null)
 const logContentEnabled = ref(false)
-const logContentLoading = ref(false)
+const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoading()
 
 const user = computed(() => userStore.user)
 const editionLabel = computed(() => tierLabel(license.value?.edition || 'community'))
 
 async function handleLogContentChange(value: boolean | number | string) {
-  logContentLoading.value = true
+  setLogContentLoading(true)
   try {
     await settingsApi.updateSettings({ log_content: !!value })
     Message.success(t('settings.updateSuccess'))
@@ -174,12 +175,12 @@ async function handleLogContentChange(value: boolean | number | string) {
     logContentEnabled.value = !value
     Message.error(t('settings.updateFail'))
   } finally {
-    logContentLoading.value = false
+    setLogContentLoading(false)
   }
 }
 
 onMounted(async () => {
-  loading.value = true
+  setLoading(true)
   try {
     const [sysRes, licRes, settingsRes] = await Promise.allSettled([
       systemApi.info(),
@@ -198,7 +199,7 @@ onMounted(async () => {
       logContentEnabled.value = settings.log_content
     }
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 })
 </script>

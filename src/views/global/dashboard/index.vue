@@ -110,6 +110,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
 import { orgApi } from '@/api/rbac'
 import { usageApi } from '@/api/usage'
+import { useLoading } from '@/hooks/loading'
 import { formatCost, formatTokensCompact } from '@/utils/format'
 import type { Organization, UsageStats, DailyTrend } from '@/types'
 import TrendChart from '@/views/dashboard/components/trend-chart.vue'
@@ -121,7 +122,7 @@ const { t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 
-const loading = ref(true)
+const { loading, setLoading } = useLoading(true)
 
 // Org data — used as primary source for org/member/key counts
 const orgs = ref<Organization[]>([])
@@ -167,7 +168,7 @@ function formatNumber(value: number): string {
 
 // Data fetching
 async function fetchDashboardData() {
-  loading.value = true
+  setLoading(true)
   try {
     const [orgsRes, statsRes, dailyRes] = await Promise.allSettled([
       orgApi.list(),
@@ -187,7 +188,7 @@ async function fetchDashboardData() {
       dailyTrend.value = dailyRes.value.data
     }
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 

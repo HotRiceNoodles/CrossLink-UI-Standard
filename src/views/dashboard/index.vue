@@ -29,6 +29,7 @@
 import { ref, onMounted, onActivated } from 'vue'
 import { usageApi } from '@/api/usage'
 import { systemApi } from '@/api/system'
+import { useLoading } from '@/hooks/loading'
 import { licenseApi } from '@/api/license'
 import type {
   UsageStats,
@@ -46,7 +47,7 @@ import SystemInfoCard from './components/system-info.vue'
 // Named so <keep-alive :include="['Dashboard','GlobalDashboard']"> can target it.
 defineOptions({ name: 'Dashboard' })
 
-const loading = ref(true)
+const { loading, setLoading } = useLoading(true)
 
 const usageStats = ref<UsageStats>({
   total_requests: 0,
@@ -62,7 +63,7 @@ const systemInfo = ref<SystemInfoType | null>(null)
 const license = ref<LicenseStatus | null>(null)
 
 async function fetchDashboardData() {
-  loading.value = true
+  setLoading(true)
   try {
     const [statsRes, dailyRes, modelsRes, sysRes, licRes] = await Promise.allSettled([
       usageApi.stats(),
@@ -88,7 +89,7 @@ async function fetchDashboardData() {
       license.value = licRes.value.data
     }
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 

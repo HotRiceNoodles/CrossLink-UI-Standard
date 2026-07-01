@@ -28,6 +28,7 @@ import { ref, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import type { UserRow } from '@/composables/use-team-users'
+import { useLoading } from '@/hooks/loading'
 
 const { t } = useI18n()
 
@@ -41,7 +42,7 @@ const emit = defineEmits<{
   confirm: [newPassword: string]
 }>()
 
-const loading = ref(false)
+const { loading } = useLoading()
 const form = reactive({ new_password: '' })
 
 // Reset form when modal opens

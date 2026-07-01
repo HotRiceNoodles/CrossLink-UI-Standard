@@ -58,6 +58,7 @@ import { useUserStore } from '@/store'
 import { authApi } from '@/api/auth'
 import { orgApi } from '@/api/rbac'
 import { Message } from '@arco-design/web-vue'
+import { useLoading } from '@/hooks/loading'
 
 const emit = defineEmits<{ forceChange: [] }>()
 
@@ -68,7 +69,7 @@ const route = useRoute()
 const userStore = useUserStore()
 
 const formRef = ref()
-const loading = ref(false)
+const { loading, setLoading } = useLoading()
 const errorMsg = ref('')
 
 const formData = reactive({
@@ -82,7 +83,7 @@ const rules = computed(() => ({
 }))
 
 async function handleLogin() {
-  loading.value = true
+  setLoading(true)
   errorMsg.value = ''
 
   try {
@@ -126,7 +127,7 @@ async function handleLogin() {
     const error = err as { response?: { data?: { error?: string } } }
     errorMsg.value = error.response?.data?.error || t('login.loginFail')
   } finally {
-    loading.value = false
+    setLoading(false)
   }
 }
 </script>

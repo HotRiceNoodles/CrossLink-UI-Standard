@@ -155,6 +155,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { modelApi } from '@/api/model'
+import { useLoading } from '@/hooks/loading'
 import type { ProviderModel, Provider, ModelCreateRequest } from '@/types'
 
 const { t } = useI18n()
@@ -190,7 +191,7 @@ const emit = defineEmits<{
 }>()
 
 const formRef = ref()
-const submitLoading = ref(false)
+const { loading: submitLoading, setLoading: setSubmitLoading } = useLoading()
 const supportsResponses = ref(false)
 
 const isProviderLocked = computed(() => !props.isEdit && !!props.defaultProviderId)
@@ -253,7 +254,7 @@ async function handleSubmit() {
   const errors = await formRef.value?.validate()
   if (errors) return
 
-  submitLoading.value = true
+  setSubmitLoading(true)
   try {
     // Preserve any pre-existing extra_config keys and surface the
     // /v1/responses passthrough flag the gateway reads (supports_responses).
@@ -294,7 +295,7 @@ async function handleSubmit() {
   } catch {
     Message.error(t('common.operationFail'))
   } finally {
-    submitLoading.value = false
+    setSubmitLoading(false)
   }
 }
 </script>

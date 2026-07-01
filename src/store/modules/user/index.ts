@@ -69,6 +69,7 @@ export const useUserStore = defineStore('user', () => {
   const isAdmin = computed(() => user.value?.role_name === 'admin')
   const isPlatformAdmin = computed(() => user.value?.role_name === 'admin' && !user.value?.org_id)
   const isEnterprise = computed(() => tier.value === 'enterprise')
+  const isProOrAbove = computed(() => tier.value === 'pro' || tier.value === 'enterprise')
   const hasOrgContext = computed(() => !!currentOrg.value)
   const currentOrgId = computed(() => currentOrg.value?.orgId ?? null)
 
@@ -175,6 +176,7 @@ export const useUserStore = defineStore('user', () => {
     isAdmin,
     isPlatformAdmin,
     isEnterprise,
+    isProOrAbove,
     hasOrgContext,
     currentOrgId,
     setAuth,

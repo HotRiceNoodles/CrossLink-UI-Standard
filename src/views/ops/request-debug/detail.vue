@@ -27,7 +27,11 @@
           <a-tab-pane key="upstream" :title="t('requestDebug.tabUpstream')">
             <upstream-tab :calls="detail.upstream_calls" />
           </a-tab-pane>
-          <a-tab-pane v-if="isProOrAbove" key="analysis" :title="t('requestDebug.tabAnalysis')">
+          <a-tab-pane
+            v-if="userStore.isProOrAbove"
+            key="analysis"
+            :title="t('requestDebug.tabAnalysis')"
+          >
             <analysis-tab :seq="detail.seq" />
           </a-tab-pane>
         </a-tabs>
@@ -57,7 +61,6 @@ const { loading, setLoading } = useLoading()
 const detail = ref<DebugEntryDetail | null>(null)
 // detail payload has no model field — carry it from the list row via query
 const model = computed(() => (route.query.model as string) || '')
-const isProOrAbove = computed(() => ['pro', 'enterprise'].includes(userStore.tier))
 
 function statusColor(code: number): string {
   if (code >= 200 && code < 300) return 'green'

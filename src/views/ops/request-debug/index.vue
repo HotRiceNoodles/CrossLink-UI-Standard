@@ -225,15 +225,14 @@ const entries = ref<DebugEntrySummary[]>([])
 
 // --- debug_mode (Pro + system:update only) ---
 const debugMode = ref(false)
-const debugModeLoading = ref(false)
-const isProOrAbove = computed(() => ['pro', 'enterprise'].includes(userStore.tier))
+const { loading: debugModeLoading, setLoading: setDebugModeLoading } = useLoading()
 const canToggleDebugMode = computed(
-  () => isProOrAbove.value && userStore.hasPermission('system:update'),
+  () => userStore.isProOrAbove && userStore.hasPermission('system:update'),
 )
 const canClear = computed(() => userStore.hasPermission('debug:clear'))
 
 async function loadDebugMode() {
-  if (!isProOrAbove.value) return
+  if (!userStore.isProOrAbove) return
   try {
     const res = await settingsApi.getSettings()
     debugMode.value = res.data.debug_mode
@@ -243,7 +242,7 @@ async function loadDebugMode() {
 }
 
 async function onToggleDebugMode(val: string | number | boolean) {
-  debugModeLoading.value = true
+  setDebugModeLoading(true)
   try {
     await settingsApi.updateSettings({ debug_mode: Boolean(val) })
     // backend returns { message } only; reflect the requested state on success
@@ -251,7 +250,7 @@ async function onToggleDebugMode(val: string | number | boolean) {
   } catch {
     Message.error(t('common.operationFail'))
   } finally {
-    debugModeLoading.value = false
+    setDebugModeLoading(false)
   }
 }
 

@@ -69,6 +69,7 @@ import { ref, reactive, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { providerApi } from '@/api/provider'
+import { useLoading } from '@/hooks/loading'
 import type { Provider, Adapter, ProviderCreateRequest } from '@/types'
 
 const { t } = useI18n()
@@ -87,7 +88,7 @@ const emit = defineEmits<{
 }>()
 
 const formRef = ref()
-const submitLoading = ref(false)
+const { loading: submitLoading, setLoading: setSubmitLoading } = useLoading()
 const extraConfigStr = ref('')
 
 const formData = reactive<ProviderCreateRequest & { api_key?: string }>({
@@ -153,7 +154,7 @@ async function handleSubmit() {
     }
   }
 
-  submitLoading.value = true
+  setSubmitLoading(true)
   try {
     const payload: Partial<ProviderCreateRequest> & { api_key?: string } = {
       name: formData.name,
@@ -177,7 +178,7 @@ async function handleSubmit() {
   } catch {
     Message.error(t('common.operationFail'))
   } finally {
-    submitLoading.value = false
+    setSubmitLoading(false)
   }
 }
 </script>

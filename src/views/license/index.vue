@@ -21,13 +21,14 @@ import type { LicenseStatus } from '@/types'
 import StatusCard from './components/status-card.vue'
 import ActivateForm from './components/activate-form.vue'
 import ImportForm from './components/import-form.vue'
+import { useLoading } from '@/hooks/loading'
 
 const { t } = useI18n()
 const userStore = useUserStore()
 
-const loading = ref(true)
-const activateLoading = ref(false)
-const importLoading = ref(false)
+const { loading, setLoading } = useLoading(true)
+const { loading: activateLoading, setLoading: setActivateLoading } = useLoading()
+const { loading: importLoading, setLoading: setImportLoading } = useLoading()
 const license = ref<LicenseStatus | null>(null)
 
 // A build that exposes a device fingerprint supports licensing; a true
@@ -62,7 +63,7 @@ async function syncPermissionsAndRefresh() {
 }
 
 async function handleActivate(licenseKey: string) {
-  activateLoading.value = true
+  setActivateLoading(true)
   try {
     await licenseApi.activate(licenseKey)
     Message.success(t('license.activateSuccess'))
@@ -71,12 +72,12 @@ async function handleActivate(licenseKey: string) {
     const error = err as { response?: { data?: { error?: string } } }
     Message.error(error.response?.data?.error || t('license.activateFail'))
   } finally {
-    activateLoading.value = false
+    setActivateLoading(false)
   }
 }
 
 async function handleImport(file: File) {
-  importLoading.value = true
+  setImportLoading(true)
   try {
     await licenseApi.importLic(file)
     Message.success(t('license.importSuccess'))
@@ -85,14 +86,14 @@ async function handleImport(file: File) {
     const error = err as { response?: { data?: { error?: string } } }
     Message.error(error.response?.data?.error || t('license.importFail'))
   } finally {
-    importLoading.value = false
+    setImportLoading(false)
   }
 }
 
 onMounted(async () => {
-  loading.value = true
+  setLoading(true)
   await fetchLicenseStatus()
-  loading.value = false
+  setLoading(false)
 })
 </script>
 
