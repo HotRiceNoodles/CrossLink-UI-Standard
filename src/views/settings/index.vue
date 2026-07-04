@@ -34,43 +34,6 @@
           </a-grid>
         </a-card>
 
-        <!-- License -->
-        <a-card class="general-card" :title="t('settings.licenseInfo')">
-          <a-grid :cols="24" :col-gap="16" :row-gap="16">
-            <a-grid-item :span="12">
-              <div class="field-item">
-                <span class="field-label">{{ t('settings.licenseTier') }}</span>
-                <span class="field-value">{{ tierLabel(license?.tier || 'community') }}</span>
-              </div>
-            </a-grid-item>
-            <a-grid-item :span="12">
-              <div class="field-item">
-                <span class="field-label">{{ t('settings.licenseEdition') }}</span>
-                <span class="field-value">{{ editionLabel }}</span>
-              </div>
-            </a-grid-item>
-            <a-grid-item :span="12">
-              <div class="field-item">
-                <span class="field-label">{{ t('settings.licenseStatus') }}</span>
-                <a-tag :color="license?.is_valid ? 'green' : 'red'" size="small">
-                  {{ license?.is_valid ? t('dashboard.valid') : t('dashboard.invalid') }}
-                </a-tag>
-              </div>
-            </a-grid-item>
-            <a-grid-item :span="12">
-              <div class="field-item">
-                <span class="field-label">{{ t('settings.licenseExpiry') }}</span>
-                <span class="field-value">
-                  {{ license?.expires_at ? license.expires_at.slice(0, 10) : '--' }}
-                </span>
-              </div>
-            </a-grid-item>
-          </a-grid>
-          <router-link :to="{ name: 'license' }" class="license-link">
-            {{ t('settings.viewLicenseDetail') }} →
-          </router-link>
-        </a-card>
-
         <!-- Connection Status -->
         <a-card class="general-card" :title="t('settings.connectionStatus')">
           <a-grid :cols="24" :col-gap="16" :row-gap="16">
@@ -123,7 +86,11 @@
         </a-card>
 
         <!-- Feature Settings -->
-        <a-card class="general-card" :title="t('settings.featureSettings')">
+        <a-card
+          v-if="settingsAvailable"
+          class="general-card"
+          :title="t('settings.featureSettings')"
+        >
           <div class="feature-item">
             <div class="feature-info">
               <span class="feature-label">{{ t('settings.logContent') }}</span>
@@ -146,25 +113,21 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { systemApi } from '@/api/system'
-import { licenseApi } from '@/api/license'
 import { useLoading } from '@/hooks/loading'
 import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
-import { useTierLabel } from '@/utils/license'
-import type { SystemInfo, LicenseStatus, SystemSettings } from '@/types'
+import type { SystemInfo, SystemSettings } from '@/types'
 
 const { t } = useI18n()
 const userStore = useUserStore()
-const tierLabel = useTierLabel()
 
 const { loading, setLoading } = useLoading(true)
 const systemInfo = ref<SystemInfo | null>(null)
-const license = ref<LicenseStatus | null>(null)
+const settingsAvailable = ref(false)
 const logContentEnabled = ref(false)
 const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoading()
 
 const user = computed(() => userStore.user)
-const editionLabel = computed(() => tierLabel(license.value?.edition || 'community'))
 
 async function handleLogContentChange(value: boolean | number | string) {
   setLogContentLoading(true)
@@ -182,19 +145,16 @@ async function handleLogContentChange(value: boolean | number | string) {
 onMounted(async () => {
   setLoading(true)
   try {
-    const [sysRes, licRes, settingsRes] = await Promise.allSettled([
+    const [sysRes, settingsRes] = await Promise.allSettled([
       systemApi.info(),
-      licenseApi.status(),
       settingsApi.getSettings(),
     ])
 
     if (sysRes.status === 'fulfilled') {
       systemInfo.value = sysRes.value.data
     }
-    if (licRes.status === 'fulfilled') {
-      license.value = licRes.value.data
-    }
     if (settingsRes.status === 'fulfilled') {
+      settingsAvailable.value = true
       const settings = settingsRes.value.data as SystemSettings
       logContentEnabled.value = settings.log_content
     }
@@ -295,17 +255,5 @@ onMounted(async () => {
 .feature-desc {
   font-size: 13px;
   color: var(--color-text-3);
-}
-
-.license-link {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 13px;
-  color: rgb(var(--arcoblue-6));
-  text-decoration: none;
-
-  &:hover {
-    color: rgb(var(--arcoblue-5));
-  }
 }
 </style>
