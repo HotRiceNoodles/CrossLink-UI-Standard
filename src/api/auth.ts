@@ -1,7 +1,12 @@
 import { get, post } from './interceptor'
-import type { LoginRequest, LoginResponse, SwitchOrgResponse } from '@/types'
+import type { CaptchaChallenge, LoginRequest, LoginResponse, SwitchOrgResponse } from '@/types'
+
+// The issue endpoint returns either `{ trusted: true }` (device cookie valid,
+// skip captcha) or a full slider challenge.
+export type CaptchaIssueResult = { trusted: true } | CaptchaChallenge
 
 export const authApi = {
+  captchaIssue: () => get<CaptchaIssueResult>('/auth/captcha/issue'),
   login: (data: LoginRequest) => post<LoginResponse>('/auth/login', data),
   logout: () => post<void>('/auth/logout'),
   permissions: () => get<{ permissions: string[]; tier: string }>('/auth/permissions'),

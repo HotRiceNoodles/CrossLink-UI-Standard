@@ -12,10 +12,34 @@ export interface Pagination {
   page_size: number
 }
 
+// Captcha (slider puzzle)
+export interface CaptchaPoint {
+  x: number
+  y: number
+  t: number // ms since drag start
+}
+
+export interface CaptchaAnswer {
+  final_x: number
+  points: CaptchaPoint[]
+}
+
+export interface CaptchaChallenge {
+  captcha_id: string
+  provider: string
+  bg_image: string // base64 PNG (no data: prefix)
+  puzzle_image: string // base64 PNG (no data: prefix)
+  bg_width: number
+  bg_height: number
+  gap_y: number
+}
+
 // Auth
 export interface LoginRequest {
   username: string
   password: string
+  captcha_id?: string
+  captcha_answer?: CaptchaAnswer
 }
 
 export interface LoginResponse {
