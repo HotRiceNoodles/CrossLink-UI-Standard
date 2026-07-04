@@ -65,6 +65,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useBreakpoints } from '@vueuse/core'
 import { useAppStore, useUserStore } from '@/store'
+import { useMenuVisibility } from '@/hooks/menu-visibility'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from './components/change-password-modal.vue'
 import { authApi } from '@/api/auth'
@@ -78,6 +79,7 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { isVisible } = useMenuVisibility()
 const { t } = useI18n()
 
 const currentLocale = ref(getCurrentLocale())
@@ -109,22 +111,12 @@ const menuRoutes = computed(() => {
     // Footer-positioned routes are excluded from the main menu
     if (r.meta?.sidebarFooter) return false
 
-    // Tier check
-    const requiredTier = r.meta?.requiredTier
-    if (requiredTier) {
-      const allowed = Array.isArray(requiredTier)
-        ? requiredTier.includes(userStore.tier)
-        : userStore.tier === requiredTier
-      if (!allowed) return false
-    }
+    // Tier + permission gate (shared with sub-menu children in sidebar)
+    if (!isVisible(r)) return false
 
     // Platform admin check on individual routes
     const requiresAdmin = !!r.meta?.requiresPlatformAdmin
     if (requiresAdmin && !userStore.isPlatformAdmin) return false
-
-    // Permission check
-    const requiredPermission = r.meta?.requiredPermission as string | undefined
-    if (requiredPermission && !userStore.hasPermission(requiredPermission)) return false
 
     // In admin mode (enterprise admin on default route): only show admin modules
     // In feature mode: hide admin modules
@@ -142,10 +134,7 @@ const footerRoutes = computed(() => {
   const children = (activeParent?.children || []) as RouteRecordRaw[]
   return children
     .filter((r) => !!r.meta?.sidebarFooter)
-    .filter((r) => {
-      const requiredPermission = r.meta?.requiredPermission as string | undefined
-      return !requiredPermission || userStore.hasPermission(requiredPermission)
-    })
+    .filter((r) => isVisible(r))
     .sort((a, b) => ((a.meta?.order as number) ?? 999) - ((b.meta?.order as number) ?? 999))
 })
 

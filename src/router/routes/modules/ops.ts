@@ -17,13 +17,22 @@ const route: RouteRecordRaw = {
       path: 'request-debug',
       name: 'requestDebug',
       component: () => import('@/views/ops/request-debug/index.vue'),
-      meta: { menuKey: 'requestDebug', icon: 'icon-bug', requiredPermission: 'debug:list' },
+      meta: {
+        menuKey: 'requestDebug',
+        icon: 'icon-bug',
+        requiredPermission: 'debug:list',
+        requiredTier: ['pro', 'enterprise'],
+      },
     },
     {
       path: 'request-debug/:seq',
       name: 'requestDebugDetail',
       component: () => import('@/views/ops/request-debug/detail.vue'),
-      meta: { requiredPermission: 'debug:list', hideInMenu: true },
+      meta: {
+        requiredPermission: 'debug:list',
+        requiredTier: ['pro', 'enterprise'],
+        hideInMenu: true,
+      },
     },
   ],
 }

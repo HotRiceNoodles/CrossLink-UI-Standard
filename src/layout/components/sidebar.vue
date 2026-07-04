@@ -15,24 +15,21 @@
     >
       <template v-for="route in menuRoutes" :key="route.name as string">
         <a-sub-menu
-          v-if="route.children?.length && route.meta?.isMenuGroup"
+          v-if="route.meta?.isMenuGroup && visibleChildren(route).length"
           :key="route.name as string"
         >
           <template #icon>
             <component :is="route.meta?.icon as string" />
           </template>
           <template #title>{{ t(`menu.${route.meta?.menuKey}`) }}</template>
-          <a-menu-item
-            v-for="child in route.children.filter((c) => !c.meta?.hideInMenu)"
-            :key="child.name as string"
-          >
+          <a-menu-item v-for="child in visibleChildren(route)" :key="child.name as string">
             <template #icon>
               <component :is="child.meta?.icon as string" />
             </template>
             {{ t(`menu.${child.meta?.menuKey}`) }}
           </a-menu-item>
         </a-sub-menu>
-        <a-menu-item v-else :key="route.name as string">
+        <a-menu-item v-else-if="!route.meta?.isMenuGroup" :key="route.name as string">
           <template #icon>
             <component :is="route.meta?.icon as string" />
           </template>
@@ -72,9 +69,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { RouteRecordRaw } from 'vue-router'
+import { useMenuVisibility } from '@/hooks/menu-visibility'
 
 const { t } = useI18n()
 const version = __APP_VERSION__
+const { isVisible } = useMenuVisibility()
 
 defineProps<{
   menuCollapse: boolean
@@ -89,6 +88,13 @@ const emit = defineEmits<{
   subMenuClick: [key: string]
   versionTap: []
 }>()
+
+// Sub-menu children must pass the same tier + permission gates as top-level
+// routes (hideInMenu + isVisible). Used for groups like "ops" whose children
+// have differing tiers, e.g. request-debug (Pro+) vs request-logs (all tiers).
+function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
+  return (route.children || []).filter((c) => !c.meta?.hideInMenu && isVisible(c))
+}
 </script>
 
 <style scoped lang="less">
