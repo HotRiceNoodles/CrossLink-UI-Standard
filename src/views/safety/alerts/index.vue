@@ -73,6 +73,7 @@
                 <a-option value="low" :label="t('safety.severity.low')" />
                 <a-option value="medium" :label="t('safety.severity.medium')" />
                 <a-option value="high" :label="t('safety.severity.high')" />
+                <a-option value="warning" :label="t('safety.severity.warning')" />
                 <a-option value="critical" :label="t('safety.severity.critical')" />
               </a-select>
             </div>
@@ -106,6 +107,7 @@
                 <a-option value="partial" :label="t('safety.alertStatus.partial')" />
                 <a-option value="failed" :label="t('safety.alertStatus.failed')" />
                 <a-option value="dropped" :label="t('safety.alertStatus.dropped')" />
+                <a-option value="blocked" :label="t('safety.alertStatus.blocked')" />
               </a-select>
             </div>
           </a-col>
@@ -283,6 +285,7 @@ const engineTypeOptions: GuardrailEngineType[] = [
   'agent_fingerprint',
   'behavior_analysis',
   'webhook',
+  'ip_binding',
 ]
 
 // ---------- Stats ----------
@@ -416,6 +419,7 @@ function severityColor(severity: string): string {
     low: 'green',
     medium: 'orange',
     high: 'red',
+    warning: 'orangered',
     critical: 'purple',
   }
   return map[severity] || 'blue'
@@ -437,6 +441,7 @@ function statusColor(status: string): string {
     partial: 'orange',
     failed: 'red',
     dropped: 'gray',
+    blocked: 'red',
   }
   return map[status] || 'blue'
 }

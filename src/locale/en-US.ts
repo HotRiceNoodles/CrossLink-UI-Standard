@@ -638,9 +638,22 @@ export default {
       contentPreview: 'Content Preview',
       context: 'Context',
       notifyStatus: 'Notification Status',
+      apiKeyId: 'API Key ID',
     },
-    direction: { request: 'Request', response: 'Response', both: 'Both' },
-    severity: { low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical' },
+    direction: {
+      request: 'Request',
+      response: 'Response',
+      both: 'Both',
+      ingress: 'Ingress',
+      egress: 'Egress',
+    },
+    severity: {
+      low: 'Low',
+      medium: 'Medium',
+      high: 'High',
+      warning: 'Warning',
+      critical: 'Critical',
+    },
     action: { block: 'Block', log: 'Log', mask: 'Mask' },
     alertStatus: {
       logged: 'Logged',
@@ -648,6 +661,7 @@ export default {
       partial: 'Partial',
       failed: 'Failed',
       dropped: 'Dropped',
+      blocked: 'Blocked',
     },
     engineType: {
       keyword_filter: 'Keyword Filter',
@@ -659,6 +673,7 @@ export default {
       agent_fingerprint: 'Agent Fingerprint',
       behavior_analysis: 'Behavior Analysis',
       webhook: 'Webhook',
+      ip_binding: 'IP Binding',
     },
     config: {
       modeForm: 'Form Mode',

@@ -36,7 +36,7 @@
         <a-descriptions-item :label="t('safety.alerts.colModel')">
           {{ log.model || '-' }}
         </a-descriptions-item>
-        <a-descriptions-item label="API Key ID">
+        <a-descriptions-item :label="t('safety.alerts.apiKeyId')">
           {{ log.api_key_id || '-' }}
         </a-descriptions-item>
 
@@ -89,6 +89,7 @@ function severityColor(severity: string): string {
     low: 'green',
     medium: 'orange',
     high: 'red',
+    warning: 'orangered',
     critical: 'purple',
   }
   return map[severity] || 'blue'
@@ -110,6 +111,7 @@ function statusColor(status: string): string {
     partial: 'orange',
     failed: 'red',
     dropped: 'gray',
+    blocked: 'red',
   }
   return map[status] || 'blue'
 }

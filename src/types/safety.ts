@@ -13,12 +13,13 @@ export type GuardrailEngineType =
   | 'agent_fingerprint'
   | 'behavior_analysis'
   | 'webhook'
+  | 'ip_binding'
 
 // 检测方向
-export type GuardrailDirection = 'request' | 'response' | 'both'
+export type GuardrailDirection = 'request' | 'response' | 'both' | 'ingress' | 'egress'
 
 // 严重程度
-export type GuardrailSeverity = 'low' | 'medium' | 'high' | 'critical'
+export type GuardrailSeverity = 'low' | 'medium' | 'high' | 'warning' | 'critical'
 
 // 处理动作
 export type GuardrailAction = 'block' | 'log' | 'mask'
@@ -69,7 +70,7 @@ export interface GuardrailTestResult {
 }
 
 // 告警日志状态
-export type AlertLogStatus = 'logged' | 'sent' | 'partial' | 'failed' | 'dropped'
+export type AlertLogStatus = 'logged' | 'sent' | 'partial' | 'failed' | 'dropped' | 'blocked'
 
 // 告警日志
 export interface GuardrailAlertLog {

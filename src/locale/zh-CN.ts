@@ -633,9 +633,10 @@ export default {
       contentPreview: '内容预览',
       context: '关联上下文',
       notifyStatus: '通知状态',
+      apiKeyId: 'API Key ID',
     },
-    direction: { request: '请求', response: '响应', both: '双向' },
-    severity: { low: '低', medium: '中', high: '高', critical: '严重' },
+    direction: { request: '请求', response: '响应', both: '双向', ingress: '入站', egress: '出站' },
+    severity: { low: '低', medium: '中', high: '高', warning: '警告', critical: '严重' },
     action: { block: '阻断', log: '记录', mask: '脱敏' },
     alertStatus: {
       logged: '已记录',
@@ -643,6 +644,7 @@ export default {
       partial: '部分发送',
       failed: '发送失败',
       dropped: '已丢弃',
+      blocked: '已阻断',
     },
     engineType: {
       keyword_filter: '关键词过滤',
@@ -654,6 +656,7 @@ export default {
       agent_fingerprint: 'Agent 指纹',
       behavior_analysis: '行为分析',
       webhook: 'Webhook',
+      ip_binding: 'IP 绑定',
     },
     config: {
       modeForm: '表单模式',
