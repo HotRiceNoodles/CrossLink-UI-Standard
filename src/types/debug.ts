@@ -54,7 +54,8 @@ export interface DebugEntryDetail {
   resp_status: number
   resp_headers: HttpHeaders
   resp_body: string
-  upstream_calls: UpstreamCall[]
+  // Backend returns null (not []) when there are no upstream calls.
+  upstream_calls: UpstreamCall[] | null
 }
 
 // GET /debug/entries/:id/analysis (Pro) — conversation analysis

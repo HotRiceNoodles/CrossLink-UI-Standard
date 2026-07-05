@@ -1,6 +1,6 @@
 <template>
   <div class="upstream-tab">
-    <div v-if="!calls.length" class="empty">{{ t('requestDebug.noUpstream') }}</div>
+    <div v-if="!calls?.length" class="empty">{{ t('requestDebug.noUpstream') }}</div>
 
     <div v-for="call in calls" :key="call.seq" class="hop">
       <div class="hop-header">
@@ -69,7 +69,7 @@ import { formatLatency, statusClass } from '@/utils/format'
 import { useCopyWithFeedback } from '@/composables/use-copy-with-feedback'
 import type { UpstreamCall } from '@/types'
 
-defineProps<{ calls: UpstreamCall[] }>()
+defineProps<{ calls: UpstreamCall[] | null }>()
 const { t } = useI18n()
 const { copy } = useCopyWithFeedback()
 </script>
