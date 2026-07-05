@@ -1122,4 +1122,52 @@ export default {
     clearImages: 'Clear',
     roleSystem: 'System',
   },
+  home: {
+    eyebrow: 'Enterprise LLM API Gateway',
+    title: 'A control plane between your apps and your models.',
+    subtitle:
+      'Smart routing · automatic failover · per-request observability · fine-grained key governance — every provider, converged into one controllable pipe behind a single API.',
+    signIn: 'Sign in',
+    cta: {
+      primary: 'Enter console',
+      github: 'GitHub',
+    },
+    cap: {
+      routing: {
+        title: 'Smart routing',
+        desc: 'Six strategies: weighted / round-robin / least-latency / least-cost / canary / least-busy',
+      },
+      failover: {
+        title: 'Automatic failover',
+        desc: 'Silent rerouting on provider failure, with the full chain on the record',
+      },
+      observability: {
+        title: 'Per-request observability',
+        desc: 'TTFT, p99, token breakdown, fallback chains, cache hits — traceable per request',
+      },
+      keyGov: {
+        title: 'Keys & quotas',
+        desc: 'Model scoping + TPM/RPM + daily/weekly/monthly budget caps',
+      },
+    },
+    footer: {
+      license: 'License',
+    },
+    docs: {
+      title: 'Get your API keys',
+      subtitle: "Not sure where to grab a key? Jump straight to each provider's console and docs.",
+      apiKey: 'API Key',
+      docs: 'Docs',
+      desc: {
+        openai: 'GPT family and o1 reasoning models',
+        anthropic: 'Claude family — strong long-context and coding',
+        gemini: "Google's multimodal models",
+        qwen: "Alibaba's Tongyi Qwen series",
+        deepseek: 'Cost-efficient — V3 / R1 reasoning',
+        glm: 'GLM-4 family from Zhipu AI',
+        minimax: 'Multimodal — voice and long context',
+        ernie: "Baidu's ERNIE series",
+      },
+    },
+  },
 }

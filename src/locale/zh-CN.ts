@@ -1102,4 +1102,52 @@ export default {
     clearImages: '清除',
     roleSystem: '系统',
   },
+  home: {
+    eyebrow: '搭桥 · 企业级 LLM API 网关',
+    title: '应用与大模型之间，一层可控、可观测的基础设施',
+    subtitle:
+      '智能路由 · 自动故障转移 · 请求级可观测 · 细粒度密钥治理 —— 在统一的 API 之后，把所有 provider 收敛成一条可控的管道。',
+    signIn: '登录',
+    cta: {
+      primary: '进入控制台',
+      github: 'GitHub',
+    },
+    cap: {
+      routing: {
+        title: '智能路由',
+        desc: '六种策略：权重 / 轮询 / 最低延迟 / 最低成本 / 金丝雀 / 最低负载',
+      },
+      failover: {
+        title: '自动故障转移',
+        desc: 'provider 异常时静默重路由，链路全程留痕',
+      },
+      observability: {
+        title: '请求级观测',
+        desc: 'TTFT、p99、token 拆分、fallback 链、缓存命中，逐请求可溯',
+      },
+      keyGov: {
+        title: '密钥与配额',
+        desc: '模型作用域 + TPM/RPM + 日/周/月预算封顶',
+      },
+    },
+    footer: {
+      license: 'License',
+    },
+    docs: {
+      title: '获取各模型的 API Key',
+      subtitle: '不知道去哪拿密钥？这里直达各家的 API Key 控制台与模型文档。',
+      apiKey: 'API Key',
+      docs: '文档',
+      desc: {
+        openai: 'GPT 系列与 o1 推理模型',
+        anthropic: 'Claude 系列，长上下文与编码强项',
+        gemini: 'Google 多模态大模型',
+        qwen: '阿里云通义千问系列',
+        deepseek: '高性价比，V3 / R1 推理',
+        glm: '清华系 GLM-4 系列',
+        minimax: '多模态，语音与长文本',
+        ernie: '百度文心 ERNIE 系列',
+      },
+    },
+  },
 }

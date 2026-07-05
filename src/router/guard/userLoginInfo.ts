@@ -4,7 +4,7 @@ import { useUserStore } from '@/store'
 import { authApi } from '@/api/auth'
 import { orgApi } from '@/api/rbac'
 
-const WHITE_LIST = [{ name: 'login' }]
+const WHITE_LIST = [{ name: 'login' }, { name: 'home' }]
 
 function safeRedirect(redirect: string | undefined): string | undefined {
   if (!redirect) return undefined
@@ -16,6 +16,12 @@ let permissionPromise: Promise<void> | null = null
 function createLoginGuard(router: Router) {
   router.beforeEach(async (to, _from, next) => {
     if (isLogin()) {
+      // Logged-in users hitting /login are forwarded to the app shell.
+      // The tier/org guards resolve '/' to the right dashboard.
+      if (to.name === 'login') {
+        next({ path: '/' })
+        return
+      }
       const userStore = useUserStore()
       if (userStore.hydrated) {
         next()
@@ -48,7 +54,7 @@ function createLoginGuard(router: Router) {
     } else if (WHITE_LIST.some((item) => item.name === to.name)) {
       next()
     } else {
-      next({ name: 'login', query: { redirect: safeRedirect(to.fullPath) || to.fullPath } })
+      next({ name: 'home', query: { redirect: safeRedirect(to.fullPath) || to.fullPath } })
     }
   })
 }
