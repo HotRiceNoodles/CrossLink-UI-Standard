@@ -14,6 +14,16 @@ const route: RouteRecordRaw = {
       meta: { menuKey: 'requestLogs', icon: 'icon-file', requiredPermission: 'usage:list' },
     },
     {
+      path: 'usage-statistics',
+      name: 'usageStatistics',
+      component: () => import('@/views/ops/usage-statistics/index.vue'),
+      meta: {
+        menuKey: 'usageStatistics',
+        icon: 'icon-bar-chart',
+        requiredPermission: 'usage:stats',
+      },
+    },
+    {
       path: 'request-debug',
       name: 'requestDebug',
       component: () => import('@/views/ops/request-debug/index.vue'),

@@ -317,6 +317,14 @@ export interface DailyTrend {
   count: number
   tokens: number
   cost: number
+  // — extended fields (returned by backend, optional for backward compat) —
+  input_tokens?: number
+  output_tokens?: number
+  reasoning_tokens?: number
+  cache_read_tokens?: number
+  fallback_count_daily?: number
+  retry_count_daily?: number
+  guardrail_count_daily?: number
 }
 
 export interface ModelDistribution {
@@ -324,6 +332,36 @@ export interface ModelDistribution {
   count: number
   tokens: number
   cost: number
+}
+
+export interface TeamStat {
+  team_id: number
+  team_name: string
+  total_requests: number
+  total_tokens: number
+  total_cost: number
+}
+
+// /routing/stats: one provider's configured weight vs actual traffic for a model
+export interface RoutingStatRow {
+  provider_id: number
+  provider_name: string
+  config_weight: number
+  config_weight_pct: number // 0-1
+  requests: number
+  actual_pct: number // 0-1
+  deviation: number // actual_pct - config_weight_pct
+  error_rate: number // 0-1
+  avg_latency_ms: number
+  tokens: number
+  cost: number
+}
+
+export interface RoutingStats {
+  model: string
+  days: number
+  total_requests: number
+  providers: RoutingStatRow[]
 }
 
 export interface UsageQuery {
