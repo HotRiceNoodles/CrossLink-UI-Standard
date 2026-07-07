@@ -26,6 +26,12 @@ interface CrudOptions<T, F extends Record<string, unknown> = Record<string, unkn
   immediateFilter?: boolean
   /** Transform formData before sending to create/update API. */
   transformPayload?: (formData: Partial<T>, isEdit: boolean) => Partial<T>
+  /**
+   * Map backend `error_code` → i18n key. When a caught error carries a known
+   * error_code, the toast shows the localized message instead of the raw
+   * backend string. Values are i18n keys resolved lazily (locale-safe).
+   */
+  errorCodeMap?: Record<string, string>
 }
 
 export function useCrud<
@@ -127,6 +133,16 @@ export function useCrud<
     formRef.value?.resetFields()
   }
 
+  // Resolve a localized toast message for a caught API error:
+  // error_code map (i18n key) → raw backend error → generic fallback.
+  function resolveErrorMsg(err: unknown, fallback: string): string {
+    const e = err as { response?: { data?: { error_code?: string; error?: string } } }
+    const code = e?.response?.data?.error_code
+    const mappedKey = code && options.errorCodeMap?.[code]
+    if (mappedKey) return t(mappedKey)
+    return e?.response?.data?.error || fallback
+  }
+
   async function handleDrawerSubmit(extra?: Partial<T>) {
     try {
       await formRef.value?.validate()
@@ -154,8 +170,7 @@ export function useCrud<
       hideDrawer()
       await fetchData()
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { error?: string } } }
-      Message.error(error.response?.data?.error || t('common.operationFail'))
+      Message.error(resolveErrorMsg(err, t('common.operationFail')))
     } finally {
       setSubmitLoading(false)
     }
@@ -168,8 +183,8 @@ export function useCrud<
       await options.deleteApi?.(id)
       Message.success(options.deleteSuccessMsg || t('common.deleteSuccess'))
       await fetchData()
-    } catch {
-      Message.error(options.deleteErrorMsg || t('common.deleteFail'))
+    } catch (err: unknown) {
+      Message.error(resolveErrorMsg(err, options.deleteErrorMsg || t('common.deleteFail')))
     }
   }
 

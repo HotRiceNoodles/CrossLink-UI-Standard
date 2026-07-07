@@ -187,6 +187,8 @@ export interface KeyCreateRequest {
   budget_period?: string
   max_calls?: number
   call_period?: string
+  /** ISO8601；null/不传 = 永久有效。编辑态无法改回永久，后端会忽略 null。 */
+  expires_at?: string | null
 }
 
 export interface KeyCreateResponse {
