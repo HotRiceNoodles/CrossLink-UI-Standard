@@ -38,7 +38,7 @@
         </a-col>
         <a-col>
           <a-space>
-            <a-button type="primary" @click="handleCreate">
+            <a-button type="primary" @click="openCreate">
               <template #icon><icon-plus /></template>
               {{ t('key.createKey') }}
             </a-button>
@@ -85,13 +85,36 @@
           <a-table-column
             :title="t('key.tableStatus')"
             data-index="status"
-            :width="80"
+            :width="90"
             align="center"
           >
             <template #cell="{ record }">
-              <a-tag :color="record.status === 1 ? 'green' : 'red'">
-                {{ record.status === 1 ? t('common.enabled') : t('common.disabled') }}
+              <a-tag v-if="record.status === 1" color="green">
+                {{ t('common.enabled') }}
               </a-tag>
+              <a-tag v-else-if="record.status === 2" color="gray" size="small">
+                {{ t('key.expired') }}
+              </a-tag>
+              <a-tag v-else color="red">
+                {{ t('common.disabled') }}
+              </a-tag>
+            </template>
+          </a-table-column>
+
+          <a-table-column :title="t('key.tableExpiresAt')" :width="140">
+            <template #cell="{ record }">
+              <span v-if="!record.expires_at" style="color: var(--color-text-4)">
+                {{ t('key.permanent') }}
+              </span>
+              <a-tag v-else-if="isExpired(record)" color="red" size="small">
+                {{ t('key.expired') }}
+              </a-tag>
+              <template v-else>
+                <a-tag v-if="daysLeft(record) <= 7" color="orange" size="small">
+                  {{ t('key.expiresSoon', { n: daysLeft(record) }) }}
+                </a-tag>
+                <span v-else>{{ dayjs(record.expires_at).format('YYYY-MM-DD') }}</span>
+              </template>
             </template>
           </a-table-column>
 
@@ -170,7 +193,7 @@
           <a-table-column :title="t('common.actions')" :width="240" fixed="right">
             <template #cell="{ record }">
               <a-space :size="4">
-                <a-button type="text" size="small" @click="handleEdit(record)">
+                <a-button type="text" size="small" @click="openEdit(record)">
                   {{ t('common.edit') }}
                 </a-button>
                 <a-popconfirm
@@ -317,6 +340,35 @@
           </a-grid-item>
         </a-grid>
 
+        <a-form-item field="expires_at" :label="t('key.expiresAtLabel')">
+          <div class="expire-row">
+            <a-select
+              v-model="expirePreset"
+              class="expire-row__preset"
+              :class="{ 'expire-row__preset--narrow': expirePreset === 'custom' }"
+              :placeholder="t('key.expiresAtLabel')"
+              @change="onExpirePresetChange"
+            >
+              <a-option
+                v-for="opt in expireOptions"
+                :key="opt.value"
+                :value="opt.value"
+                :label="opt.label"
+              />
+            </a-select>
+            <a-date-picker
+              v-if="expirePreset === 'custom'"
+              v-model="formData.expires_at"
+              class="expire-row__picker"
+              show-time
+              value-format="YYYY-MM-DD HH:mm:ss"
+              format="YYYY-MM-DD HH:mm"
+              :disabled-date="(current: Date) => dayjs(current).isBefore(dayjs().startOf('day'))"
+              @change="onExpireDateChange"
+            />
+          </div>
+        </a-form-item>
+
         <a-form-item v-if="isEdit" field="status" :label="t('common.status')">
           <a-select v-model="formData.status">
             <a-option :value="1" :label="t('common.enabled')" />
@@ -352,7 +404,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
@@ -368,6 +420,9 @@ const { t } = useI18n()
 
 // Auxiliary data
 const modelOptions = ref<string[]>([])
+
+// 过期时间预设：'never' 仅创建态可选；编辑态去除，因后端无法把已存在的过期时间清回 null。
+const expirePreset = ref<string>('never')
 
 // Key reveal modal (unique to this view)
 const keyModalVisible = ref(false)
@@ -415,6 +470,7 @@ const {
     budget_period: 'monthly',
     max_calls: 0,
     call_period: 'daily',
+    expires_at: null,
     status: 1,
   }),
   filterFn: (item, f) => {
@@ -431,10 +487,113 @@ const {
     createdKey.value = (responseData as { key: string }).key
     keyModalVisible.value = true
   },
+  transformPayload: (raw, edit) => {
+    const payload = { ...raw } as Record<string, unknown>
+    const preset = expirePreset.value
+    const noExpiry = preset === 'never' || preset === ''
+    if (noExpiry) {
+      // 创建态：显式 null → 永久；编辑态：后端会忽略 null，故直接不带此字段，保持原值。
+      if (edit) delete payload.expires_at
+      else payload.expires_at = null
+    } else if (payload.expires_at) {
+      // 自定义/快捷预设的本地时间串 → ISO8601，后端按 RFC3339 解析。
+      payload.expires_at = dayjs(payload.expires_at as string).toISOString()
+    } else {
+      delete payload.expires_at
+    }
+    // 编辑过期密钥（status=2）并把过期时间延到未来 → 自动重新启用(1)。
+    // 后端虽有同样逻辑，但仅当 status==nil 时触发；前端编辑态始终带 status，故这里显式置 1。
+    if (
+      edit &&
+      payload.expires_at &&
+      payload.status === 2 &&
+      dayjs(payload.expires_at as string).isAfter(dayjs())
+    ) {
+      payload.status = 1
+    }
+    return payload as Partial<APIKey>
+  },
+  // 后端 error_code → i18n 键，错误 toast 不再显示英文原文
+  errorCodeMap: {
+    invalid_request: 'key.errorInvalidRequest',
+    invalid_id: 'key.errorInvalidId',
+    key_not_found: 'key.errorNotFound',
+    budget_period_invalid: 'key.errorBudgetPeriod',
+    budget_negative: 'key.errorBudgetNegative',
+    insufficient_permissions: 'key.errorPermissions',
+  },
 })
 
 const formRules = {
   name: [{ required: true, message: t('key.nameRequired') }],
+}
+
+// 过期时间：编辑态去除「永久」选项，因为后端 Update 用 *time.Time + nil 判定，
+// JSON null 与不传字段都无法清空已存在的过期时间，故编辑只能延长或自定义到未来。
+const expireOptions = computed(() => {
+  const finite = [
+    { value: '7', label: t('key.expireDays', { n: 7 }) },
+    { value: '30', label: t('key.expireDays', { n: 30 }) },
+    { value: '90', label: t('key.expireDays', { n: 90 }) },
+    { value: 'custom', label: t('key.expireCustom') },
+  ]
+  return isEdit.value ? finite : [{ value: 'never', label: t('key.expireNever') }, ...finite]
+})
+
+function onExpirePresetChange(v: string | number | boolean | Record<string, unknown> | undefined) {
+  if (v === 'never' || v === '' || v === undefined) {
+    formData.expires_at = null
+    return
+  }
+  if (v === 'custom') {
+    formData.expires_at = dayjs().add(30, 'day').format('YYYY-MM-DD HH:mm:ss')
+  } else {
+    formData.expires_at = dayjs().add(Number(v), 'day').format('YYYY-MM-DD HH:mm:ss')
+  }
+  reactivateIfExpired()
+}
+
+// 自定义日期变更（用户选了未来时间）同样触发重新启用
+function onExpireDateChange() {
+  reactivateIfExpired()
+}
+
+// 编辑过期密钥（status=2）时，一旦设定未来过期时间，把状态从「已过期」恢复为启用(1)。
+function reactivateIfExpired() {
+  if (isEdit.value && formData.status === 2) {
+    formData.status = 1
+  }
+}
+
+function openCreate() {
+  handleCreate()
+  expirePreset.value = 'never'
+}
+
+function openEdit(record: APIKey) {
+  handleEdit(record)
+  if (!record.expires_at) {
+    // 永久密钥：编辑态无「永久」可选项，留空待用户主动选择是否设置过期时间
+    expirePreset.value = ''
+  } else {
+    const diff = dayjs(record.expires_at).diff(dayjs(), 'day')
+    if ([7, 30, 90].includes(diff)) {
+      expirePreset.value = String(diff)
+      formData.expires_at = dayjs().add(diff, 'day').format('YYYY-MM-DD HH:mm:ss')
+    } else {
+      expirePreset.value = 'custom'
+      formData.expires_at = dayjs(record.expires_at).format('YYYY-MM-DD HH:mm:ss')
+    }
+  }
+}
+
+function isExpired(record: APIKey) {
+  return !!record.expires_at && dayjs(record.expires_at).isBefore(dayjs())
+}
+
+function daysLeft(record: APIKey) {
+  if (!record.expires_at) return Infinity
+  return dayjs(record.expires_at).diff(dayjs(), 'day')
 }
 
 async function handleRegenerate(record: APIKey) {
@@ -506,6 +665,27 @@ onMounted(() => {
 .key-page {
   :deep(.arco-table) {
     font-size: 13px;
+  }
+
+  .expire-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+
+    // 默认下拉独占整行；进入自定义态时收窄，把空间让给日期选择器
+    &__preset {
+      flex: 1 1 auto;
+    }
+
+    &__preset--narrow {
+      flex: 0 0 132px;
+    }
+
+    &__picker {
+      flex: 1 1 auto;
+      width: 100%;
+    }
   }
 }
 </style>
