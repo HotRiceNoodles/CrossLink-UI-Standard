@@ -5,10 +5,10 @@ export function formatTime(value: string | number | Date, format = 'YYYY-MM-DD H
   return dayjs(value).format(format)
 }
 
-/** Human-readable latency: `<1000ms` or seconds with one decimal. */
+/** Human-readable latency: integer ms when <1000ms, else seconds with two decimals. */
 export function formatLatency(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  return `${(ms / 1000).toFixed(1)}s`
+  if (ms < 1000) return `${Math.round(ms)}ms`
+  return `${(ms / 1000).toFixed(2)}s`
 }
 
 /** Compact token/counts: `1.2M`, `3.4K`, else the raw number. */
