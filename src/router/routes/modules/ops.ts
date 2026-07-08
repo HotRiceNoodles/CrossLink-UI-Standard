@@ -35,6 +35,16 @@ const route: RouteRecordRaw = {
       },
     },
     {
+      path: 'error-rules',
+      name: 'errorRules',
+      component: () => import('@/views/error-rule/index.vue'),
+      meta: {
+        menuKey: 'errorRules',
+        icon: 'icon-filter',
+        requiredPermission: 'error_rule:list',
+      },
+    },
+    {
       path: 'request-debug/:seq',
       name: 'requestDebugDetail',
       component: () => import('@/views/ops/request-debug/detail.vue'),
