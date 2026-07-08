@@ -91,8 +91,8 @@ async function fetchLogs() {
       page: pagination.current,
       page_size: pagination.pageSize,
     })
-    logs.value = res.data
-    pagination.total = res.pagination?.total ?? res.data.length
+    logs.value = res.data ?? []
+    pagination.total = res.pagination?.total ?? (res.data ?? []).length
   } catch {
     Message.error(t('mcp.fetchFail'))
   } finally {

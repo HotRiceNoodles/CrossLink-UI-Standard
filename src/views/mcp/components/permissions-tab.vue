@@ -177,7 +177,7 @@ async function fetchPermissions() {
   loading.value = true
   try {
     const res = await mcpApi.listPermissions(props.serverId)
-    permissions.value = res.data
+    permissions.value = res.data ?? []
   } catch {
     Message.error(t('mcp.fetchFail'))
   } finally {

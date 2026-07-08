@@ -55,7 +55,8 @@ async function fetchTools() {
   loading.value = true
   try {
     const res = await mcpApi.tools(props.serverId)
-    tools.value = res.data
+    // Backend returns null (not []) when tool discovery fails or yields nothing.
+    tools.value = res.data ?? []
   } catch {
     Message.error(t('mcp.fetchFail'))
   } finally {

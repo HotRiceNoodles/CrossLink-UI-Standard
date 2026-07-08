@@ -39,7 +39,7 @@
         <!-- Top tools -->
         <a-card class="general-card">
           <template #title>{{ t('mcp.statsTopTools') }}</template>
-          <a-empty v-if="!stats.top_tools.length" />
+          <a-empty v-if="!stats.top_tools?.length" />
           <a-table
             v-else
             :data="stats.top_tools"
@@ -113,8 +113,8 @@ const kpiCards = computed(() => {
   ]
 })
 
-const trendLabels = computed(() => stats.value?.calls_by_day.map((d) => d.date) || [])
-const trendCounts = computed(() => stats.value?.calls_by_day.map((d) => d.count) || [])
+const trendLabels = computed(() => stats.value?.calls_by_day?.map((d) => d.date) || [])
+const trendCounts = computed(() => stats.value?.calls_by_day?.map((d) => d.count) || [])
 
 const trendOption = computed<EChartsOption>(() => ({
   tooltip: { trigger: 'axis', className: 'echarts-tooltip-diy' },
