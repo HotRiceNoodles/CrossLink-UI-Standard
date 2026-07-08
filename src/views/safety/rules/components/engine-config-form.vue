@@ -165,7 +165,7 @@ const complexFields = computed<ConfigFieldSchema[]>(() => {
 })
 
 const complexFieldNames = computed(() => {
-  return complexFields.value.map((f) => t(f.labelKey)).join('、')
+  return complexFields.value.map((f) => t(f.labelKey)).join(', ')
 })
 
 function isComplexType(type: string): boolean {
