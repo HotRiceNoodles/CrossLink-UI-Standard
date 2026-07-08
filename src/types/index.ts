@@ -154,6 +154,31 @@ export interface ModelCreateRequest {
   extra_config?: Record<string, unknown>
 }
 
+// Error Classification Rule (/admin/api/error-rules)
+// Mirrors backend ErrorClassificationRule in internal/model/error_rule.go.
+export interface ErrorRule {
+  id: number
+  match_field: 'status' | 'code' | 'type' | 'message'
+  pattern: string
+  classification: string // currently only 'quota'
+  provider_type: string | null // null = global (all providers)
+  scope: 'account' | 'model'
+  priority: number // lower = higher priority, default 100
+  enabled: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ErrorRuleCreateRequest {
+  match_field?: ErrorRule['match_field']
+  pattern?: string
+  classification?: string
+  provider_type?: string | null
+  scope?: ErrorRule['scope']
+  priority?: number
+  enabled?: boolean
+}
+
 // API Key
 export interface APIKey {
   id: number

@@ -159,6 +159,7 @@ export function useCrud<
         Message.success(options.updateSuccessMsg || t('common.updateSuccess'))
       } else if (options.createApi) {
         const res = await options.createApi(payload)
+        if (options.createSuccessMsg) Message.success(options.createSuccessMsg)
         if (options.onCreated) {
           await options.onCreated(res.data, res)
         } else {

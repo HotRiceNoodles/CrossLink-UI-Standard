@@ -82,6 +82,7 @@ export const permissionCatalog: PermissionGroup[] = [
       'audit:list',
       'audit:export',
       'budget:manage',
+      'routing:stats',
     ],
   },
   {
@@ -125,5 +126,10 @@ export const permissionCatalog: PermissionGroup[] = [
       'mcp:logs',
       'mcp:stats',
     ],
+  },
+  {
+    key: 'errorRule',
+    labelI18nKey: 'auth.permissions.errorRule',
+    actions: ['error_rule:list', 'error_rule:create', 'error_rule:update', 'error_rule:delete'],
   },
 ]
