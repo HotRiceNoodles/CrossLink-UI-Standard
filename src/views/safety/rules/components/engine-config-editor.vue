@@ -71,7 +71,7 @@ const complexFieldNames = computed(() => {
   return currentSchema.value.fields
     .filter((f: ConfigFieldSchema) => f.type === 'object_array' || f.type === 'key_value_map')
     .map((f: ConfigFieldSchema) => t(f.labelKey))
-    .join('、')
+    .join(', ')
 })
 
 /**

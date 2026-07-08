@@ -48,7 +48,7 @@ const chartOption = computed<EChartsOption>(() => {
       className: 'echarts-tooltip-diy',
       formatter(params: any) {
         const { name, value, percent } = params
-        return `<strong>${name}</strong><br/>${t('dashboard.requestCount')}：${value}<br/>${t('dashboard.proportion')}：${percent}%`
+        return `<strong>${name}</strong><br/>${t('dashboard.requestCount')}: ${value}<br/>${t('dashboard.proportion')}: ${percent}%`
       },
     },
     legend: {

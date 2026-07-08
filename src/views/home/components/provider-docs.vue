@@ -72,7 +72,7 @@ const providers: ProviderDoc[] = [
     docsUrl: 'https://ai.google.dev/gemini-api/docs',
   },
   {
-    name: '通义千问',
+    name: 'Qwen',
     logo: qwenLogo,
     descKey: 'home.docs.desc.qwen',
     apiKeyUrl: 'https://bailian.console.aliyun.com',
@@ -86,7 +86,7 @@ const providers: ProviderDoc[] = [
     docsUrl: 'https://api-docs.deepseek.com',
   },
   {
-    name: '智谱 GLM',
+    name: 'Zhipu GLM',
     logo: glmLogo,
     descKey: 'home.docs.desc.glm',
     apiKeyUrl: 'https://open.bigmodel.cn/console/apikey',
@@ -100,7 +100,7 @@ const providers: ProviderDoc[] = [
     docsUrl: 'https://platform.minimaxi.com/document/',
   },
   {
-    name: '百度文心',
+    name: 'ERNIE',
     logo: ernieLogo,
     descKey: 'home.docs.desc.ernie',
     apiKeyUrl: 'https://console.bce.baidu.com/qianfan/ais/console/applicationConsole/application',
