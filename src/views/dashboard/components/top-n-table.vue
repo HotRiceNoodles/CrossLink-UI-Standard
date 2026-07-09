@@ -251,8 +251,10 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-metric {
-  flex: 0 0 auto;
-  min-width: 72px;
+  // Fixed basis (not content-based) so every row — including the header —
+  // resolves the same column width and the columns line up vertically.
+  // Bar columns override this via .col-metric-grow.
+  flex: 0 0 84px;
   text-align: left;
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
