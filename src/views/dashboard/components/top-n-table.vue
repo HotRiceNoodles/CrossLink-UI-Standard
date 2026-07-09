@@ -11,12 +11,27 @@
             v-for="col in columns"
             :key="col.key"
             class="col-metric"
-            :class="{ 'col-metric-grow': col.kind === 'bar' }"
+            :class="{
+              'col-metric-grow': col.kind === 'bar',
+              sortable: true,
+              'sort-active': sortKey === col.key,
+            }"
+            @click="toggleSort(col.key)"
           >
-            {{ col.label }}
+            <span class="col-label">{{ col.label }}</span>
+            <span v-if="sortKey === col.key" class="sort-arrow">
+              {{ sortDir === 'desc' ? '↓' : '↑' }}
+            </span>
           </span>
         </div>
-        <div v-for="(row, idx) in rows" :key="row.name + idx" class="top-n-row">
+        <div
+          v-for="(row, idx) in displayRows"
+          :key="row.name + idx"
+          class="top-n-row"
+          :class="{ 'row-clickable': !!drillRoute }"
+          :title="drillRoute ? t('dashboard.topnDrillHint') : undefined"
+          @click="onRowClick(row)"
+        >
           <span class="col-rank" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</span>
           <span class="col-name" :title="row.name">
             <span v-if="badge" class="name-badge" :style="{ background: modelColor(row.name) }">
@@ -50,7 +65,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { formatTokensCompact, formatCost } from '@/utils/format'
 import type { DataLensMetricKey } from '@/types'
@@ -60,6 +76,7 @@ import { modelColor } from '../composables/model-color'
 type ColKind = 'number' | 'currency' | 'tokens' | 'bar'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const props = withDefaults(
   defineProps<{
@@ -70,18 +87,58 @@ const props = withDefaults(
     currencySymbol?: string
     /** Render a colored initials badge before each name (e.g. model tables). */
     badge?: boolean
+    /** When set, rows are clickable and navigate to the given route with the
+     *  row name under queryKey (e.g. drill into usage-statistics by model). */
+    drillRoute?: { name: string; queryKey: string }
   }>(),
   {
     badge: false,
+    drillRoute: undefined,
   },
 )
+
+// Client-side column sort. Default (null) = as-passed order (already ranked by
+// the parent's primary metric). Clicking a metric header toggles asc/desc.
+const sortKey = ref<DataLensMetricKey | null>(null)
+const sortDir = ref<'asc' | 'desc'>('desc')
+
+const displayRows = computed<TopNRow[]>(() => {
+  if (!sortKey.value) return props.rows
+  const key = sortKey.value
+  const dir = sortDir.value === 'desc' ? -1 : 1
+  return [...props.rows].sort((a, b) => {
+    const av = Number(a.values[key] ?? 0)
+    const bv = Number(b.values[key] ?? 0)
+    return (av - bv) * dir
+  })
+})
+
+function toggleSort(key: DataLensMetricKey) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === 'desc' ? 'asc' : 'desc'
+  } else {
+    sortKey.value = key
+    sortDir.value = 'desc'
+  }
+}
+
+function onRowClick(row: TopNRow) {
+  if (!props.drillRoute) return
+  router.push({
+    name: props.drillRoute.name,
+    query: { [props.drillRoute.queryKey]: row.name },
+  })
+}
 
 // max value per bar-column → drives relative bar widths
 const barMax = computed<Record<string, number>>(() => {
   const maxes: Record<string, number> = {}
   for (const col of props.columns) {
     if (col.kind !== 'bar') continue
-    maxes[col.key] = props.rows.reduce((m, r) => Math.max(m, Number(r.values[col.key] ?? 0)), 0)
+    maxes[col.key] = displayRows.value.reduce(
+      (m, r) => Math.max(m, Number(r.values[col.key] ?? 0)),
+      0,
+    )
   }
   return maxes
 })
@@ -233,5 +290,35 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
   // background set inline per-row (model color); keep a fallback for safety
   background: rgb(var(--arcoblue-6));
   transition: width 0.3s ease;
+}
+
+// Sortable column headers
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-text-1);
+  }
+}
+
+.sort-active {
+  color: rgb(var(--arcoblue-6));
+  font-weight: 600;
+}
+
+.sort-arrow {
+  margin-left: 2px;
+}
+
+// Drill-down rows
+.row-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-fill-1);
+  }
 }
 </style>

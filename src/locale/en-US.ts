@@ -145,6 +145,7 @@ export default {
     topKeys: 'Top API Keys',
     topTeams: 'Top Teams',
     topnName: 'Name',
+    topnDrillHint: 'Click for details',
     topnRequests: 'Requests',
     topnTokens: 'Tokens',
     topnCost: 'Cost',

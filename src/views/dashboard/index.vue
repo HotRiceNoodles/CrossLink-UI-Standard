@@ -65,6 +65,7 @@
               :rows="topModels"
               :columns="topNColumnsBar"
               :currency-symbol="currencySymbol"
+              :drill-route="{ name: 'usageStatistics', queryKey: 'model' }"
               badge
             />
           </a-grid-item>
