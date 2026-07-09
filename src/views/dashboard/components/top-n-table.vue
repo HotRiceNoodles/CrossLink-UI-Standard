@@ -253,7 +253,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 .col-metric {
   flex: 0 0 auto;
   min-width: 72px;
-  text-align: right;
+  text-align: left;
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
 }
@@ -265,13 +265,13 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .bar-num {
   flex: 0 0 auto;
   min-width: 48px;
-  text-align: right;
+  text-align: left;
 }
 
 .bar-track {
