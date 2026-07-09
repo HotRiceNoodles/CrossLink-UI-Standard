@@ -4,7 +4,7 @@
     <a-spin :loading="loading" style="width: 100%">
       <a-empty v-if="!loading && !rows.length" :description="t('dashboard.noData')" />
       <div v-else class="top-n-list">
-        <div class="top-n-row top-n-head">
+        <div class="top-n-row top-n-head" :style="{ gridTemplateColumns: gridTemplate }">
           <span class="col-rank">#</span>
           <span class="col-name">{{ t('dashboard.topnName') }}</span>
           <span
@@ -29,6 +29,7 @@
           :key="row.name + idx"
           class="top-n-row"
           :class="{ 'row-clickable': !!drillRoute }"
+          :style="{ gridTemplateColumns: gridTemplate }"
           :title="drillRoute ? t('dashboard.topnDrillHint') : undefined"
           @click="onRowClick(row)"
         >
@@ -130,6 +131,18 @@ function onRowClick(row: TopNRow) {
   })
 }
 
+// Grid template shared by every row (header + data). Track sizes are fixed by
+// the template, not by content, so columns line up perfectly across rows
+// regardless of value/name length. Bar columns get a flexible minmax track;
+// other metric columns a fixed track; name takes the remaining 1fr.
+const gridTemplate = computed(() => {
+  const tracks = ['28px', 'minmax(0, 1fr)']
+  for (const col of props.columns) {
+    tracks.push(col.kind === 'bar' ? 'minmax(120px, 1.4fr)' : '84px')
+  }
+  return tracks.join(' ')
+})
+
 // max value per bar-column → drives relative bar widths
 const barMax = computed<Record<string, number>>(() => {
   const maxes: Record<string, number> = {}
@@ -192,9 +205,9 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .top-n-row {
-  display: flex;
+  display: grid;
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid var(--color-fill-2);
   font-size: 13px;
@@ -211,7 +224,6 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-rank {
-  flex: 0 0 28px;
   text-align: center;
   color: var(--color-text-3);
 }
@@ -222,7 +234,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-name {
-  flex: 1 1 auto;
+  // min-width:0 lets the grid item shrink below content so ellipsis works
   min-width: 0;
   display: flex;
   align-items: center;
@@ -251,19 +263,16 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-metric {
-  // Fixed basis (not content-based) so every row — including the header —
-  // resolves the same column width and the columns line up vertically.
-  // Bar columns override this via .col-metric-grow.
-  flex: 0 0 84px;
+  // Width is fixed by the row's grid template (84px track); text alignment
+  // is what this class now controls.
   text-align: left;
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
 }
 
-// bar columns take the remaining width and stack number + relative bar
+// bar columns lay out their number + relative bar internally (flex); the
+// cell's own width comes from the minmax track in the row grid template.
 .col-metric-grow {
-  flex: 1 1 auto;
-  min-width: 120px;
   display: flex;
   align-items: center;
   gap: 8px;
