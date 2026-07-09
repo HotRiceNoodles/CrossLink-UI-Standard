@@ -112,8 +112,14 @@ function initials(name: string): string {
 }
 
 function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
-  if (kind === 'tokens' || kind === 'bar') return formatTokensCompact(v)
-  if (kind === 'currency') return `${currencySymbol}${formatCost(v)}`
+  if (kind === 'currency') {
+    // Suppress ¥0.00 noise — also covers tiny costs that round to 0.00.
+    const formatted = formatCost(v)
+    return formatted === '0.00' ? '—' : `${currencySymbol}${formatted}`
+  }
+  if (kind === 'tokens' || kind === 'bar') {
+    return v === 0 ? '—' : formatTokensCompact(v)
+  }
   return v.toLocaleString()
 }
 </script>
