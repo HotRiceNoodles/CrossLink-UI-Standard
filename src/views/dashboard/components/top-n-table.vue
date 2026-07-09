@@ -4,26 +4,38 @@
     <a-spin :loading="loading" style="width: 100%">
       <a-empty v-if="!loading && !rows.length" :description="t('dashboard.noData')" />
       <div v-else class="top-n-list">
-        <div class="top-n-row top-n-head">
+        <div class="top-n-row top-n-head" :style="{ gridTemplateColumns: gridTemplate }">
           <span class="col-rank">#</span>
           <span class="col-name">{{ t('dashboard.topnName') }}</span>
           <span
             v-for="col in columns"
             :key="col.key"
             class="col-metric"
-            :class="{ 'col-metric-grow': col.kind === 'bar' }"
+            :class="{
+              'col-metric-grow': col.kind === 'bar',
+              sortable: true,
+              'sort-active': sortKey === col.key,
+            }"
+            @click="toggleSort(col.key)"
           >
-            {{ col.label }}
+            <span class="col-label">{{ col.label }}</span>
+            <span v-if="sortKey === col.key" class="sort-arrow">
+              {{ sortDir === 'desc' ? '↓' : '↑' }}
+            </span>
           </span>
         </div>
-        <div v-for="(row, idx) in rows" :key="row.name + idx" class="top-n-row">
+        <div
+          v-for="(row, idx) in displayRows"
+          :key="row.name + idx"
+          class="top-n-row"
+          :class="{ 'row-clickable': !!drillRoute }"
+          :style="{ gridTemplateColumns: gridTemplate }"
+          :title="drillRoute ? t('dashboard.topnDrillHint') : undefined"
+          @click="onRowClick(row)"
+        >
           <span class="col-rank" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</span>
           <span class="col-name" :title="row.name">
-            <span
-              v-if="badge"
-              class="name-badge"
-              :style="{ background: palette[idx % palette.length] }"
-            >
+            <span v-if="badge" class="name-badge" :style="{ background: modelColor(row.name) }">
               {{ initials(row.name) }}
             </span>
             <span class="name-text">{{ row.name }}</span>
@@ -39,7 +51,7 @@
               <span class="bar-track">
                 <span
                   class="bar-fill"
-                  :style="{ width: barPct(col.key, row.values[col.key] ?? 0) + '%' }"
+                  :style="barStyle(col.key, row.values[col.key] ?? 0, row.name)"
                 />
               </span>
             </template>
@@ -54,15 +66,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { formatTokensCompact, formatCost } from '@/utils/format'
 import type { DataLensMetricKey } from '@/types'
 import type { TopNRow } from '../composables/datalens-helpers'
+import { modelColor } from '../composables/model-color'
 
 type ColKind = 'number' | 'currency' | 'tokens' | 'bar'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const props = withDefaults(
   defineProps<{
@@ -73,32 +88,70 @@ const props = withDefaults(
     currencySymbol?: string
     /** Render a colored initials badge before each name (e.g. model tables). */
     badge?: boolean
+    /** When set, rows are clickable and navigate to the given route with the
+     *  row name under queryKey (e.g. drill into usage-statistics by model). */
+    drillRoute?: { name: string; queryKey: string }
   }>(),
   {
     badge: false,
+    drillRoute: undefined,
   },
 )
 
-// 10-color palette shared in spirit with model-pie.vue
-const palette = [
-  '#165DFF',
-  '#00B42A',
-  '#FF7D00',
-  '#722ED1',
-  '#F53F3F',
-  '#0FC6C2',
-  '#3491FA',
-  '#F77234',
-  '#D91AD9',
-  '#4CDF48',
-]
+// Client-side column sort. Default (null) = as-passed order (already ranked by
+// the parent's primary metric). Clicking a metric header toggles asc/desc.
+const sortKey = ref<DataLensMetricKey | null>(null)
+const sortDir = ref<'asc' | 'desc'>('desc')
+
+const displayRows = computed<TopNRow[]>(() => {
+  if (!sortKey.value) return props.rows
+  const key = sortKey.value
+  const dir = sortDir.value === 'desc' ? -1 : 1
+  return [...props.rows].sort((a, b) => {
+    const av = Number(a.values[key] ?? 0)
+    const bv = Number(b.values[key] ?? 0)
+    return (av - bv) * dir
+  })
+})
+
+function toggleSort(key: DataLensMetricKey) {
+  if (sortKey.value === key) {
+    sortDir.value = sortDir.value === 'desc' ? 'asc' : 'desc'
+  } else {
+    sortKey.value = key
+    sortDir.value = 'desc'
+  }
+}
+
+function onRowClick(row: TopNRow) {
+  if (!props.drillRoute) return
+  router.push({
+    name: props.drillRoute.name,
+    query: { [props.drillRoute.queryKey]: row.name },
+  })
+}
+
+// Grid template shared by every row (header + data). Track sizes are fixed by
+// the template, not by content, so columns line up perfectly across rows
+// regardless of value/name length. Bar columns get a flexible minmax track;
+// other metric columns a fixed track; name takes the remaining 1fr.
+const gridTemplate = computed(() => {
+  const tracks = ['28px', 'minmax(0, 1fr)']
+  for (const col of props.columns) {
+    tracks.push(col.kind === 'bar' ? 'minmax(120px, 1.4fr)' : '84px')
+  }
+  return tracks.join(' ')
+})
 
 // max value per bar-column → drives relative bar widths
 const barMax = computed<Record<string, number>>(() => {
   const maxes: Record<string, number> = {}
   for (const col of props.columns) {
     if (col.kind !== 'bar') continue
-    maxes[col.key] = props.rows.reduce((m, r) => Math.max(m, Number(r.values[col.key] ?? 0)), 0)
+    maxes[col.key] = displayRows.value.reduce(
+      (m, r) => Math.max(m, Number(r.values[col.key] ?? 0)),
+      0,
+    )
   }
   return maxes
 })
@@ -108,14 +161,35 @@ function barPct(key: string, value: number): number {
   return max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
 }
 
+// Inline style for a bar fill: relative width, a min sliver so non-zero but
+// long-tail values stay visible, and the model color so a row's bar matches
+// its badge (and the pie slice for the same model).
+function barStyle(key: string, value: number, name: string) {
+  const pct = barPct(key, value)
+  return {
+    width: `${pct}%`,
+    minWidth: value > 0 && pct < 4 ? '6px' : '0',
+    background: modelColor(name),
+  }
+}
+
 function initials(name: string): string {
   const clean = name.replace(/[^a-zA-Z0-9]/g, '')
-  return (clean.slice(0, 2) || name.slice(0, 2)).toUpperCase()
+  if (clean) return clean.slice(0, 2).toUpperCase()
+  // No latin/digit — fall back to leading CJK chars if any, else a neutral mark.
+  if (/[一-鿿]/.test(name)) return name.slice(0, 2)
+  return '#'
 }
 
 function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
-  if (kind === 'tokens' || kind === 'bar') return formatTokensCompact(v)
-  if (kind === 'currency') return `${currencySymbol}${formatCost(v)}`
+  if (kind === 'currency') {
+    // Suppress ¥0.00 noise — also covers tiny costs that round to 0.00.
+    const formatted = formatCost(v)
+    return formatted === '0.00' ? '—' : `${currencySymbol}${formatted}`
+  }
+  if (kind === 'tokens' || kind === 'bar') {
+    return v === 0 ? '—' : formatTokensCompact(v)
+  }
   return v.toLocaleString()
 }
 </script>
@@ -131,9 +205,9 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .top-n-row {
-  display: flex;
+  display: grid;
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
   padding: 8px 0;
   border-bottom: 1px solid var(--color-fill-2);
   font-size: 13px;
@@ -150,7 +224,6 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-rank {
-  flex: 0 0 28px;
   text-align: center;
   color: var(--color-text-3);
 }
@@ -161,7 +234,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-name {
-  flex: 1 1 auto;
+  // min-width:0 lets the grid item shrink below content so ellipsis works
   min-width: 0;
   display: flex;
   align-items: center;
@@ -190,27 +263,26 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .col-metric {
-  flex: 0 0 auto;
-  min-width: 72px;
-  text-align: right;
+  // Width is fixed by the row's grid template (84px track); text alignment
+  // is what this class now controls.
+  text-align: left;
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
 }
 
-// bar columns take the remaining width and stack number + relative bar
+// bar columns lay out their number + relative bar internally (flex); the
+// cell's own width comes from the minmax track in the row grid template.
 .col-metric-grow {
-  flex: 1 1 auto;
-  min-width: 120px;
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .bar-num {
   flex: 0 0 auto;
   min-width: 48px;
-  text-align: right;
+  text-align: left;
 }
 
 .bar-track {
@@ -226,7 +298,38 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
   display: block;
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, rgb(var(--arcoblue-6)), rgb(var(--purple-6)));
+  // background set inline per-row (model color); keep a fallback for safety
+  background: rgb(var(--arcoblue-6));
   transition: width 0.3s ease;
+}
+
+// Sortable column headers
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--color-text-1);
+  }
+}
+
+.sort-active {
+  color: rgb(var(--arcoblue-6));
+  font-weight: 600;
+}
+
+.sort-arrow {
+  margin-left: 2px;
+}
+
+// Drill-down rows
+.row-clickable {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--color-fill-1);
+  }
 }
 </style>

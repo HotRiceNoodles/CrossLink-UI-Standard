@@ -189,6 +189,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
@@ -206,6 +207,7 @@ import type { Provider, APIKey, Team } from '@/types'
 defineOptions({ name: 'UsageStatistics' })
 
 const { t } = useI18n()
+const route = useRoute()
 const {
   range,
   days,
@@ -296,6 +298,9 @@ function onReset() {
 watch(range, () => fetchAll())
 
 onMounted(() => {
+  // Drill-down from dashboard top-models: ?model=<name> pre-fills the filter.
+  const qModel = route.query.model
+  if (typeof qModel === 'string' && qModel) filter.model = qModel
   fetchAll()
   loadFilterOptions()
 })

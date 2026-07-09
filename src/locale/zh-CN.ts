@@ -145,6 +145,7 @@ export default {
     topKeys: '热门密钥',
     topTeams: '热门团队',
     topnName: '名称',
+    topnDrillHint: '点击查看明细',
     topnRequests: '请求数',
     topnTokens: 'Token',
     topnCost: '费用',

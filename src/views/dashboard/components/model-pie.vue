@@ -10,21 +10,9 @@ import { useI18n } from 'vue-i18n'
 import Chart from '@/components/chart/index.vue'
 import type { EChartsOption } from 'echarts'
 import type { ModelDistribution } from '@/types'
+import { modelColor } from '../composables/model-color'
 
 const { t } = useI18n()
-
-const COLORS = [
-  '#165DFF',
-  '#00B42A',
-  '#FF7D00',
-  '#722ED1',
-  '#F53F3F',
-  '#0FC6C2',
-  '#3491FA',
-  '#F77234',
-  '#D91AD9',
-  '#4CDF48',
-]
 
 const props = withDefaults(
   defineProps<{
@@ -87,9 +75,9 @@ const chartOption = computed<EChartsOption>(() => {
         labelLine: {
           show: false,
         },
-        data: seriesData.map((item, index) => ({
+        data: seriesData.map((item) => ({
           ...item,
-          itemStyle: { color: COLORS[index % COLORS.length] },
+          itemStyle: { color: modelColor(item.name) },
         })),
       },
     ],
