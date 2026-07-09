@@ -19,11 +19,7 @@
         <div v-for="(row, idx) in rows" :key="row.name + idx" class="top-n-row">
           <span class="col-rank" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</span>
           <span class="col-name" :title="row.name">
-            <span
-              v-if="badge"
-              class="name-badge"
-              :style="{ background: palette[idx % palette.length] }"
-            >
+            <span v-if="badge" class="name-badge" :style="{ background: modelColor(row.name) }">
               {{ initials(row.name) }}
             </span>
             <span class="name-text">{{ row.name }}</span>
@@ -39,7 +35,7 @@
               <span class="bar-track">
                 <span
                   class="bar-fill"
-                  :style="{ width: barPct(col.key, row.values[col.key] ?? 0) + '%' }"
+                  :style="barStyle(col.key, row.values[col.key] ?? 0, row.name)"
                 />
               </span>
             </template>
@@ -59,6 +55,7 @@ import { useI18n } from 'vue-i18n'
 import { formatTokensCompact, formatCost } from '@/utils/format'
 import type { DataLensMetricKey } from '@/types'
 import type { TopNRow } from '../composables/datalens-helpers'
+import { modelColor } from '../composables/model-color'
 
 type ColKind = 'number' | 'currency' | 'tokens' | 'bar'
 
@@ -79,20 +76,6 @@ const props = withDefaults(
   },
 )
 
-// 10-color palette shared in spirit with model-pie.vue
-const palette = [
-  '#165DFF',
-  '#00B42A',
-  '#FF7D00',
-  '#722ED1',
-  '#F53F3F',
-  '#0FC6C2',
-  '#3491FA',
-  '#F77234',
-  '#D91AD9',
-  '#4CDF48',
-]
-
 // max value per bar-column → drives relative bar widths
 const barMax = computed<Record<string, number>>(() => {
   const maxes: Record<string, number> = {}
@@ -108,9 +91,24 @@ function barPct(key: string, value: number): number {
   return max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0
 }
 
+// Inline style for a bar fill: relative width, a min sliver so non-zero but
+// long-tail values stay visible, and the model color so a row's bar matches
+// its badge (and the pie slice for the same model).
+function barStyle(key: string, value: number, name: string) {
+  const pct = barPct(key, value)
+  return {
+    width: `${pct}%`,
+    minWidth: value > 0 && pct < 4 ? '6px' : '0',
+    background: modelColor(name),
+  }
+}
+
 function initials(name: string): string {
   const clean = name.replace(/[^a-zA-Z0-9]/g, '')
-  return (clean.slice(0, 2) || name.slice(0, 2)).toUpperCase()
+  if (clean) return clean.slice(0, 2).toUpperCase()
+  // No latin/digit — fall back to leading CJK chars if any, else a neutral mark.
+  if (/[一-鿿]/.test(name)) return name.slice(0, 2)
+  return '#'
 }
 
 function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
@@ -226,7 +224,8 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
   display: block;
   height: 100%;
   border-radius: 3px;
-  background: linear-gradient(90deg, rgb(var(--arcoblue-6)), rgb(var(--purple-6)));
+  // background set inline per-row (model color); keep a fallback for safety
+  background: rgb(var(--arcoblue-6));
   transition: width 0.3s ease;
 }
 </style>
