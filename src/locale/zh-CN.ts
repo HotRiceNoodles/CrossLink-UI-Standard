@@ -1382,4 +1382,118 @@ export default {
       },
     },
   },
+
+  onboarding: {
+    title: '配置向导',
+    subtitle: '几分钟内完成首次接入，跑通你的第一次调用。',
+
+    // 欢迎页 / 模式选择
+    welcomeTitle: '欢迎使用搭桥',
+    welcomeIntro: '只需几步即可连通上游模型并拿到可用的 API Key。选择一种方式开始：',
+    modeQuick: '快速配置',
+    modeQuickDesc: '填入地址和密钥，自动探测模型，推荐新手。',
+    modeQuickBadge: '推荐',
+    modeCustom: '自定义配置',
+    modeCustomDesc: '手动选择适配器、模型与 Key 限额，完整可控。',
+
+    // 步骤标题（a-steps）
+    stepAdapter: '选择来源',
+    stepCredentials: '填入凭据',
+    stepModels: '选择模型',
+    stepKey: '配置 Key',
+    stepResult: '完成',
+
+    // adapter 选择
+    adapterTitle: '你的模型来自哪里？',
+    adapterDesc: '选择上游服务的类型，我们将使用对应的协议连接。',
+    adapterInferred: '根据地址识别到：{adapter}',
+    needsUrl: '需要填地址',
+    needsKey: '需要填密钥',
+
+    // 凭据
+    baseUrl: 'API 地址',
+    baseUrlPlaceholder: 'https://api.example.com/v1',
+    apiKey: 'API Key',
+    apiKeyPlaceholder: 'sk-...',
+    apiKeyHint: '仅用于本次探测与创建，不会落库到日志。',
+    providerName: 'Provider 名称',
+    providerNamePlaceholder: '如 deepseek',
+    providerNameHint: '小写标识，创建后不可改。',
+    displayName: '显示名称',
+    displayNamePlaceholder: '如 DeepSeek',
+
+    // 探测
+    probe: '测试连接',
+    probing: '正在测试连接...',
+    probeOk: '连接成功（延迟 {ms} 毫秒）',
+    probeOkNoModels: '连接成功，但该来源不支持自动列举模型，请手动填写。',
+    probeFail: '连接失败',
+
+    // 模型
+    modelsFound: '找到 {n} 个可用模型',
+    selectModels: '勾选要启用的模型',
+    defaultSelectedHint: '已为你默认勾选第一个对话模型。',
+    selectAtLeastOne: '请至少选择一个模型。',
+    catChat: '对话',
+    catReason: '推理',
+    catImage: '图像',
+    catAudio: '语音',
+    catEmbed: '嵌入',
+    catOther: '其他',
+    manualMode: '手动填写模型',
+    manualHint: '该来源不支持自动列举，请输入模型 ID 后回车，或点击下方常用模型。',
+    manualPlaceholder: '输入模型 ID，如 gpt-4o',
+    add: '添加',
+    presetTitle: '常用模型',
+    modelCount: '已选 {n} 个',
+
+    // Key
+    keyName: 'Key 名称',
+    keyNamePlaceholder: '如 my-first-key',
+    advanced: '高级（可选）',
+    tpmLabel: 'TPM 限额',
+    rpmLabel: 'RPM 限额',
+    budgetLabel: '预算上限',
+    budgetPeriod: '预算周期',
+    optional: '可选',
+
+    // 结果
+    resultTitle: '配置完成',
+    resultIntro: '上游与 Key 已就绪，下面是用它发出第一次请求的示例。',
+    keyOnceWarning: '这是该 Key 的明文，仅显示这一次，请立即复制保存。',
+    copyKey: '复制 Key',
+    examplesTitle: '调用示例',
+    curlTab: 'cURL',
+    pythonTab: 'Python',
+    nodeTab: 'Node.js',
+    apiAddress: 'API 地址',
+    modelField: '模型',
+    gotoKeys: '前往 Keys 管理',
+    gotoProviders: '前往 Providers',
+    testHint: '将示例中的地址与模型替换为你的实际值即可运行。',
+
+    // 底栏
+    prev: '上一步',
+    next: '下一步',
+    skip: '跳过',
+    submit: '提交并完成',
+    submitting: '提交中...',
+    finish: '完成',
+    reopen: '重新运行配置向导',
+    reopenFromEmpty: '运行配置向导',
+
+    // 错误人性化
+    errNoAdapter: '请先选择来源类型。',
+    errNoUrl: '请先填写 API 地址。',
+    errNetwork: '网络错误，请检查后端服务是否可用。',
+    errAuth: 'API Key 无效或已过期，请检查后重试。',
+    errForbidden: '无访问权限，请检查 Key 权限。',
+    errTimeout: '连接超时，请检查网络或 API 地址。',
+    errConn: '无法连接，请检查 URL 是否正确。',
+    errUnknown: '探测失败，请稍后重试。',
+    errConflict: '该 Provider 名称已存在，请改名后重试。',
+    errUrlInvalid: 'API 地址不合法（需 http/https 且不可指向内网）。',
+    errInvalid: '提交内容有误，请检查必填项。',
+    errSubmit: '提交失败，请稍后重试。',
+  },
 }

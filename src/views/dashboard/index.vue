@@ -22,6 +22,20 @@
           </div>
         </div>
 
+        <!-- Onboarding 引导横幅：仅当无 provider 且未完成向导时显示 -->
+        <a-alert
+          v-if="showOnboardingBanner"
+          type="info"
+          class="onboarding-banner"
+          closable
+          @close="dismissOnboardingBanner"
+        >
+          {{ t('onboarding.subtitle') }}
+          <a-button type="text" size="small" @click="reopenOnboarding">
+            {{ t('onboarding.reopenFromEmpty') }}
+          </a-button>
+        </a-alert>
+
         <!-- KPI cards (primary + secondary) -->
         <DataPanel
           :stats="usageStats"
@@ -117,6 +131,8 @@ import { authUserApi } from '@/api/rbac'
 import { datalensApi, buildTimeseriesQuery, buildTopNQuery } from '@/api/datalens'
 import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store'
+import { providerApi } from '@/api/provider'
+import { ONBOARDING_DONE_KEY, ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
 import { useRange, RANGE_OPTIONS } from './composables/use-range'
 import { toTimeLabels, toSeries, toTopN, type TopNRow } from './composables/datalens-helpers'
 import type {
@@ -153,6 +169,29 @@ const usageStats = ref<UsageStats>({
 const dailyTrend = ref<DailyTrend[]>([])
 const modelDistribution = ref<ModelDistribution[]>([])
 const systemInfo = ref<SystemInfoType | null>(null)
+
+// Onboarding 引导横幅：仅当无 provider 且未标记完成时显示。
+const showOnboardingBanner = ref(false)
+
+async function checkOnboardingBanner() {
+  if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
+  if (!userStore.hasPermission('provider:create')) return
+  try {
+    const res = await providerApi.list()
+    if ((res.data || []).length === 0) showOnboardingBanner.value = true
+  } catch {
+    // 静默
+  }
+}
+
+function dismissOnboardingBanner() {
+  showOnboardingBanner.value = false
+}
+
+function reopenOnboarding() {
+  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
+  showOnboardingBanner.value = false
+}
 const license = ref<LicenseStatus | null>(null)
 const memberCount = ref<number | null>(null)
 const keyCount = ref<number | null>(null)
@@ -314,6 +353,7 @@ async function fetchDashboardData() {
 
 onMounted(() => {
   fetchDashboardData()
+  checkOnboardingBanner()
 })
 
 // keep-alive refresh: re-fetch on reactivation so cached data doesn't go stale.
@@ -338,6 +378,13 @@ onActivated(() => {
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
+}
+
+.onboarding-banner {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
   :deep(.banner-card) {
     flex: 1 1 auto;

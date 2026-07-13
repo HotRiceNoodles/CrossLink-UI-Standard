@@ -1397,4 +1397,121 @@ export default {
       },
     },
   },
+
+  onboarding: {
+    title: 'Setup Wizard',
+    subtitle: 'Get connected and make your first call in just a few minutes.',
+
+    // Welcome / mode selection
+    welcomeTitle: 'Welcome to CrossLink',
+    welcomeIntro:
+      'Connect an upstream model and get a working API key in a few steps. Pick a mode to start:',
+    modeQuick: 'Quick Setup',
+    modeQuickDesc: 'Enter URL and key, auto-detect models. Recommended.',
+    modeQuickBadge: 'Recommended',
+    modeCustom: 'Custom Setup',
+    modeCustomDesc: 'Manually pick adapter, models and key limits. Full control.',
+
+    // Step titles
+    stepAdapter: 'Source',
+    stepCredentials: 'Credentials',
+    stepModels: 'Models',
+    stepKey: 'API Key',
+    stepResult: 'Done',
+
+    // adapter
+    adapterTitle: 'Where do your models come from?',
+    adapterDesc: 'Pick the upstream service type and we will connect with the right protocol.',
+    adapterInferred: 'Detected from URL: {adapter}',
+    needsUrl: 'Needs URL',
+    needsKey: 'Needs key',
+
+    // credentials
+    baseUrl: 'API URL',
+    baseUrlPlaceholder: 'https://api.example.com/v1',
+    apiKey: 'API Key',
+    apiKeyPlaceholder: 'sk-...',
+    apiKeyHint: 'Used only for probing and creation. Never logged.',
+    providerName: 'Provider name',
+    providerNamePlaceholder: 'e.g. deepseek',
+    providerNameHint: 'Lowercase identifier, cannot change after creation.',
+    displayName: 'Display name',
+    displayNamePlaceholder: 'e.g. DeepSeek',
+
+    // probe
+    probe: 'Test connection',
+    probing: 'Testing connection...',
+    probeOk: 'Connected (latency {ms} ms)',
+    probeOkNoModels:
+      'Connected, but this source does not support listing models — enter them manually.',
+    probeFail: 'Connection failed',
+
+    // models
+    modelsFound: '{n} models available',
+    selectModels: 'Select models to enable',
+    defaultSelectedHint: 'The first chat model is selected for you.',
+    selectAtLeastOne: 'Select at least one model.',
+    catChat: 'Chat',
+    catReason: 'Reasoning',
+    catImage: 'Image',
+    catAudio: 'Audio',
+    catEmbed: 'Embedding',
+    catOther: 'Other',
+    manualMode: 'Enter models manually',
+    manualHint:
+      'This source cannot list models automatically. Type a model ID and press Enter, or pick a common one below.',
+    manualPlaceholder: 'Model ID, e.g. gpt-4o',
+    add: 'Add',
+    presetTitle: 'Common models',
+    modelCount: '{n} selected',
+
+    // key
+    keyName: 'Key name',
+    keyNamePlaceholder: 'e.g. my-first-key',
+    advanced: 'Advanced (optional)',
+    tpmLabel: 'TPM limit',
+    rpmLabel: 'RPM limit',
+    budgetLabel: 'Budget cap',
+    budgetPeriod: 'Budget period',
+    optional: 'optional',
+
+    // result
+    resultTitle: 'Setup complete',
+    resultIntro: 'Your upstream and key are ready. Here is a sample first request.',
+    keyOnceWarning: 'This is the plain-text key — shown only once. Copy and save it now.',
+    copyKey: 'Copy key',
+    examplesTitle: 'Examples',
+    curlTab: 'cURL',
+    pythonTab: 'Python',
+    nodeTab: 'Node.js',
+    apiAddress: 'API URL',
+    modelField: 'Model',
+    gotoKeys: 'Go to Keys',
+    gotoProviders: 'Go to Providers',
+    testHint: 'Replace the URL and model with your actual values to run it.',
+
+    // footer
+    prev: 'Back',
+    next: 'Next',
+    skip: 'Skip',
+    submit: 'Submit & finish',
+    submitting: 'Submitting...',
+    finish: 'Done',
+    reopen: 'Re-run setup wizard',
+    reopenFromEmpty: 'Run setup wizard',
+
+    // errors
+    errNoAdapter: 'Please choose a source type first.',
+    errNoUrl: 'Please fill in the API URL first.',
+    errNetwork: 'Network error — is the backend running?',
+    errAuth: 'API key is invalid or expired. Please check and retry.',
+    errForbidden: 'Access denied. Check the key permissions.',
+    errTimeout: 'Connection timed out. Check the network or the API URL.',
+    errConn: 'Cannot connect. Check the URL.',
+    errUnknown: 'Probe failed. Please retry later.',
+    errConflict: 'This provider name already exists. Rename and retry.',
+    errUrlInvalid: 'Invalid API URL (must be http/https and not point to an internal address).',
+    errInvalid: 'Some fields are invalid. Check the required items.',
+    errSubmit: 'Submit failed. Please retry later.',
+  },
 }

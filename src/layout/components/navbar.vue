@@ -15,6 +15,12 @@
       <org-switcher v-if="showOrgSwitcher" />
     </div>
     <div class="navbar-right">
+      <a-tooltip v-if="canRunOnboarding" :content="t('onboarding.title')" position="bottom">
+        <a-button type="text" size="small" class="onboarding-btn" @click="openOnboarding">
+          <template #icon><icon-tool /></template>
+          <span class="onboarding-btn__label">{{ t('onboarding.title') }}</span>
+        </a-button>
+      </a-tooltip>
       <language-switch
         :current-locale="currentLocale"
         @change="(lang: string) => emit('languageChange', lang)"
@@ -52,6 +58,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
 import { useTierLabel } from '@/utils/license'
+import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
 import LanguageSwitch from './language-switch.vue'
 import OrgSwitcher from './org-switcher.vue'
 
@@ -83,6 +90,13 @@ const tierLabel = computed(() => tierLabelFn(userStore.tier))
 const showOrgSwitcher = computed(
   () => userStore.isEnterprise && (userStore.isPlatformAdmin || userStore.hasOrgContext),
 )
+
+// 配置向导按钮：仅有 provider:create 权限的用户可见。
+const canRunOnboarding = computed(() => userStore.hasPermission('provider:create'))
+
+function openOnboarding() {
+  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
+}
 </script>
 
 <style scoped lang="less">
@@ -119,6 +133,10 @@ const showOrgSwitcher = computed(
   }
 
   .navbar-right .tier-tag {
+    display: none;
+  }
+
+  .onboarding-btn__label {
     display: none;
   }
 }

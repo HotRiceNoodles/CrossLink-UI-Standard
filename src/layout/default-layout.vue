@@ -55,11 +55,14 @@
     </div>
 
     <change-password-modal v-model:visible="passwordVisible" />
+
+    <!-- Onboarding 向导：首登 + 0 provider 时触发，或经 'reopen-onboarding' 事件重开 -->
+    <onboarding-wizard v-model:visible="showOnboarding" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -68,7 +71,10 @@ import { useAppStore, useUserStore } from '@/store'
 import { useMenuVisibility } from '@/hooks/menu-visibility'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from './components/change-password-modal.vue'
+import OnboardingWizard from '@/components/onboarding-wizard.vue'
 import { authApi } from '@/api/auth'
+import { providerApi } from '@/api/provider'
+import { ONBOARDING_DONE_KEY, ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
 import { Message, Modal } from '@arco-design/web-vue'
 import Sidebar from './components/sidebar.vue'
 import Navbar from './components/navbar.vue'
@@ -83,6 +89,24 @@ const { isVisible } = useMenuVisibility()
 const { t } = useI18n()
 
 const currentLocale = ref(getCurrentLocale())
+
+// Onboarding 向导显隐：首登且无 provider 时自动弹，否则由 'reopen-onboarding' 事件重开。
+const showOnboarding = ref(false)
+
+async function maybeShowOnboarding() {
+  if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
+  if (!userStore.hasPermission('provider:create')) return
+  try {
+    const res = await providerApi.list()
+    if ((res.data || []).length === 0) showOnboarding.value = true
+  } catch {
+    // 静默：触发判定失败不应打扰用户
+  }
+}
+
+function reopenOnboarding() {
+  showOnboarding.value = true
+}
 
 const menuCollapse = computed(() => appStore.menuCollapse)
 const device = computed(() => appStore.device)
@@ -206,6 +230,15 @@ async function handleLogout() {
     },
   })
 }
+
+onMounted(() => {
+  maybeShowOnboarding()
+  window.addEventListener(ONBOARDING_EVENT, reopenOnboarding)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(ONBOARDING_EVENT, reopenOnboarding)
+})
 
 const tapCount = ref(0)
 let tapTimer: ReturnType<typeof setTimeout> | null = null

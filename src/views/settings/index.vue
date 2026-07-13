@@ -103,6 +103,17 @@
             />
           </div>
         </a-card>
+
+        <!-- Onboarding 向导重开入口 -->
+        <a-card class="general-card" :title="t('onboarding.title')">
+          <div class="feature-item">
+            <div class="feature-info">
+              <span class="feature-label">{{ t('onboarding.reopen') }}</span>
+              <span class="feature-desc">{{ t('onboarding.subtitle') }}</span>
+            </div>
+            <a-button @click="reopenOnboarding">{{ t('onboarding.reopen') }}</a-button>
+          </div>
+        </a-card>
       </div>
     </a-spin>
   </div>
@@ -116,6 +127,7 @@ import { systemApi } from '@/api/system'
 import { useLoading } from '@/hooks/loading'
 import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
+import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
 import type { SystemInfo, SystemSettings } from '@/types'
 
 const { t } = useI18n()
@@ -128,6 +140,10 @@ const logContentEnabled = ref(false)
 const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoading()
 
 const user = computed(() => userStore.user)
+
+function reopenOnboarding() {
+  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
+}
 
 async function handleLogContentChange(value: boolean | number | string) {
   setLogContentLoading(true)

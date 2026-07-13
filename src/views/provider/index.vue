@@ -76,6 +76,11 @@
               {{ t('provider.noProvidersGuide') }}
             </p>
           </template>
+          <div style="margin-top: 12px">
+            <a-button type="primary" @click="reopenOnboarding">
+              {{ t('onboarding.reopenFromEmpty') }}
+            </a-button>
+          </div>
         </a-empty>
       </div>
       <!-- 有数据但筛选为空的常规空状态 -->
@@ -182,6 +187,7 @@ import type { Provider, ProviderModel, Adapter } from '@/types'
 import ProviderCard from './components/provider-card.vue'
 import ProviderForm from './components/provider-form.vue'
 import ModelForm from './components/model-form.vue'
+import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
 
 const { loading, setLoading } = useLoading(false)
 const { t } = useI18n()
@@ -277,6 +283,10 @@ function openProviderCreate() {
   providerFormIsEdit.value = false
   providerFormEditTarget.value = undefined
   providerFormVisible.value = true
+}
+
+function reopenOnboarding() {
+  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
 }
 
 function openProviderEdit(provider: Provider) {
