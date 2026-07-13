@@ -16,7 +16,7 @@
     </div>
     <div class="navbar-right">
       <a-tooltip v-if="canRunOnboarding" :content="t('onboarding.title')" position="bottom">
-        <a-button type="text" size="small" class="onboarding-btn" @click="openOnboarding">
+        <a-button type="text" size="small" class="onboarding-btn" @click="runOnboarding">
           <template #icon><icon-tool /></template>
           <span class="onboarding-btn__label">{{ t('onboarding.title') }}</span>
         </a-button>
@@ -58,7 +58,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useAppStore, useUserStore } from '@/store'
 import { useTierLabel } from '@/utils/license'
-import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
+import { useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 import LanguageSwitch from './language-switch.vue'
 import OrgSwitcher from './org-switcher.vue'
 
@@ -91,12 +91,11 @@ const showOrgSwitcher = computed(
   () => userStore.isEnterprise && (userStore.isPlatformAdmin || userStore.hasOrgContext),
 )
 
-// 配置向导按钮：仅有 provider:create 权限的用户可见。
-const canRunOnboarding = computed(() => userStore.hasPermission('provider:create'))
-
-function openOnboarding() {
-  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
-}
+// 配置向导按钮：仅有 provider:create 权限、且不在企业版全局视角（无主资源风险）时可见。
+const { blocked: onboardingBlocked, runOnboarding } = useOnboardingGuard()
+const canRunOnboarding = computed(
+  () => userStore.hasPermission('provider:create') && !onboardingBlocked.value,
+)
 </script>
 
 <style scoped lang="less">

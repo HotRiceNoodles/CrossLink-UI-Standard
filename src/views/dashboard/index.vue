@@ -132,7 +132,7 @@ import { datalensApi, buildTimeseriesQuery, buildTopNQuery } from '@/api/datalen
 import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store'
 import { providerApi } from '@/api/provider'
-import { ONBOARDING_DONE_KEY, ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
+import { ONBOARDING_DONE_KEY, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 import { useRange, RANGE_OPTIONS } from './composables/use-range'
 import { toTimeLabels, toSeries, toTopN, type TopNRow } from './composables/datalens-helpers'
 import type {
@@ -172,10 +172,12 @@ const systemInfo = ref<SystemInfoType | null>(null)
 
 // Onboarding 引导横幅：仅当无 provider 且未标记完成时显示。
 const showOnboardingBanner = ref(false)
+const { blocked: onboardingBlocked, runOnboarding } = useOnboardingGuard()
 
 async function checkOnboardingBanner() {
   if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
   if (!userStore.hasPermission('provider:create')) return
+  if (onboardingBlocked.value) return // 全局视角：会创建无主资源，不引导
   try {
     const res = await providerApi.list()
     if ((res.data || []).length === 0) showOnboardingBanner.value = true
@@ -189,7 +191,8 @@ function dismissOnboardingBanner() {
 }
 
 function reopenOnboarding() {
-  window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
+  // blocked 时 runOnboarding 会弹提示而非静默失败
+  runOnboarding()
   showOnboardingBanner.value = false
 }
 const license = ref<LicenseStatus | null>(null)

@@ -187,10 +187,11 @@ import type { Provider, ProviderModel, Adapter } from '@/types'
 import ProviderCard from './components/provider-card.vue'
 import ProviderForm from './components/provider-form.vue'
 import ModelForm from './components/model-form.vue'
-import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
+import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 
 const { loading, setLoading } = useLoading(false)
 const { t } = useI18n()
+const { blocked: onboardingBlocked, runOnboarding: runOnboardingGuarded } = useOnboardingGuard()
 
 // ---------- Data ----------
 const providerList = ref<Provider[]>([])
@@ -286,6 +287,11 @@ function openProviderCreate() {
 }
 
 function reopenOnboarding() {
+  // 企业版全局视角时弹提示，其余情况派发事件打开向导。
+  if (onboardingBlocked.value) {
+    runOnboardingGuarded() // 仅弹提示，不打开
+    return
+  }
   window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
 }
 

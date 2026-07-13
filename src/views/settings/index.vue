@@ -127,7 +127,7 @@ import { systemApi } from '@/api/system'
 import { useLoading } from '@/hooks/loading'
 import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
-import { ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
+import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 import type { SystemInfo, SystemSettings } from '@/types'
 
 const { t } = useI18n()
@@ -141,7 +141,14 @@ const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoad
 
 const user = computed(() => userStore.user)
 
+const { blocked: onboardingBlocked, runOnboarding: runOnboardingGuarded } = useOnboardingGuard()
+
 function reopenOnboarding() {
+  // 企业版全局视角时弹提示，其余情况派发事件打开向导。
+  if (onboardingBlocked.value) {
+    runOnboardingGuarded() // 仅弹提示，不打开
+    return
+  }
   window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
 }
 

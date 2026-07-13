@@ -1501,6 +1501,7 @@ export default {
     reopenFromEmpty: 'Run setup wizard',
 
     // errors
+    errGlobalView: 'Switch into an organization before running the setup wizard.',
     errNoAdapter: 'Please choose a source type first.',
     errNoUrl: 'Please fill in the API URL first.',
     errNetwork: 'Network error — is the backend running?',

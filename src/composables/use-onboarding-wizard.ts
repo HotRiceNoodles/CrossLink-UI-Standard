@@ -1,8 +1,10 @@
 import { ref, reactive, computed } from 'vue'
 import type { InjectionKey } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Message } from '@arco-design/web-vue'
 import { onboardingApi } from '@/api/onboarding'
 import { providerApi } from '@/api/provider'
+import { useUserStore } from '@/store'
 import { useLoading } from '@/hooks/loading'
 import type {
   OnboardingMode,
@@ -386,4 +388,32 @@ export function useOnboardingWizard() {
     submit,
     resetState,
   }
+}
+
+/**
+ * 多租户门控：企业版平台管理员处于"全局视角"（未 switchOrg 进具体企业）时，
+ * 后端 GetOrgID(c) 返回 0，向导创建的 provider/key 会变成无主资源（OrgID=0），
+ * 切换企业后从视图消失。此时应阻止向导运行。
+ *
+ * - 自动触发 / 可视化入口：用 `blocked` 隐藏或跳过。
+ * - 手动入口：用 `runOnboarding()`，被阻止时弹提示而非静默失败。
+ */
+export function useOnboardingGuard() {
+  const { t } = useI18n()
+  const userStore = useUserStore()
+
+  // 企业版平台管理员未进入企业上下文 = 全局视角。社区/专业版单租户 org=0 是正常的，不受影响。
+  const blocked = computed(
+    () => userStore.isEnterprise && userStore.isPlatformAdmin && !userStore.hasOrgContext,
+  )
+
+  function runOnboarding() {
+    if (blocked.value) {
+      Message.warning(t('onboarding.errGlobalView'))
+      return
+    }
+    window.dispatchEvent(new CustomEvent(ONBOARDING_EVENT))
+  }
+
+  return { blocked, runOnboarding }
 }

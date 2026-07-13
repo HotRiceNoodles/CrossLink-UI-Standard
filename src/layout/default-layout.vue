@@ -96,6 +96,8 @@ const showOnboarding = ref(false)
 async function maybeShowOnboarding() {
   if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
   if (!userStore.hasPermission('provider:create')) return
+  // 企业版平台管理员处于全局视角时禁止：会创建 OrgID=0 无主资源。
+  if (userStore.isEnterprise && userStore.isPlatformAdmin && !userStore.hasOrgContext) return
   try {
     const res = await providerApi.list()
     if ((res.data || []).length === 0) showOnboarding.value = true
@@ -105,6 +107,8 @@ async function maybeShowOnboarding() {
 }
 
 function reopenOnboarding() {
+  // 双保险：即便事件从某处漏出，全局视角也不打开。
+  if (userStore.isEnterprise && userStore.isPlatformAdmin && !userStore.hasOrgContext) return
   showOnboarding.value = true
 }
 

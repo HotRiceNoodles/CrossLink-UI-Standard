@@ -1483,6 +1483,7 @@ export default {
     reopenFromEmpty: '运行配置向导',
 
     // 错误人性化
+    errGlobalView: '请先切换到具体企业后再运行配置向导。',
     errNoAdapter: '请先选择来源类型。',
     errNoUrl: '请先填写 API 地址。',
     errNetwork: '网络错误，请检查后端服务是否可用。',
