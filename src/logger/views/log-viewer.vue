@@ -44,7 +44,7 @@
             size="small"
           />
         </a-col>
-        <a-col :span="4" style="text-align: right">
+        <a-col :span="4" style="text-align: end">
           <span style="color: var(--color-text-3); font-size: 12px">
             {{ t('logger.totalCount', [filteredLogs.length]) }}
           </span>
@@ -254,7 +254,7 @@ onUnmounted(() => {
 
   .log-detail {
     margin-top: 8px;
-    padding-left: 68px;
+    padding-inline-start: 68px;
   }
 
   .log-section {

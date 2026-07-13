@@ -377,7 +377,7 @@ function formatTime(val: string) {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding-right: 24px;
+  padding-inline-end: 24px;
 }
 
 .drawer-title-left {
@@ -436,7 +436,7 @@ function formatTime(val: string) {
 
 .detail-value {
   color: var(--color-text-1);
-  text-align: right;
+  text-align: end;
   word-break: break-all;
 
   &.mono {
@@ -522,7 +522,7 @@ function formatTime(val: string) {
   font-size: 12px;
   color: var(--color-text-2);
   min-width: 120px;
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
 }
 
@@ -579,7 +579,7 @@ function formatTime(val: string) {
   color: var(--color-text-1);
   font-weight: 500;
   min-width: 64px;
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
 }
 

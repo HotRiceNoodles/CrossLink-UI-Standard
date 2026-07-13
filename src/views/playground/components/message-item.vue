@@ -246,7 +246,7 @@ function onCodeClick(e: MouseEvent) {
   width: 2px;
   height: 16px;
   background: rgb(var(--arcoblue-6));
-  margin-left: 2px;
+  margin-inline-start: 2px;
   vertical-align: text-bottom;
   animation: blink 1s step-end infinite;
 }
@@ -255,13 +255,13 @@ function onCodeClick(e: MouseEvent) {
 .thinking-section {
   margin-bottom: 8px;
   border: 1px solid var(--color-border-2);
-  border-left: 3px solid rgb(var(--warning-6));
+  border-inline-start: 3px solid rgb(var(--warning-6));
   border-radius: 8px;
   overflow: hidden;
   background: var(--color-fill-1);
 
   &.is-thinking {
-    border-left-color: rgb(var(--arcoblue-6));
+    border-inline-start-color: rgb(var(--arcoblue-6));
   }
 }
 
@@ -395,7 +395,7 @@ function onCodeClick(e: MouseEvent) {
   ul,
   ol {
     margin: 4px 0;
-    padding-left: 20px;
+    padding-inline-start: 20px;
   }
 
   li {
@@ -405,7 +405,7 @@ function onCodeClick(e: MouseEvent) {
   blockquote {
     margin: 8px 0;
     padding: 4px 12px;
-    border-left: 3px solid rgb(var(--arcoblue-6));
+    border-inline-start: 3px solid rgb(var(--arcoblue-6));
     background: var(--color-fill-1);
     border-radius: 0 4px 4px 0;
     color: var(--color-text-2);
@@ -431,7 +431,7 @@ function onCodeClick(e: MouseEvent) {
     td {
       border: 1px solid var(--color-border-2);
       padding: 6px 12px;
-      text-align: left;
+      text-align: start;
     }
     th {
       background: var(--color-fill-2);

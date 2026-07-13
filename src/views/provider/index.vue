@@ -137,14 +137,14 @@
           <!-- 自动选择 -->
           <a-radio value="">
             <span>{{ t('provider.testModelAuto') }}</span>
-            <span style="color: var(--color-text-3); font-size: 12px; margin-left: 8px">
+            <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
               {{ t('provider.testModelAutoDesc') }}
             </span>
           </a-radio>
           <!-- 具体模型列表 -->
           <a-radio v-for="m in testTargetModels" :key="m.id" :value="m.provider_model">
             <span style="font-weight: 600">{{ m.model_name }}</span>
-            <span style="color: var(--color-text-3); font-size: 12px; margin-left: 8px">
+            <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
               {{ m.provider_model }}
             </span>
           </a-radio>

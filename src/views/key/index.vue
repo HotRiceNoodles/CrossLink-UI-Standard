@@ -391,7 +391,7 @@
         {{ t('key.keyCreatedWarning') }}
       </a-alert>
       <a-input :model-value="createdKey" readonly style="font-family: monospace" />
-      <div style="margin-top: 16px; text-align: right">
+      <div style="margin-top: 16px; text-align: end">
         <a-space>
           <a-button v-if="copyFailed" @click="confirmCopied">
             {{ t('key.confirmedCopied') }}

@@ -423,7 +423,7 @@ onActivated(() => {
 .range-label {
   font-size: 13px;
   color: var(--color-text-2);
-  margin-right: 2px;
+  margin-inline-end: 2px;
 }
 
 .range-group {

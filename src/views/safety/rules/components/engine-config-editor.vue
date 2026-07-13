@@ -11,7 +11,7 @@
         :content="t('safety.config.complexFieldHint', [complexFieldNames])"
       >
         <icon-exclamation-circle
-          style="color: rgb(var(--warning-6)); margin-left: 8px; cursor: help"
+          style="color: rgb(var(--warning-6)); margin-inline-start: 8px; cursor: help"
         />
       </a-tooltip>
     </div>

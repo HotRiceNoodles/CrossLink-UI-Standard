@@ -208,7 +208,7 @@ function formatDate(dateStr: string): string {
   }
 
   &--danger {
-    border-left: 3px solid rgb(var(--danger-6));
+    border-inline-start: 3px solid rgb(var(--danger-6));
   }
 
   &__header {

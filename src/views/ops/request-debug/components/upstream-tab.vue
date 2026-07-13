@@ -143,7 +143,7 @@ const { copy } = useCopyWithFeedback()
       font-size: 12px;
       color: var(--color-text-3);
       font-variant-numeric: tabular-nums;
-      margin-left: auto;
+      margin-inline-start: auto;
     }
 
     .hop-attempt {

@@ -221,6 +221,6 @@ watch(
 .submit-error {
   color: rgb(var(--danger-6));
   font-size: 13px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 </style>

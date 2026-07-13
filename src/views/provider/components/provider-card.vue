@@ -300,7 +300,7 @@ function formatPrice(price: number | null | undefined, currency?: string): strin
     margin-bottom: 12px;
 
     .meta-label {
-      margin-right: 8px;
+      margin-inline-end: 8px;
     }
 
     .meta-value {

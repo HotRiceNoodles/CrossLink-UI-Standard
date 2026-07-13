@@ -5,17 +5,21 @@
       <icon-down />
     </a-button>
     <template #content>
-      <a-doption value="zh-CN" :class="{ 'lang-active': currentLocale === 'zh-CN' }">
-        简体中文
-      </a-doption>
-      <a-doption value="en-US" :class="{ 'lang-active': currentLocale === 'en-US' }">
-        English
+      <a-doption
+        v-for="loc in availableLocales"
+        :key="loc.value"
+        :value="loc.value"
+        :class="{ 'lang-active': currentLocale === loc.value }"
+      >
+        {{ loc.label }}
       </a-doption>
     </template>
   </a-dropdown>
 </template>
 
 <script setup lang="ts">
+import { availableLocales } from '@/locale'
+
 defineProps<{
   currentLocale: string
 }>()

@@ -99,7 +99,7 @@ onMounted(() => {
 }
 
 .logo-text {
-  margin-left: 12px;
+  margin-inline-start: 12px;
   font-size: 18px;
   font-weight: 600;
 }

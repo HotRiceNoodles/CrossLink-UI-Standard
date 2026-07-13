@@ -103,7 +103,7 @@ function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
   width: 240px;
   height: 100vh;
   background: var(--color-bg-2);
-  border-right: 1px solid var(--color-border);
+  border-inline-end: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.34, 0.69, 0.1, 1);
@@ -131,7 +131,7 @@ function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
 }
 
 .logo-text {
-  margin-left: 10px;
+  margin-inline-start: 10px;
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text-1);

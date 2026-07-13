@@ -130,8 +130,8 @@ function openRepo() {
 
   .hero,
   .capability-band {
-    padding-left: 20px;
-    padding-right: 20px;
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
   }
 }
 </style>

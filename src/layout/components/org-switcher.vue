@@ -118,13 +118,13 @@ async function handleBackToPlatform() {
   }
 
   :deep(.arco-btn-icon) {
-    margin-right: 2px;
+    margin-inline-end: 2px;
   }
 }
 
 .org-switcher-arrow {
   font-size: 12px;
-  margin-left: 2px;
+  margin-inline-start: 2px;
   opacity: 0.5;
 }
 
@@ -136,8 +136,8 @@ async function handleBackToPlatform() {
   font-weight: 500;
   color: var(--color-text-2);
   padding: 0 8px;
-  border-left: 1px solid var(--color-border);
-  margin-left: 4px;
+  border-inline-start: 1px solid var(--color-border);
+  margin-inline-start: 4px;
 }
 
 .org-search-panel {

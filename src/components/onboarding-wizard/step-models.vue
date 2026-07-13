@@ -166,7 +166,7 @@ function onPresetToggle(p: string, checked: boolean | (string | number | boolean
   font-family: monospace;
 }
 .model-owner {
-  margin-left: 8px;
+  margin-inline-start: 8px;
   color: var(--color-text-3);
   font-size: 12px;
 }

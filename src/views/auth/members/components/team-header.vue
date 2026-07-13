@@ -37,7 +37,11 @@
           <span class="meta-sep">·</span>
           <span>RPM {{ team.rpm_limit }}</span>
         </template>
-        <a-tag :color="team.status === 1 ? 'green' : 'red'" size="small" style="margin-left: 4px">
+        <a-tag
+          :color="team.status === 1 ? 'green' : 'red'"
+          size="small"
+          style="margin-inline-start: 4px"
+        >
           {{ team.status === 1 ? t('common.enabled') : t('common.disabled') }}
         </a-tag>
       </div>

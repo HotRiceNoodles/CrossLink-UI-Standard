@@ -249,8 +249,8 @@ function typeLabel(type: string): string {
       color: var(--color-text-3);
       font-size: 12px;
       font-style: italic;
-      padding-left: 10px;
-      border-left: 2px solid var(--color-fill-3);
+      padding-inline-start: 10px;
+      border-inline-start: 2px solid var(--color-fill-3);
     }
 
     .step-tool-name {

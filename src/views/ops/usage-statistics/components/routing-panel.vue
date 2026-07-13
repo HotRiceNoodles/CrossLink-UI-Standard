@@ -263,7 +263,7 @@ watch(
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
   min-width: 42px;
-  text-align: right;
+  text-align: end;
 }
 
 .num {

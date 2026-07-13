@@ -117,7 +117,7 @@ const canRunOnboarding = computed(
 }
 
 .navbar-breadcrumb {
-  margin-left: 4px;
+  margin-inline-start: 4px;
 }
 
 .navbar-right {

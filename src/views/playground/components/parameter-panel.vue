@@ -239,7 +239,7 @@ function updateParam(key: string, value: unknown) {
 .parameter-panel {
   width: 320px;
   flex-shrink: 0;
-  border-left: 1px solid var(--color-border-2);
+  border-inline-start: 1px solid var(--color-border-2);
   background: var(--color-bg-2);
   display: flex;
   flex-direction: column;

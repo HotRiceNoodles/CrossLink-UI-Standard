@@ -413,7 +413,7 @@ onMounted(() => {
 .left-panel {
   flex-shrink: 0;
   width: 240px;
-  border-right: 1px solid var(--color-border);
+  border-inline-end: 1px solid var(--color-border);
   overflow-y: auto;
 }
 

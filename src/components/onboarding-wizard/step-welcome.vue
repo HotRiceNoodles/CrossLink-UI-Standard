@@ -67,7 +67,7 @@ const emit = defineEmits<{ select: [OnboardingMode] }>()
   gap: 16px;
 }
 .mode-card {
-  text-align: left;
+  text-align: start;
   padding: 20px;
   border: 1px solid var(--color-fill-3);
   border-radius: 8px;

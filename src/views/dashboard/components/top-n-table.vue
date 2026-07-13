@@ -265,7 +265,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 .col-metric {
   // Width is fixed by the row's grid template (84px track); text alignment
   // is what this class now controls.
-  text-align: left;
+  text-align: start;
   color: var(--color-text-2);
   font-variant-numeric: tabular-nums;
 }
@@ -282,7 +282,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 .bar-num {
   flex: 0 0 auto;
   min-width: 48px;
-  text-align: left;
+  text-align: start;
 }
 
 .bar-track {
@@ -320,7 +320,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .sort-arrow {
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 // Drill-down rows

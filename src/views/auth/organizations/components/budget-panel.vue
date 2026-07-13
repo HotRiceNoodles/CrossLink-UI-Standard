@@ -28,7 +28,7 @@
           />
         </div>
 
-        <div style="margin-top: 20px; text-align: right">
+        <div style="margin-top: 20px; text-align: end">
           <a-popconfirm
             :content="t('auth.organizations.calibrateConfirm')"
             type="warning"

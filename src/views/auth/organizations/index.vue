@@ -150,7 +150,7 @@
       <!-- Pagination (card view only — table has its own) -->
       <div
         v-if="viewMode === 'card' && filteredList.length > cardPageSize"
-        style="margin-top: 16px; text-align: right"
+        style="margin-top: 16px; text-align: end"
       >
         <a-pagination
           v-model:current="cardCurrent"
@@ -312,7 +312,7 @@
           </a-input-password>
         </a-form-item>
       </a-form>
-      <div style="margin-top: 16px; text-align: right">
+      <div style="margin-top: 16px; text-align: end">
         <a-space>
           <a-button @click="handleCopyAll">
             <template #icon><icon-copy /></template>
