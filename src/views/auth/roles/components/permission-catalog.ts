@@ -132,4 +132,9 @@ export const permissionCatalog: PermissionGroup[] = [
     labelI18nKey: 'auth.permissions.errorRule',
     actions: ['error_rule:list', 'error_rule:create', 'error_rule:update', 'error_rule:delete'],
   },
+  {
+    key: 'promptTemplate',
+    labelI18nKey: 'auth.permissions.promptTemplate',
+    actions: ['template:list', 'template:create', 'template:update', 'template:delete'],
+  },
 ]
