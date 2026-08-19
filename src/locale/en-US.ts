@@ -1096,6 +1096,8 @@ export default {
     kpiActiveKeys: 'Active Keys',
     colModel: 'Model',
     colTeam: 'Team',
+    colTemplate: 'Template',
+    topTemplates: 'Top Templates',
     colRequests: 'Requests',
     colTokens: 'Tokens',
     colCost: 'Cost',

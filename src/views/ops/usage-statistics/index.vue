@@ -156,7 +156,7 @@
 
         <!-- Distribution tables -->
         <a-grid :cols="24" :col-gap="16" :row-gap="16" class="section">
-          <a-grid-item :span="12">
+          <a-grid-item :span="8">
             <DistributionTable
               :title="t('dashboard.modelDistribution')"
               :rows="modelRows"
@@ -164,12 +164,20 @@
               :currency="stats.currency"
             />
           </a-grid-item>
-          <a-grid-item :span="12">
+          <a-grid-item :span="8">
             <DistributionTable
               :title="t('dashboard.topTeams')"
               :rows="teamRows"
               :name-label="t('usageStat.colTeam')"
               :currency="teamCurrency"
+            />
+          </a-grid-item>
+          <a-grid-item :span="8">
+            <DistributionTable
+              :title="t('usageStat.topTemplates')"
+              :rows="templateRows"
+              :name-label="t('usageStat.colTemplate')"
+              :currency="stats.currency"
             />
           </a-grid-item>
         </a-grid>
@@ -216,6 +224,7 @@ const {
   daily,
   models,
   teams,
+  templates,
   loading,
   trendCurrency,
   teamCurrency,
@@ -240,6 +249,14 @@ const teamRows = computed(() =>
     requests: tm.total_requests,
     tokens: tm.total_tokens,
     cost: tm.total_cost,
+  })),
+)
+const templateRows = computed(() =>
+  templates.value.map((tp) => ({
+    name: tp.template_name,
+    requests: tp.total_requests,
+    tokens: tp.total_tokens,
+    cost: tp.total_cost,
   })),
 )
 

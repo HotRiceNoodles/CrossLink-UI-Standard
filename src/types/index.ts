@@ -367,6 +367,15 @@ export interface TeamStat {
   total_cost: number
 }
 
+// /usage/templates: per-template usage aggregate (top 20 by requests)
+export interface TemplateStat {
+  template_id: number
+  template_name: string
+  total_requests: number
+  total_tokens: number
+  total_cost: number
+}
+
 // /routing/stats: one provider's configured weight vs actual traffic for a model
 export interface RoutingStatRow {
   provider_id: number

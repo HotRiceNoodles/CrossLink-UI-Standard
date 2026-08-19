@@ -1017,6 +1017,8 @@ export default {
     kpiActiveKeys: 'المفاتيح النشطة',
     colModel: 'النموذج',
     colTeam: 'الفريق',
+    colTemplate: 'القالب',
+    topTemplates: 'القوالب الأكثر استخدامًا',
     colRequests: 'الطلبات',
     colTokens: 'الرموز',
     colCost: 'التكلفة',

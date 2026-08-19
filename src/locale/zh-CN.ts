@@ -1080,6 +1080,8 @@ export default {
     // 表格
     colModel: '模型',
     colTeam: '团队',
+    colTemplate: '模板',
+    topTemplates: '热门模板',
     colRequests: '请求数',
     colTokens: 'Token',
     colCost: '费用',

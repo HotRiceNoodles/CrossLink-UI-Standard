@@ -2,7 +2,14 @@ import { reactive, ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { usageApi } from '@/api/usage'
 import { useRange } from '@/views/dashboard/composables/use-range'
-import type { UsageStats, DailyTrend, ModelDistribution, TeamStat, UsageQuery } from '@/types'
+import type {
+  UsageStats,
+  DailyTrend,
+  ModelDistribution,
+  TeamStat,
+  TemplateStat,
+  UsageQuery,
+} from '@/types'
 
 const EMPTY_STATS: UsageStats = {
   total_requests: 0,
@@ -14,9 +21,9 @@ const EMPTY_STATS: UsageStats = {
 
 /**
  * 用量统计页数据层：维护过滤状态，把单个 range 预设同时映射成
- *  - `days` 给 /usage/daily、/usage/models、/usage/team-stats
+ *  - `days` 给 /usage/daily、/usage/models、/usage/team-stats、/usage/templates
  *  - `{ start_date, end_date }` 给 /usage/stats
- * 并并行拉取 4 个聚合端点。失败用 Message 提示，部分成功也保留已有数据。
+ * 并并行拉取 5 个聚合端点。失败用 Message 提示，部分成功也保留已有数据。
  */
 export function useUsageData(tFail: () => string) {
   const { range, days, dateBounds } = useRange('7d')
@@ -34,6 +41,7 @@ export function useUsageData(tFail: () => string) {
   const daily = ref<DailyTrend[]>([])
   const models = ref<ModelDistribution[]>([])
   const teams = ref<TeamStat[]>([])
+  const templates = ref<TemplateStat[]>([])
 
   const loading = ref(false)
   const trendCurrency = ref('CNY')
@@ -55,11 +63,12 @@ export function useUsageData(tFail: () => string) {
     loading.value = true
     try {
       const common = commonParams()
-      const [statsRes, dailyRes, modelsRes, teamsRes] = await Promise.allSettled([
+      const [statsRes, dailyRes, modelsRes, teamsRes, templatesRes] = await Promise.allSettled([
         usageApi.stats({ ...common, ...dateBounds.value }),
         usageApi.daily({ ...common, days: days.value }),
         usageApi.models({ ...common, days: days.value }),
         usageApi.teamStats({ ...common, days: days.value }),
+        usageApi.templateStats({ ...common, days: days.value }),
       ])
 
       if (statsRes.status === 'fulfilled') stats.value = statsRes.value.data
@@ -74,9 +83,10 @@ export function useUsageData(tFail: () => string) {
         teamCurrency.value =
           (teamsRes.value as { currency?: string }).currency || teamCurrency.value
       }
+      if (templatesRes.status === 'fulfilled') templates.value = templatesRes.value.data
 
       // 全部失败才提示；部分失败时已有数据继续展示
-      const allFailed = [statsRes, dailyRes, modelsRes, teamsRes].every(
+      const allFailed = [statsRes, dailyRes, modelsRes, teamsRes, templatesRes].every(
         (r) => r.status === 'rejected',
       )
       if (allFailed) Message.error(tFail())
@@ -103,6 +113,7 @@ export function useUsageData(tFail: () => string) {
     daily,
     models,
     teams,
+    templates,
     loading,
     trendCurrency,
     teamCurrency,
