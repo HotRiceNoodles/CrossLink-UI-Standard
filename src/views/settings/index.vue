@@ -86,11 +86,7 @@
         </a-card>
 
         <!-- Feature Settings -->
-        <a-card
-          v-if="settingsAvailable"
-          class="general-card"
-          :title="t('settings.featureSettings')"
-        >
+        <a-card class="general-card" :title="t('settings.featureSettings')">
           <div class="feature-item">
             <div class="feature-info">
               <span class="feature-label">{{ t('settings.logContent') }}</span>
@@ -128,14 +124,13 @@ import { useLoading } from '@/hooks/loading'
 import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
 import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
-import type { SystemInfo, SystemSettings } from '@/types'
+import type { SystemInfo } from '@/types'
 
 const { t } = useI18n()
 const userStore = useUserStore()
 
 const { loading, setLoading } = useLoading(true)
 const systemInfo = ref<SystemInfo | null>(null)
-const settingsAvailable = ref(false)
 const logContentEnabled = ref(false)
 const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoading()
 
@@ -155,7 +150,7 @@ function reopenOnboarding() {
 async function handleLogContentChange(value: boolean | number | string) {
   setLogContentLoading(true)
   try {
-    await settingsApi.updateSettings({ log_content: !!value })
+    await settingsApi.updateContentLog(!!value)
     Message.success(t('settings.updateSuccess'))
   } catch {
     logContentEnabled.value = !value
@@ -168,18 +163,16 @@ async function handleLogContentChange(value: boolean | number | string) {
 onMounted(async () => {
   setLoading(true)
   try {
-    const [sysRes, settingsRes] = await Promise.allSettled([
+    const [sysRes, contentLogRes] = await Promise.allSettled([
       systemApi.info(),
-      settingsApi.getSettings(),
+      settingsApi.getContentLog(),
     ])
 
     if (sysRes.status === 'fulfilled') {
       systemInfo.value = sysRes.value.data
     }
-    if (settingsRes.status === 'fulfilled') {
-      settingsAvailable.value = true
-      const settings = settingsRes.value.data as SystemSettings
-      logContentEnabled.value = settings.log_content
+    if (contentLogRes.status === 'fulfilled') {
+      logContentEnabled.value = contentLogRes.value.data.enabled
     }
   } finally {
     setLoading(false)

@@ -434,6 +434,10 @@ export interface LicenseStatus {
 }
 
 // System Settings
+export interface ContentLogSetting {
+  enabled: boolean
+}
+
 export interface SystemSettings {
   log_content: boolean
   debug_mode: boolean
