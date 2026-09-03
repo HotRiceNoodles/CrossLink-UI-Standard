@@ -22,7 +22,11 @@
             <a-grid-item :span="12">
               <div class="field-item">
                 <span class="field-label">{{ t('settings.version') }}</span>
-                <span class="field-value">{{ systemInfo?.version || '--' }}</span>
+                <span class="field-value">
+                  {{ t('settings.frontend') }} v{{ appVersion }} · {{ t('settings.backend') }} v{{
+                    backendVersion || '--'
+                  }}
+                </span>
               </div>
             </a-grid-item>
             <a-grid-item :span="12">
@@ -131,6 +135,8 @@ const userStore = useUserStore()
 
 const { loading, setLoading } = useLoading(true)
 const systemInfo = ref<SystemInfo | null>(null)
+const appVersion = __APP_VERSION__
+const backendVersion = ref('')
 const logContentEnabled = ref(false)
 const { loading: logContentLoading, setLoading: setLogContentLoading } = useLoading()
 
@@ -163,9 +169,10 @@ async function handleLogContentChange(value: boolean | number | string) {
 onMounted(async () => {
   setLoading(true)
   try {
-    const [sysRes, contentLogRes] = await Promise.allSettled([
+    const [sysRes, contentLogRes, versionRes] = await Promise.allSettled([
       systemApi.info(),
       settingsApi.getContentLog(),
+      systemApi.getBackendVersion(),
     ])
 
     if (sysRes.status === 'fulfilled') {
@@ -173,6 +180,10 @@ onMounted(async () => {
     }
     if (contentLogRes.status === 'fulfilled') {
       logContentEnabled.value = contentLogRes.value.data.enabled
+    }
+    // getBackendVersion resolve 的是裸字符串（非 ApiResponse），失败降级 '--'
+    if (versionRes.status === 'fulfilled') {
+      backendVersion.value = versionRes.value
     }
   } finally {
     setLoading(false)

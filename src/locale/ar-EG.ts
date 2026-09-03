@@ -1317,6 +1317,8 @@ export default {
     username: 'اسم المستخدم',
     role: 'الدور',
     version: 'إصدار النظام',
+    frontend: 'الواجهة الأمامية',
+    backend: 'الواجهة الخلفية',
     tokenExpiry: 'انتهاء صلاحية الرمز (ثوانٍ)',
     licenseInfo: 'معلومات الترخيص',
     licenseTier: 'مستوى الترخيص',

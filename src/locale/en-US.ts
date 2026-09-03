@@ -1324,6 +1324,8 @@ export default {
     username: 'Username',
     role: 'Role',
     version: 'System Version',
+    frontend: 'Frontend',
+    backend: 'Backend',
     tokenExpiry: 'Token Expiry (seconds)',
     licenseInfo: 'License Information',
     licenseTier: 'License Tier',

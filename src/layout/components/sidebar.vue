@@ -61,7 +61,13 @@
           </div>
         </a-tooltip>
       </div>
-      <span class="version-text" @click="emit('versionTap')">v{{ version }}</span>
+      <a-tooltip :disabled="!backendVersion" position="right" mini>
+        <span class="version-text" @click="emit('versionTap')">v{{ version }}</span>
+        <template #content>
+          <div>{{ t('settings.frontend') }} v{{ version }}</div>
+          <div>{{ t('settings.backend') }} v{{ backendVersion }}</div>
+        </template>
+      </a-tooltip>
     </div>
   </aside>
 </template>
@@ -70,10 +76,12 @@
 import { useI18n } from 'vue-i18n'
 import type { RouteRecordRaw } from 'vue-router'
 import { useMenuVisibility } from '@/hooks/menu-visibility'
+import { useBackendVersion } from '@/composables/use-backend-version'
 
 const { t } = useI18n()
 const version = __APP_VERSION__
 const { isVisible } = useMenuVisibility()
+const { backendVersion } = useBackendVersion()
 
 defineProps<{
   menuCollapse: boolean

@@ -1304,6 +1304,8 @@ export default {
     username: '用户名',
     role: '角色',
     version: '系统版本',
+    frontend: '前端',
+    backend: '后端',
     tokenExpiry: 'Token 有效期（秒）',
     licenseInfo: '授权信息',
     licenseTier: '授权级别',
