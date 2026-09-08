@@ -503,6 +503,7 @@ export default {
       errorRule: 'Error Rules',
       promptTemplate: 'Prompt Templates',
       routing: 'Routing',
+      pat: 'Access Tokens',
 
       // System
       'system:password': 'Change Password',
@@ -616,6 +617,11 @@ export default {
 
       // Routing
       'routing:stats': 'View Routing Statistics',
+
+      // Access Tokens
+      'pat:manage': 'Manage Access Tokens',
+      'budget:read': 'View Budget Status',
+      'health:read': 'View Health Status',
     },
   },
   promptTemplate: {

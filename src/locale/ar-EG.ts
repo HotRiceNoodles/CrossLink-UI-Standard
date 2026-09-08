@@ -502,6 +502,7 @@ export default {
       errorRule: 'قواعد الأخطاء',
       promptTemplate: 'قوالب الأوامر',
       routing: 'التوجيه',
+      pat: 'رموز الوصول',
 
       // System
       'system:password': 'تغيير كلمة المرور',
@@ -615,6 +616,11 @@ export default {
 
       // Routing
       'routing:stats': 'عرض إحصاءات التوجيه',
+
+      // Access Tokens
+      'pat:manage': 'إدارة رموز الوصول',
+      'budget:read': 'عرض حالة الميزانية',
+      'health:read': 'عرض حالة الصحة',
     },
   },
   promptTemplate: {

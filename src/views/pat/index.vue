@@ -49,21 +49,20 @@
           <a-table-column :title="t('pat.tableScopes')" :width="240">
             <template #cell="{ record }">
               <template v-if="record.scopes?.length">
-                <a-tag
-                  v-for="s in record.scopes.slice(0, 3)"
-                  :key="s"
-                  size="small"
-                  class="scope-tag"
-                >
-                  {{ s }}
-                </a-tag>
+                <a-tooltip v-for="s in record.scopes.slice(0, 3)" :key="s" :content="s">
+                  <a-tag size="small" class="scope-tag">
+                    {{ permissionLabel(s) }}
+                  </a-tag>
+                </a-tooltip>
                 <a-popover v-if="record.scopes.length > 3" position="top">
                   <a-tag size="small" class="scope-tag">
                     {{ t('pat.moreScopes', { n: record.scopes.length - 3 }) }}
                   </a-tag>
                   <template #content>
                     <div class="scope-popover">
-                      <a-tag v-for="s in record.scopes" :key="s" size="small">{{ s }}</a-tag>
+                      <a-tooltip v-for="s in record.scopes" :key="s" :content="s">
+                        <a-tag size="small">{{ permissionLabel(s) }}</a-tag>
+                      </a-tooltip>
                     </div>
                   </template>
                 </a-popover>
@@ -149,11 +148,14 @@
 
         <a-form-item field="scopes" :label="t('pat.scopesLabel')">
           <div class="scope-groups">
-            <div v-for="[domain, actions] in scopeGroups" :key="domain" class="scope-group">
-              <div class="scope-group-title">{{ domain }}</div>
+            <div v-for="group in scopeGroups" :key="group.domain" class="scope-group">
+              <div class="scope-group-title">{{ group.label }}</div>
               <a-checkbox-group v-model="formData.scopes" direction="vertical">
-                <a-checkbox v-for="a in actions" :key="a" :value="a">
-                  <span class="scope-action">{{ a }}</span>
+                <a-checkbox v-for="a in group.actions" :key="a" :value="a">
+                  <span class="scope-action">
+                    {{ permissionLabel(a) }}
+                    <span class="scope-raw">{{ a }}</span>
+                  </span>
                 </a-checkbox>
               </a-checkbox-group>
             </div>
@@ -200,11 +202,12 @@ import dayjs from 'dayjs'
 import { patApi } from '@/api/pat'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store/modules/user'
+import { permissionCatalog } from '@/views/auth/roles/components/permission-catalog'
 import { formatTime } from '@/utils/format'
 import { copyToClipboard } from '@/utils/clipboard'
 import type { PatToken } from '@/types'
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const userStore = useUserStore()
 
 // One-time token reveal modal (unique to this view)
@@ -259,7 +262,19 @@ const formRules = {
   ],
 }
 
-// PAT scopes 必须是调用者有效权限的子集（后端校验），前端直接以权限全集作数据源
+// PAT scopes 必须是调用者有效权限的子集（后端校验），前端直接以权限全集作数据源。
+// 展示走 auth.permissions.* 翻译（角色编辑器同款），缺失时回退原始标识符。
+function permissionLabel(action: string): string {
+  const key = `auth.permissions.${action}`
+  return te(key) ? t(key) : action
+}
+
+// action → 分组标题 i18n key（复用角色管理的权限目录；未收录的按域前缀回退）
+const groupLabelKeyByAction = new Map<string, string>()
+for (const group of permissionCatalog) {
+  for (const a of group.actions) groupLabelKeyByAction.set(a, group.labelI18nKey)
+}
+
 const scopeGroups = computed(() => {
   const groups: Record<string, string[]> = {}
   for (const p of userStore.permissions) {
@@ -267,7 +282,13 @@ const scopeGroups = computed(() => {
     ;(groups[domain] ??= []).push(p)
   }
   for (const actions of Object.values(groups)) actions.sort()
-  return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b))
+  return Object.entries(groups)
+    .map(([domain, actions]) => {
+      const labelKey = groupLabelKeyByAction.get(actions[0]) ?? `auth.permissions.${domain}`
+      const label = te(labelKey) ? t(labelKey) : domain
+      return { domain, label, actions }
+    })
+    .sort((a, b) => a.label.localeCompare(b.label))
 })
 
 function isExpired(record: PatToken) {
@@ -341,8 +362,14 @@ function closeTokenModal() {
 }
 
 .scope-action {
-  font-family: monospace;
-  font-size: 12px;
+  font-size: 13px;
+
+  .scope-raw {
+    margin-left: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--color-text-4);
+  }
 }
 
 .form-extra {

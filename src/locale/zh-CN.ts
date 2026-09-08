@@ -498,6 +498,7 @@ export default {
       errorRule: '错误规则',
       promptTemplate: '提示词模板',
       routing: '路由策略',
+      pat: '访问令牌',
 
       // 系统管理
       'system:password': '修改密码',
@@ -611,6 +612,11 @@ export default {
 
       // 路由策略
       'routing:stats': '查看路由统计',
+
+      // 访问令牌
+      'pat:manage': '管理访问令牌',
+      'budget:read': '查看预算状态',
+      'health:read': '查看健康状态',
     },
   },
   promptTemplate: {

@@ -137,4 +137,9 @@ export const permissionCatalog: PermissionGroup[] = [
     labelI18nKey: 'auth.permissions.promptTemplate',
     actions: ['template:list', 'template:create', 'template:update', 'template:delete'],
   },
+  {
+    key: 'pat',
+    labelI18nKey: 'auth.permissions.pat',
+    actions: ['pat:manage', 'budget:read', 'health:read'],
+  },
 ]
