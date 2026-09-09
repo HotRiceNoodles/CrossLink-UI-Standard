@@ -78,6 +78,12 @@
               <a-space>
                 <a-button type="primary" @click="fetchAll">{{ t('common.search') }}</a-button>
                 <a-button @click="onReset">{{ t('common.reset') }}</a-button>
+                <a-tooltip :content="t('usageStat.exportReconciliationTip')">
+                  <a-button :loading="exportLoading" @click="onExportReconciliation">
+                    <template #icon><icon-download /></template>
+                    {{ t('usageStat.exportReconciliation') }}
+                  </a-button>
+                </a-tooltip>
               </a-space>
             </div>
           </a-col>
@@ -199,6 +205,8 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Message } from '@arco-design/web-vue'
+import { usageApi } from '@/api/usage'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
@@ -309,6 +317,22 @@ async function loadFilterOptions() {
 function onReset() {
   resetFilter()
   fetchAll()
+}
+
+// 对账 CSV 导出：仅映射时间范围(days)与 Key 筛选(key_id)，其余筛选器不参与
+const exportLoading = ref(false)
+
+async function onExportReconciliation() {
+  exportLoading.value = true
+  try {
+    const params: { days: number; key_id?: number } = { days: days.value }
+    if (filter.api_key_id != null) params.key_id = filter.api_key_id
+    await usageApi.exportReconciliation(params)
+  } catch {
+    Message.error(t('usageStat.exportFail'))
+  } finally {
+    exportLoading.value = false
+  }
 }
 
 // 切换时间预设立即查询；其它筛选项仍由「查询」按钮显式触发

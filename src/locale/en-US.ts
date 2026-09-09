@@ -1119,6 +1119,10 @@ export default {
     colDeviation: 'Deviation',
     empty: 'No data for the current filters',
     fetchFail: 'Failed to fetch statistics',
+    exportReconciliation: 'Export Reconciliation',
+    exportReconciliationTip:
+      'Billing reconciliation report aggregated by key × model (CSV, current range and key filter)',
+    exportFail: 'Export failed',
   },
   requestDebug: {
     title: 'Request Debugging',

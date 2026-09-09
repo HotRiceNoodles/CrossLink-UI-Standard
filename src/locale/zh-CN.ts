@@ -1102,6 +1102,9 @@ export default {
     colDeviation: '偏差',
     empty: '当前筛选条件下暂无数据',
     fetchFail: '获取统计数据失败',
+    exportReconciliation: '导出对账',
+    exportReconciliationTip: '按 Key × 模型聚合的计费对账报表（CSV，当前时间范围与 Key 筛选）',
+    exportFail: '导出失败',
   },
   requestDebug: {
     title: '请求调试',

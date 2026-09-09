@@ -1113,6 +1113,10 @@ export default {
     colDeviation: 'الانحراف',
     empty: 'لا توجد بيانات للمرشحات الحالية',
     fetchFail: 'فشل جلب الإحصاءات',
+    exportReconciliation: 'تصدير التسوية',
+    exportReconciliationTip:
+      'تقرير تسوية الفواتير مجمّع حسب المفتاح × النموذج (CSV، النطاق الحالي ومرشح المفتاح)',
+    exportFail: 'فشل التصدير',
   },
   requestDebug: {
     title: 'تصحيح الطلبات',
