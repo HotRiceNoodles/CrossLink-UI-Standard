@@ -8,7 +8,7 @@ const route: RouteRecordRaw = {
     menuKey: 'playground',
     icon: 'icon-code',
     order: 9,
-    requiredTier: ['pro', 'enterprise'],
+    // 不设 requiredTier —— community 即可用（playground:use 已下沉至社区基础集）
     requiredPermission: 'playground:use',
   },
 }
