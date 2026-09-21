@@ -15,22 +15,22 @@
             <span style="font-weight: 600">{{ record.name }}</span>
           </template>
         </a-table-column>
-        <a-table-column :title="t('usageStat.colRequests')" align="right" :width="110">
+        <a-table-column :title="t('usageStat.colRequests')" align="right" :width="68">
           <template #cell="{ record }">
             <span class="num">{{ record.requests.toLocaleString() }}</span>
           </template>
         </a-table-column>
-        <a-table-column :title="t('usageStat.colTokens')" align="right" :width="120">
+        <a-table-column :title="t('usageStat.colTokens')" align="right" :width="80">
           <template #cell="{ record }">
             <span class="num">{{ formatTokensCompact(record.tokens) }}</span>
           </template>
         </a-table-column>
-        <a-table-column :title="t('usageStat.colCost')" align="right" :width="120">
+        <a-table-column :title="t('usageStat.colCost')" align="right" :width="76">
           <template #cell="{ record }">
             <span class="num cost">{{ symbol }}{{ record.cost.toFixed(2) }}</span>
           </template>
         </a-table-column>
-        <a-table-column :title="t('usageStat.colShare')" align="right" :width="90">
+        <a-table-column :title="t('usageStat.colShare')" align="right" :width="64">
           <template #cell="{ record }">
             <span class="num muted">{{ shareOf(record.requests) }}</span>
           </template>
@@ -79,6 +79,7 @@ function shareOf(n: number): string {
 <style scoped lang="less">
 .num {
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: var(--color-text-2);
 }
 .cost {
