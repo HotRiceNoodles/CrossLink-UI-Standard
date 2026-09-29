@@ -229,18 +229,25 @@
       </a-card>
 
       <!-- 请求/响应内容 -->
-      <a-card
-        v-if="log.user_message || log.model_response"
-        class="detail-section"
-        :bordered="false"
-      >
+      <a-card class="detail-section" :bordered="false">
         <template #title>
           <span class="section-title">
             <icon-code />
             {{ t('logDetail.requestResponseContent') }}
           </span>
         </template>
-        <a-collapse :default-active-key="[]" :bordered="false">
+        <!-- 无正文时按内容日志开关状态区分：未开启 vs 历史记录（产生于开启之前） -->
+        <div v-if="!hasContent" class="content-empty">
+          <template v-if="contentLogEnabled === false">
+            <span>{{ t('logDetail.contentLogDisabled') }}</span>
+            <a-link v-if="canOpenSettings" @click="goSettings">
+              {{ t('logDetail.goSettings') }}
+            </a-link>
+          </template>
+          <span v-else-if="contentLogEnabled === true">{{ t('logDetail.contentLegacy') }}</span>
+          <span v-else>{{ t('logDetail.contentUnknown') }}</span>
+        </div>
+        <a-collapse v-else :default-active-key="[]" :bordered="false">
           <a-collapse-item
             v-if="log.user_message"
             key="req"
@@ -272,14 +279,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
 import { formatLatency, formatTokensLocale } from '@/utils/format'
+import { settingsApi } from '@/api/settings'
+import { useUserStore } from '@/store/modules/user'
 
 const props = defineProps<{
   visible: boolean
@@ -293,6 +303,35 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const router = useRouter()
+const userStore = useUserStore()
+
+// 内容日志：无正文时拉取当前开关，区分「未开启」与「历史记录（产生于开启之前）」两种情况
+const hasContent = computed(() => !!(props.log?.user_message || props.log?.model_response))
+const canOpenSettings = computed(() => userStore.hasPermission('system:view'))
+// null = 拉取失败或无权限（如企业版组织用户），用中性文案兜底
+const contentLogEnabled = ref<boolean | null>(null)
+
+watch(
+  () => props.visible,
+  (visible) => {
+    if (visible && !hasContent.value) {
+      settingsApi
+        .getContentLog()
+        .then((res) => {
+          contentLogEnabled.value = res.data.enabled
+        })
+        .catch(() => {
+          contentLogEnabled.value = null
+        })
+    }
+  },
+  { immediate: true },
+)
+
+function goSettings() {
+  router.push({ name: 'settings' })
+}
 
 // Computed — token usage
 const totalTokens = computed(() => (props.log?.input_tokens ?? 0) + (props.log?.output_tokens ?? 0))
@@ -600,5 +639,15 @@ function formatTime(val: string) {
   word-break: break-all;
   max-height: 300px;
   overflow-y: auto;
+}
+
+// Empty-content hint (content logging off or legacy record)
+.content-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--color-text-3);
 }
 </style>

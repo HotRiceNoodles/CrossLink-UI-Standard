@@ -1235,6 +1235,13 @@ export default {
     requestResponseContent: 'Request / Response',
     requestContent: 'Request Content',
     responseContent: 'Response (may be incomplete)',
+    contentLogDisabled:
+      'Content logging is off. Once enabled, full request/response content will be recorded for new requests.',
+    contentLegacy:
+      'This record has no request/response content — it was likely created before content logging was enabled.',
+    contentUnknown:
+      'This record has no request/response content (content logging is off, or the record predates enabling it).',
+    goSettings: 'Open Settings',
     statusSuccess: 'Success',
     statusRateLimit: 'Rate Limited',
     statusClientError: 'Client Error',
