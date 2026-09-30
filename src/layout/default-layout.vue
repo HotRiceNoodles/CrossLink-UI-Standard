@@ -56,6 +56,9 @@
 
     <change-password-modal v-model:visible="passwordVisible" />
 
+    <!-- 系统初始设置向导：后端 setup_needed 时触发，或经 'reopen-system-setup' 事件重开 -->
+    <system-setup-wizard v-model:visible="showSetup" />
+
     <!-- Onboarding 向导：首登 + 0 provider 时触发，或经 'reopen-onboarding' 事件重开 -->
     <onboarding-wizard v-model:visible="showOnboarding" />
   </div>
@@ -72,9 +75,11 @@ import { useMenuVisibility } from '@/hooks/menu-visibility'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from './components/change-password-modal.vue'
 import OnboardingWizard from '@/components/onboarding-wizard.vue'
+import SystemSetupWizard from '@/components/system-setup-wizard.vue'
 import { authApi } from '@/api/auth'
 import { providerApi } from '@/api/provider'
 import { ONBOARDING_DONE_KEY, ONBOARDING_EVENT } from '@/composables/use-onboarding-wizard'
+import { SETUP_REOPEN_EVENT, useSystemSetup } from '@/composables/use-system-setup'
 import { Message, Modal } from '@arco-design/web-vue'
 import Sidebar from './components/sidebar.vue'
 import Navbar from './components/navbar.vue'
@@ -93,7 +98,23 @@ const currentLocale = ref(getCurrentLocale())
 // Onboarding 向导显隐：首登且无 provider 时自动弹，否则由 'reopen-onboarding' 事件重开。
 const showOnboarding = ref(false)
 
+// 系统初始设置向导显隐：后端 setup_needed 时自动弹，否则由 'reopen-system-setup' 事件重开。
+const showSetup = ref(false)
+const { shouldAutoShow: shouldAutoShowSetup } = useSystemSetup()
+
+function maybeShowSystemSetup(): boolean {
+  if (!shouldAutoShowSetup()) return false
+  showSetup.value = true
+  return true
+}
+
+function reopenSystemSetup() {
+  showSetup.value = true
+}
+
 async function maybeShowOnboarding() {
+  // 系统向导优先：同挂载周期两者都需要时只弹 setup，onboarding 下次挂载再弹。
+  if (showSetup.value) return
   if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
   if (!userStore.hasPermission('provider:create')) return
   // 企业版平台管理员处于全局视角时禁止：会创建 OrgID=0 无主资源。
@@ -236,12 +257,15 @@ async function handleLogout() {
 }
 
 onMounted(() => {
+  maybeShowSystemSetup()
   maybeShowOnboarding()
   window.addEventListener(ONBOARDING_EVENT, reopenOnboarding)
+  window.addEventListener(SETUP_REOPEN_EVENT, reopenSystemSetup)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener(ONBOARDING_EVENT, reopenOnboarding)
+  window.removeEventListener(SETUP_REOPEN_EVENT, reopenSystemSetup)
 })
 
 const tapCount = ref(0)

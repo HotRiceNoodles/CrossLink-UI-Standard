@@ -22,6 +22,14 @@
           </div>
         </div>
 
+        <!-- 系统初始设置提醒横幅：后端 setup_needed 未完成时显示 -->
+        <a-alert v-if="showSetupBanner" type="warning" class="setup-banner" closable>
+          {{ t('setup.banner') }}
+          <a-button type="text" size="small" @click="reopenSetup">
+            {{ t('setup.reopen') }}
+          </a-button>
+        </a-alert>
+
         <!-- Onboarding 引导横幅：仅当无 provider 且未完成向导时显示 -->
         <a-alert
           v-if="showOnboardingBanner"
@@ -133,6 +141,7 @@ import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store'
 import { providerApi } from '@/api/provider'
 import { ONBOARDING_DONE_KEY, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
+import { SETUP_REOPEN_EVENT } from '@/composables/use-system-setup'
 import { useRange, RANGE_OPTIONS } from './composables/use-range'
 import { toTimeLabels, toSeries, toTopN, type TopNRow } from './composables/datalens-helpers'
 import type {
@@ -173,6 +182,15 @@ const systemInfo = ref<SystemInfoType | null>(null)
 // Onboarding 引导横幅：仅当无 provider 且未标记完成时显示。
 const showOnboardingBanner = ref(false)
 const { blocked: onboardingBlocked, runOnboarding } = useOnboardingGuard()
+
+// 系统初始设置横幅：setup_needed 且当前用户可执行时显示（无需额外请求）。
+const showSetupBanner = computed(
+  () => userStore.setupNeeded && userStore.hasPermission('system:update'),
+)
+
+function reopenSetup() {
+  window.dispatchEvent(new CustomEvent(SETUP_REOPEN_EVENT))
+}
 
 async function checkOnboardingBanner() {
   if (localStorage.getItem(ONBOARDING_DONE_KEY)) return
@@ -383,7 +401,8 @@ onActivated(() => {
   margin-bottom: 16px;
 }
 
-.onboarding-banner {
+.onboarding-banner,
+.setup-banner {
   margin-bottom: 16px;
   display: flex;
   align-items: center;

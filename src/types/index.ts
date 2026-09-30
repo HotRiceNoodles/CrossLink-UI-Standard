@@ -47,6 +47,7 @@ export interface LoginResponse {
   user: User
   permissions: string[]
   tier: string
+  setup_needed?: boolean
 }
 
 export interface User {
@@ -486,3 +487,6 @@ export * from './mcp'
 export * from './onboarding'
 export * from './prompt-template'
 export * from './pat'
+export * from './system-config'
+export * from './readiness'
+export * from './setup'

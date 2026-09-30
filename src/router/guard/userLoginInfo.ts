@@ -32,6 +32,7 @@ function createLoginGuard(router: Router) {
               const res = await authApi.permissions()
               userStore.setPermissions(res.data.permissions)
               userStore.setTier(res.data.tier)
+              userStore.setSetupNeeded(!!res.data.setup_needed)
               userStore.initOrgContext()
               userStore.markHydrated()
 

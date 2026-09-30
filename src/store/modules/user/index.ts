@@ -11,6 +11,7 @@ interface PersistedSession {
   user: User
   tier: string
   permissions: string[]
+  setup_needed?: boolean
 }
 
 function loadPersistedOrg(): OrgContext | null {
@@ -57,6 +58,8 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(persisted?.user ?? null)
   const permissions = ref<string[]>(persisted?.permissions ?? [])
   const tier = ref(persisted?.tier ?? 'community')
+  // First-run setup wizard flag (login/permissions responses); cleared on apply/skip.
+  const setupNeeded = ref(persisted?.setup_needed ?? false)
   // hydrated = true only when session was explicitly set via setAuth (login or API rehydration)
   // Prevents guard from skipping the permissions API call on initial page load with stale data
   const hydrated = ref(false)
@@ -73,14 +76,26 @@ export const useUserStore = defineStore('user', () => {
   const hasOrgContext = computed(() => !!currentOrg.value)
   const currentOrgId = computed(() => currentOrg.value?.orgId ?? null)
 
-  function setAuth(data: { token: string; user: User; permissions: string[]; tier: string }) {
+  function setAuth(data: {
+    token: string
+    user: User
+    permissions: string[]
+    tier: string
+    setup_needed?: boolean
+  }) {
     token.value = data.token
     user.value = data.user
     permissions.value = data.permissions
     tier.value = data.tier
+    setupNeeded.value = !!data.setup_needed
     hydrated.value = true
     setToken(data.token)
-    persistSession({ user: data.user, tier: data.tier, permissions: data.permissions })
+    persistSession({
+      user: data.user,
+      tier: data.tier,
+      permissions: data.permissions,
+      setup_needed: data.setup_needed,
+    })
   }
 
   function setUser(u: User) {
@@ -95,10 +110,27 @@ export const useUserStore = defineStore('user', () => {
     tier.value = t
   }
 
+  function setSetupNeeded(v: boolean) {
+    setupNeeded.value = v
+    if (user.value) {
+      persistSession({
+        user: user.value,
+        tier: tier.value,
+        permissions: permissions.value,
+        setup_needed: v,
+      })
+    }
+  }
+
   function markHydrated() {
     hydrated.value = true
     if (user.value) {
-      persistSession({ user: user.value, tier: tier.value, permissions: permissions.value })
+      persistSession({
+        user: user.value,
+        tier: tier.value,
+        permissions: permissions.value,
+        setup_needed: setupNeeded.value,
+      })
     }
   }
 
@@ -151,6 +183,7 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
     permissions.value = []
     tier.value = 'community'
+    setupNeeded.value = false
     hydrated.value = false
     currentOrg.value = null
     availableOrgs.value = []
@@ -169,6 +202,7 @@ export const useUserStore = defineStore('user', () => {
     user,
     permissions,
     tier,
+    setupNeeded,
     hydrated,
     currentOrg,
     availableOrgs,
@@ -183,6 +217,7 @@ export const useUserStore = defineStore('user', () => {
     setUser,
     setPermissions,
     setTier,
+    setSetupNeeded,
     markHydrated,
     initOrgContext,
     switchOrg,
