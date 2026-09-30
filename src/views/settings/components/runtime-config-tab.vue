@@ -228,8 +228,10 @@ function save() {
     try {
       const res = await systemConfigApi.update(payload)
       Message.success(t('systemConfig.saveSuccess'))
-      if (res.restart_required_applied.length) {
-        restartKeys.value = res.restart_required_applied
+      // 防御式读取：即使后端响应缺字段（旧版本/不同构建），保存已成功就不应再报错
+      const restartApplied = res?.restart_required_applied ?? []
+      if (restartApplied.length) {
+        restartKeys.value = restartApplied
       }
     } catch (err) {
       Message.error(resolveError(err))
