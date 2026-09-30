@@ -228,15 +228,16 @@ function save() {
     try {
       const res = await systemConfigApi.update(payload)
       Message.success(t('systemConfig.saveSuccess'))
-      if (res.data.restart_required_applied.length) {
-        restartKeys.value = res.data.restart_required_applied
+      if (res.restart_required_applied.length) {
+        restartKeys.value = res.restart_required_applied
       }
-      await load()
     } catch (err) {
       Message.error(resolveError(err))
     } finally {
       saving.value = false
     }
+    // 刷新放在 try 外：保存已成功，刷新失败不应再弹「更新失败」（load 内部有 loadError 兜底）
+    await load()
   }
   if (restartPending.length) {
     Modal.warning({
