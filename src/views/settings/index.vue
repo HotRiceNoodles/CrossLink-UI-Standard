@@ -21,12 +21,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store/modules/user'
 import GeneralTab from './components/general-tab.vue'
 import RuntimeConfigTab from './components/runtime-config-tab.vue'
 import DoctorTab from './components/doctor-tab.vue'
+import { SETTINGS_TAB_EVENT } from './config-registry'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -36,6 +37,20 @@ const activeTab = ref('general')
 function onTabChange(key: string | number) {
   activeTab.value = String(key)
 }
+
+// doctor tab 的 open_settings 修复动作等场景：页内切 tab
+function onSwitchTab(e: Event) {
+  const tab = (e as CustomEvent<{ tab: string }>).detail?.tab
+  if (tab) activeTab.value = tab
+}
+
+onMounted(() => {
+  window.addEventListener(SETTINGS_TAB_EVENT, onSwitchTab)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(SETTINGS_TAB_EVENT, onSwitchTab)
+})
 </script>
 
 <style scoped lang="less">

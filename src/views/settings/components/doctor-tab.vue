@@ -40,6 +40,14 @@
                 >
                   {{ t('setup.reopen') }}
                 </a-button>
+                <a-button
+                  v-else-if="check.fix_action === 'open_settings'"
+                  type="text"
+                  size="mini"
+                  @click="gotoConfig"
+                >
+                  {{ t('systemConfig.tabTitle') }}
+                </a-button>
               </div>
               <div class="check-detail">
                 {{ t(check.detail_key, check.detail_params ?? {}) }}
@@ -63,6 +71,7 @@ import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store/modules/user'
 import { formatTime } from '@/utils/format'
 import { SETUP_REOPEN_EVENT } from '@/composables/use-system-setup'
+import { SETTINGS_TAB_EVENT } from '../config-registry'
 import type { ReadinessReport, ReadinessSeverity } from '@/types'
 
 const { t } = useI18n()
@@ -84,6 +93,10 @@ const canSetup = computed(() => userStore.hasPermission('system:update'))
 
 function runSetup() {
   window.dispatchEvent(new CustomEvent(SETUP_REOPEN_EVENT))
+}
+
+function gotoConfig() {
+  window.dispatchEvent(new CustomEvent(SETTINGS_TAB_EVENT, { detail: { tab: 'config' } }))
 }
 
 async function load() {

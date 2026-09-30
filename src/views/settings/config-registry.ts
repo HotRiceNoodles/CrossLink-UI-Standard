@@ -4,6 +4,10 @@
 // source, sensitive bits). Update this file when the backend Registry changes.
 import type { ConfigKeyDef } from '@/types'
 
+// Settings 页内 tab 切换事件（detail.tab = 'general' | 'config' | 'doctor'）。
+// 供 doctor tab 的 open_settings 修复动作跳到运行时配置 tab 等场景使用。
+export const SETTINGS_TAB_EVENT = 'settings:switch-tab'
+
 export interface ConfigSectionDef {
   id: string
   labelKey: string
