@@ -1724,6 +1724,7 @@ export default {
     save: 'حفظ التغييرات',
     discard: 'تجاهل',
     restartWarning: 'أعد تشغيل البوابة لتطبيق: {keys}',
+    extraKeys: 'مفاتيح يرسلها الخادم لكنها غير قابلة للتحرير هنا بعد: {keys}',
     durationHint: 'صيغة مدة Go، مثل 5m / 300s / 1h30m',
     saveSuccess: 'تم تحديث الإعدادات',
     saveFail: 'فشل تحديث الإعدادات',

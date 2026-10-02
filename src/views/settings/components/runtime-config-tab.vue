@@ -19,6 +19,12 @@
           {{ t('systemConfig.restartWarning', { keys: restartKeys.join(', ') }) }}
         </a-alert>
 
+        <!-- Backend keys missing from the frontend registry (added server-side
+             after this build): surfaced instead of silently hidden -->
+        <a-alert v-if="extraKeys.length" type="info">
+          {{ t('systemConfig.extraKeys', { keys: extraKeys.join(', ') }) }}
+        </a-alert>
+
         <a-collapse v-if="config" v-model:active-key="openSections" class="config-collapse">
           <a-collapse-item
             v-for="section in sections"
@@ -89,6 +95,13 @@ const sections = CONFIG_SECTIONS
 const openSections = ref<string[]>(['smtp'])
 
 const canEdit = computed(() => userStore.hasPermission('system:update'))
+
+// Keys the backend reports (GET meta) that this build's registry doesn't
+// know about — shown as an advisory instead of being silently hidden.
+const extraKeys = computed(() => {
+  if (!config.value) return []
+  return Object.keys(config.value.meta).filter((key) => !CONFIG_KEYS_MAP.has(key))
+})
 
 function sectionHeader(id: string): string {
   return t(`systemConfig.sections.${id}`)

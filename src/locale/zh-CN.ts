@@ -1706,6 +1706,7 @@ export default {
     save: '保存变更',
     discard: '放弃',
     restartWarning: '以下配置需重启网关后生效：{keys}',
+    extraKeys: '后端已下发但本页暂不支持编辑的配置项：{keys}',
     durationHint: 'Go 时长字符串，如 5m / 300s / 1h30m',
     saveSuccess: '配置已更新',
     saveFail: '配置更新失败',

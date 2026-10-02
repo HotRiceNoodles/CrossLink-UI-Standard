@@ -1733,6 +1733,7 @@ export default {
     save: 'Save changes',
     discard: 'Discard',
     restartWarning: 'Restart the gateway to apply: {keys}',
+    extraKeys: 'Keys reported by the backend but not editable here yet: {keys}',
     durationHint: 'Go duration string, e.g. 5m / 300s / 1h30m',
     saveSuccess: 'Configuration updated',
     saveFail: 'Failed to update configuration',
