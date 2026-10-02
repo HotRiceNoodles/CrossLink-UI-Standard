@@ -18,7 +18,7 @@
         </span>
         <span class="hop-duration">{{ formatLatency(call.duration_ms) }}</span>
         <span v-if="call.attempt > 1" class="hop-attempt">
-          {{ t('requestDebug.attempt', { 0: call.attempt }) }}
+          {{ t('requestDebug.attempt', [call.attempt]) }}
         </span>
       </div>
 

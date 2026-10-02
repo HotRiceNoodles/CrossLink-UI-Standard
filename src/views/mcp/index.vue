@@ -512,11 +512,11 @@ async function handleTest(record: McpServer) {
   try {
     const res = await mcpApi.test(record.id)
     if (res.data.healthy) Message.success(t('mcp.testSuccess'))
-    else Message.error(t('mcp.testFail', { 0: res.data.error || 'unhealthy' }))
+    else Message.error(t('mcp.testFail', [res.data.error || 'unhealthy']))
     await fetchData()
   } catch (err) {
     const msg = (err as { response?: { data?: { error?: string } } }).response?.data?.error
-    Message.error(t('mcp.testFail', { 0: msg || 'unknown' }))
+    Message.error(t('mcp.testFail', [msg || 'unknown']))
   } finally {
     testingId.value = null
   }
