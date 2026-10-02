@@ -125,7 +125,7 @@
     <a-modal
       v-model:visible="testModalVisible"
       :title="t('provider.testSelectModel')"
-      :ok-text="t('provider.probeConnectivity')"
+      :ok-text="testResult ? t('provider.testAgain') : t('provider.probeConnectivity')"
       :ok-loading="testLoading"
       :mask-closable="!testLoading"
       :closable="!testLoading"
@@ -133,42 +133,51 @@
       @cancel="testModalVisible = false"
     >
       <a-spin :loading="testLoading" style="width: 100%">
-        <a-radio-group v-model="testSelectedModel" direction="vertical" style="width: 100%">
-          <!-- 自动选择 -->
-          <a-radio value="">
-            <span>{{ t('provider.testModelAuto') }}</span>
-            <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
-              {{ t('provider.testModelAutoDesc') }}
-            </span>
-          </a-radio>
-          <!-- 具体模型列表 -->
-          <a-radio v-for="m in testTargetModels" :key="m.id" :value="m.provider_model">
-            <span style="font-weight: 600">{{ m.model_name }}</span>
-            <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
-              {{ m.provider_model }}
-            </span>
-          </a-radio>
-        </a-radio-group>
+        <!-- 测试结果：大图标结果面板，弹窗内直接反馈 -->
+        <div v-if="testResult && !testLoading" class="test-result">
+          <a-result :status="testResult.success ? 'success' : 'error'">
+            <template #title>
+              {{ testResult.success ? t('provider.connected') : t('provider.connectFail') }}
+            </template>
+            <template #subtitle>
+              <template v-if="testResult.success">
+                {{ t('provider.testSuccess', [testResult.latency_ms ?? '-']) }}
+              </template>
+              <template v-else>
+                {{ testResult.error || t('provider.connectFail') }}
+              </template>
+            </template>
+          </a-result>
+          <div class="test-result-actions">
+            <a-button @click="backToModelSelect">{{ t('provider.testChangeModel') }}</a-button>
+          </div>
+        </div>
 
-        <a-empty
-          v-if="testTargetModels.length === 0"
-          :description="t('provider.testNoModels')"
-          :style="{ padding: '16px 0' }"
-        />
+        <!-- 模型选择 -->
+        <template v-else>
+          <a-radio-group v-model="testSelectedModel" direction="vertical" style="width: 100%">
+            <!-- 自动选择 -->
+            <a-radio value="">
+              <span>{{ t('provider.testModelAuto') }}</span>
+              <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
+                {{ t('provider.testModelAutoDesc') }}
+              </span>
+            </a-radio>
+            <!-- 具体模型列表 -->
+            <a-radio v-for="m in testTargetModels" :key="m.id" :value="m.provider_model">
+              <span style="font-weight: 600">{{ m.model_name }}</span>
+              <span style="color: var(--color-text-3); font-size: 12px; margin-inline-start: 8px">
+                {{ m.provider_model }}
+              </span>
+            </a-radio>
+          </a-radio-group>
 
-        <!-- 测试结果 -->
-        <a-alert
-          v-if="testResult"
-          :type="testResult.success ? 'success' : 'error'"
-          style="margin-top: 16px"
-        >
-          <template v-if="testResult.success">
-            {{ t('provider.testSuccess', [testResult.latency_ms ?? '-']) }}
-          </template>
-          <template v-else>
-            {{ t('provider.testFail', [testResult.error || t('provider.connectFail')]) }}
-          </template>
-        </a-alert>
+          <a-empty
+            v-if="testTargetModels.length === 0"
+            :description="t('provider.testNoModels')"
+            :style="{ padding: '16px 0' }"
+          />
+        </template>
       </a-spin>
     </a-modal>
   </div>
@@ -359,6 +368,11 @@ async function executeTest() {
   }
 }
 
+/** 从结果面板返回模型选择（保留当前选择）。 */
+function backToModelSelect() {
+  testResult.value = null
+}
+
 const testTargetModels = computed(() => {
   if (!testTargetProvider.value) return []
   return modelsByProvider.value.get(testTargetProvider.value.id) || []
@@ -497,6 +511,19 @@ onMounted(() => {
   .list-total {
     font-size: 13px;
     color: var(--color-text-3);
+  }
+}
+
+.test-result {
+  .test-result-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  // a-result 默认上下留白偏大，收一点让弹窗更紧凑
+  :deep(.arco-result) {
+    padding: 16px 32px;
   }
 }
 </style>

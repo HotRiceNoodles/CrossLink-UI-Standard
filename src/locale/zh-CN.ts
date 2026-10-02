@@ -186,6 +186,8 @@ export default {
     testSuccess: '连接成功，延迟 {0}ms',
     testFail: '连接失败：{0}',
     testNoModels: '该供应商暂无模型',
+    testAgain: '重新测试',
+    testChangeModel: '更换模型',
     cannotDelete: '无法删除',
     cannotDeleteContent: '该供应商下还有 {0} 个模型，请先删除所有模型后再删除供应商。',
     confirmDeleteProvider: '确定要删除供应商「{name}」吗？',

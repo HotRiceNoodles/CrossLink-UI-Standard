@@ -187,6 +187,8 @@ export default {
     testSuccess: 'Connected, latency {0}ms',
     testFail: 'Connection failed: {0}',
     testNoModels: 'No models for this provider',
+    testAgain: 'Test Again',
+    testChangeModel: 'Change Model',
     cannotDelete: 'Cannot Delete',
     cannotDeleteContent: 'This provider still has {0} models. Please delete all models first.',
     confirmDeleteProvider: 'Are you sure you want to delete provider "{name}"?',

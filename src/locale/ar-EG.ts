@@ -187,6 +187,8 @@ export default {
     testSuccess: 'متصل، زمن الاستجابة {0}ms',
     testFail: 'فشل الاتصال: {0}',
     testNoModels: 'لا توجد نماذج لهذا المزوّد',
+    testAgain: 'إعادة الاختبار',
+    testChangeModel: 'تغيير النموذج',
     cannotDelete: 'تعذّر الحذف',
     cannotDeleteContent: 'لا يزال لدى هذا المزوّد {0} نماذج. يرجى حذف جميع النماذج أولًا.',
     confirmDeleteProvider: 'هل أنت متأكد من حذف المزوّد "{name}"؟',
