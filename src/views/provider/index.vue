@@ -389,7 +389,7 @@ function handleDeleteProvider(provider: Provider) {
   }
   Modal.confirm({
     title: t('common.confirm'),
-    content: t('provider.confirmDeleteProvider', [provider.display_name]),
+    content: t('provider.confirmDeleteProvider', { name: provider.display_name }),
     onOk: async () => {
       try {
         await providerApi.delete(provider.id)
@@ -405,7 +405,7 @@ function handleDeleteProvider(provider: Provider) {
 function handleDeleteModel(model: ProviderModel) {
   Modal.confirm({
     title: t('common.confirm'),
-    content: t('provider.confirmDeleteModel', [model.model_name]),
+    content: t('provider.confirmDeleteModel', { name: model.model_name }),
     onOk: async () => {
       try {
         await modelApi.delete(model.id)
