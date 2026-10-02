@@ -121,15 +121,16 @@
       @success="onModelFormSuccess"
     />
 
-    <!-- 连通性测试模型选择弹窗 -->
+    <!-- 连通性测试模型选择弹窗。
+         注意：点确定必须走 on-before-ok 并返回 false——@ok 触发后 v-model 会
+         自动把弹窗关掉，结果面板就永远看不到了（这正是之前"探测无提示"的根因） -->
     <a-modal
       v-model:visible="testModalVisible"
       :title="t('provider.testSelectModel')"
       :ok-text="testResult ? t('provider.testAgain') : t('provider.probeConnectivity')"
-      :ok-loading="testLoading"
+      :on-before-ok="onTestBeforeOk"
       :mask-closable="!testLoading"
       :closable="!testLoading"
-      @ok="executeTest"
       @cancel="testModalVisible = false"
     >
       <a-spin :loading="testLoading" style="width: 100%">
@@ -371,6 +372,15 @@ async function executeTest() {
 /** 从结果面板返回模型选择（保留当前选择）。 */
 function backToModelSelect() {
   testResult.value = null
+}
+
+/**
+ * 确定按钮：执行探测但保持弹窗打开以展示结果面板。
+ * on-before-ok 返回 false 阻止 Arco 默认的「点确定即关闭」。
+ */
+async function onTestBeforeOk(): Promise<boolean> {
+  await executeTest()
+  return false
 }
 
 const testTargetModels = computed(() => {
