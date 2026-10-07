@@ -173,9 +173,11 @@
             align="center"
           >
             <template #cell="{ record }">
-              <span class="cell-status" :class="'status-' + statusClass(record.status_code)">
-                {{ record.status_code }}
-              </span>
+              <a-tooltip :content="record.error_type" :disabled="!record.error_type">
+                <span class="cell-status" :class="'status-' + statusClass(record.status_code)">
+                  {{ record.status_code }}
+                </span>
+              </a-tooltip>
             </template>
           </a-table-column>
 

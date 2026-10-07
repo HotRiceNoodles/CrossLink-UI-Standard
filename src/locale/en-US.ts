@@ -1268,6 +1268,17 @@ export default {
     imageQuality: 'Image Quality',
     notFound: 'This log no longer exists',
     loadFail: 'Failed to load log detail',
+    errorDetail: 'Error Detail',
+    errorMessage: 'Error Message',
+    upstreamStatus: 'Upstream Status',
+    upstreamErrorCode: 'Upstream Error Code',
+    gatewayRejected: 'Gateway-side rejection (never reached upstream)',
+    maskedUpstream:
+      'Gateway returned {gateway} but upstream returned {upstream}; legacy pre-fix records logged upstream 4xx as 502',
+    attempts: 'Attempts',
+    attemptNoResponse: 'No upstream response (network/timeout/cancelled)',
+    attemptPersistent: 'Persistent',
+    attemptPersistentHint: 'This provider error is marked persistent (circuit-breaker input)',
   },
   profile: {
     changePassword: 'Change Password',

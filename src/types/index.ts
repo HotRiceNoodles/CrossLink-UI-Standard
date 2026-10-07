@@ -450,6 +450,30 @@ export interface SystemSettings {
 }
 
 // Usage Log
+/** attempts 元素的 error_type 枚举 — 与顶层 UsageLog.error_type 分类体系不同，勿混用 */
+export type UsageAttemptErrorType =
+  | 'rate_limit'
+  | 'auth'
+  | 'not_found'
+  | 'bad_request'
+  | 'server'
+  | 'network'
+  | 'timeout'
+  | 'quota'
+
+/** fallback 尝试时间线元素（GET /usage/:id 详情专属，attempts 数组成员） */
+export interface UsageAttempt {
+  provider: string
+  model: string
+  error_type?: UsageAttemptErrorType
+  /** 0/缺省 = 无上游响应（网络/超时/取消） */
+  upstream_status?: number
+  latency_ms: number
+  success: boolean
+  /** 持续性 provider 错误（熔断判定输入） */
+  persistent?: boolean
+}
+
 export interface UsageLog {
   id: number
   request_id: string
@@ -499,6 +523,15 @@ export interface UsageLog {
   session_id?: string | null
   template_id?: number | null
   org_id?: number | null
+  // 错误详情（详情专属；列表接口列白名单不含这些字段）
+  /** 脱敏错误文本（≤200 字符，org ID 已脱敏）；null = 成功 */
+  error_message?: string | null
+  /** 上游 HTTP 状态；null = 网关侧拒绝（校验/护栏/无上游响应的网络错误） */
+  upstream_status?: number | null
+  /** 上游 error.code（如 model_not_found，≤64 字符） */
+  upstream_error_code?: string | null
+  /** fallback 尝试时间线；null = 干净的单次成功 */
+  attempts?: UsageAttempt[] | null
   created_at: string
 }
 

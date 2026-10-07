@@ -46,16 +46,64 @@
               <span class="detail-label">{{ t('logDetail.routeType') }}</span>
               <span class="detail-value">{{ viewLog.route_type }}</span>
             </div>
+            <div v-if="viewLog.agent_type" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.agentType') }}</span>
+              <span class="detail-value">{{ viewLog.agent_type }}</span>
+            </div>
+          </a-card>
+
+          <!-- 错误详情（失败行才有；错误信息集中此卡，含从基本信息移入的错误类型） -->
+          <a-card v-if="hasErrorDetail" class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-exclamation-circle />
+                {{ t('logDetail.errorDetail') }}
+              </span>
+            </template>
             <div v-if="viewLog.error_type" class="detail-row">
               <span class="detail-label">{{ t('logDetail.errorType') }}</span>
               <span class="detail-value">
                 <a-tag color="red" size="small">{{ viewLog.error_type }}</a-tag>
               </span>
             </div>
-            <div v-if="viewLog.agent_type" class="detail-row">
-              <span class="detail-label">{{ t('logDetail.agentType') }}</span>
-              <span class="detail-value">{{ viewLog.agent_type }}</span>
+            <div v-if="viewLog.error_message" class="detail-row error-message-row">
+              <span class="detail-label">{{ t('logDetail.errorMessage') }}</span>
+              <div class="error-message-block">
+                <pre class="content-block">{{ viewLog.error_message }}</pre>
+                <a-button
+                  size="mini"
+                  type="text"
+                  class="error-message-copy"
+                  @click="handleCopy(viewLog.error_message!)"
+                >
+                  <template #icon><icon-copy /></template>
+                </a-button>
+              </div>
             </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.upstreamStatus') }}</span>
+              <span class="detail-value">
+                <template v-if="viewLog.upstream_status != null">
+                  <span class="status-pill" :class="statusClass(viewLog.upstream_status)">
+                    {{ viewLog.upstream_status }}
+                  </span>
+                  <a-tag v-if="viewLog.upstream_error_code" class="upstream-code-tag" size="small">
+                    {{ viewLog.upstream_error_code }}
+                  </a-tag>
+                </template>
+                <a-tag v-else color="orange" size="small">
+                  {{ t('logDetail.gatewayRejected') }}
+                </a-tag>
+              </span>
+            </div>
+            <a-alert v-if="isMaskedUpstream" type="warning" class="masked-alert">
+              {{
+                t('logDetail.maskedUpstream', {
+                  gateway: viewLog.status_code,
+                  upstream: viewLog.upstream_status,
+                })
+              }}
+            </a-alert>
           </a-card>
 
           <!-- 用量统计 -->
@@ -301,6 +349,17 @@
             </div>
           </a-card>
 
+          <!-- 调用尝试（fallback 时间线；null = 干净单次成功，整卡隐藏） -->
+          <a-card v-if="viewLog.attempts?.length" class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-sync />
+                {{ t('logDetail.attempts') }}
+              </span>
+            </template>
+            <attempt-timeline :attempts="viewLog.attempts!" />
+          </a-card>
+
           <!-- 安全与内容 -->
           <a-card class="detail-section" :bordered="false">
             <template #title>
@@ -398,9 +457,10 @@ import { Message } from '@arco-design/web-vue'
 import type { UsageLog } from '@/types'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
-import { formatLatency, formatTokensLocale } from '@/utils/format'
+import { formatLatency, formatTokensLocale, statusClass } from '@/utils/format'
 import { settingsApi } from '@/api/settings'
 import { usageApi } from '@/api/usage'
+import AttemptTimeline from './attempt-timeline.vue'
 import { useUserStore } from '@/store/modules/user'
 
 const props = defineProps<{
@@ -526,6 +586,29 @@ const billableHint = computed(() => {
   const log = viewLog.value
   if (!log || log.billable_cost == null || !(log.cost > 0)) return base
   return `${base} (×${(log.billable_cost / log.cost).toFixed(2)})`
+})
+
+// Computed — 错误详情（失败行：error_type 或任一错误字段存在）
+const hasErrorDetail = computed(() => {
+  const log = viewLog.value
+  if (!log) return false
+  return !!(
+    log.error_type ||
+    log.error_message != null ||
+    log.upstream_status != null ||
+    log.upstream_error_code
+  )
+})
+// 修复前的历史记录：上游 4xx 曾被网关记为 5xx（如 502），修复后如实记录
+const isMaskedUpstream = computed(() => {
+  const log = viewLog.value
+  return (
+    !!log &&
+    log.status_code >= 500 &&
+    log.upstream_status != null &&
+    log.upstream_status >= 400 &&
+    log.upstream_status < 500
+  )
 })
 
 // Status
@@ -859,5 +942,65 @@ function formatTime(val: string) {
 
 .bar-context {
   background: rgb(var(--purple-6));
+}
+
+// Error detail card
+.error-message-row {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.error-message-block {
+  position: relative;
+
+  .error-message-copy {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+  }
+}
+
+.upstream-code-tag {
+  margin-inline-start: 8px;
+  font-family: monospace;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+
+  &.success {
+    background: var(--color-success-light-1);
+    color: rgb(var(--green-6));
+  }
+
+  &.warn {
+    background: var(--color-warning-light-1);
+    color: rgb(var(--orange-6));
+  }
+
+  &.error {
+    background: var(--color-danger-light-1);
+    color: rgb(var(--red-6));
+  }
+
+  &.default,
+  &.rate-limit {
+    background: var(--color-fill-2);
+    color: var(--color-text-2);
+  }
+}
+
+.masked-alert {
+  margin-top: 12px;
 }
 </style>

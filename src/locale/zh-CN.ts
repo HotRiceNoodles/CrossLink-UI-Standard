@@ -1246,6 +1246,17 @@ export default {
     imageQuality: '图片质量',
     notFound: '该日志不存在或已被删除',
     loadFail: '加载日志详情失败',
+    errorDetail: '错误详情',
+    errorMessage: '错误信息',
+    upstreamStatus: '上游状态',
+    upstreamErrorCode: '上游错误码',
+    gatewayRejected: '网关侧拒绝（未到达上游）',
+    maskedUpstream:
+      '网关返回 {gateway}，上游实际返回 {upstream}；修复前的历史记录曾把上游 4xx 记为 502',
+    attempts: '调用尝试',
+    attemptNoResponse: '无上游响应（网络/超时/取消）',
+    attemptPersistent: '持续失败',
+    attemptPersistentHint: '该渠道错误已被标记为持续性（熔断判定依据）',
   },
   profile: {
     changePassword: '修改密码',

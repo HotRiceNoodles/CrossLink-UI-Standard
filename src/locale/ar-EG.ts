@@ -1262,6 +1262,17 @@ export default {
     imageQuality: 'جودة الصورة',
     notFound: 'هذا السجل لم يعد موجودًا',
     loadFail: 'فشل تحميل تفاصيل السجل',
+    errorDetail: 'تفاصيل الخطأ',
+    errorMessage: 'رسالة الخطأ',
+    upstreamStatus: 'حالة المزوّد',
+    upstreamErrorCode: 'رمز خطأ المزوّد',
+    gatewayRejected: 'رفض من البوابة (لم يصل إلى المزوّد)',
+    maskedUpstream:
+      'أعادت البوابة {gateway} لكن المزوّد أعاد فعليًا {upstream}؛ في السجلات القديمة قُبيل الإصلاح كانت أخطاء 4xx تُسجَّل كـ 502',
+    attempts: 'محاولات الاستدعاء',
+    attemptNoResponse: 'لا استجابة من المزوّد (شبكة/مهلة/إلغاء)',
+    attemptPersistent: 'فشل مستمر',
+    attemptPersistentHint: 'تم وسم خطأ هذا المزوّد بأنه مستمر (مُدخل لقاطع الدائرة)',
   },
   profile: {
     changePassword: 'تغيير كلمة المرور',
