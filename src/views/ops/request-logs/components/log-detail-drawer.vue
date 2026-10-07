@@ -8,272 +8,383 @@
     <template #title>
       <div v-if="log" class="drawer-title-row">
         <div class="drawer-title-left">
-          <span class="drawer-request-id">{{ log.request_id }}</span>
-          <a-button size="mini" type="text" @click="handleCopy(log.request_id)">
+          <span class="drawer-request-id">{{ viewLog.request_id }}</span>
+          <a-button size="mini" type="text" @click="handleCopy(viewLog.request_id)">
             <template #icon><icon-copy /></template>
           </a-button>
         </div>
-        <a-tag :color="statusCodeColor(log.status_code)" size="large">
-          {{ log.status_code }} {{ statusLabel(log.status_code) }}
+        <a-tag :color="statusCodeColor(viewLog.status_code)" size="large">
+          {{ viewLog.status_code }} {{ statusLabel(viewLog.status_code) }}
         </a-tag>
       </div>
     </template>
 
-    <template v-if="log">
-      <div class="drawer-subtitle">{{ formatTime(log.created_at) }}</div>
+    <template v-if="viewLog">
+      <div class="drawer-subtitle">{{ formatTime(viewLog.created_at) }}</div>
 
-      <!-- 基本信息 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-file />
-            {{ t('logDetail.basicInfo') }}
-          </span>
-        </template>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.routeType') }}</span>
-          <span class="detail-value">{{ log.route_type }}</span>
-        </div>
-        <div v-if="log.error_type" class="detail-row">
-          <span class="detail-label">{{ t('logDetail.errorType') }}</span>
-          <span class="detail-value">
-            <a-tag color="red" size="small">{{ log.error_type }}</a-tag>
-          </span>
-        </div>
-        <div v-if="log.agent_type" class="detail-row">
-          <span class="detail-label">{{ t('logDetail.agentType') }}</span>
-          <span class="detail-value">{{ log.agent_type }}</span>
-        </div>
-      </a-card>
+      <!-- 404：日志不存在或已被删除 -->
+      <div v-if="detailError === 'not_found'" class="content-empty">
+        {{ t('logDetail.notFound') }}
+      </div>
 
-      <!-- 用量统计 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-bar-chart />
-            {{ t('logDetail.usageStats') }}
-          </span>
-        </template>
-        <div class="usage-overview">
-          <div class="usage-metric">
-            <span class="usage-metric-value">
-              {{ formatTokensLocale(log.input_tokens + log.output_tokens) }}
-            </span>
-            <span class="usage-metric-label">{{ t('logDetail.totalTokens') }}</span>
-          </div>
-          <div class="usage-metric">
-            <span class="usage-metric-value">
-              {{ getCurrencySymbol(log.currency)
-              }}{{ log.cost != null ? log.cost.toFixed(4) : '-' }}
-            </span>
-            <span class="usage-metric-label">
-              {{ t('logDetail.costWithCurrency', { currency: log.currency }) }}
-            </span>
-          </div>
-        </div>
-        <div v-if="totalTokens > 0" class="token-bar-group">
-          <div class="token-bar-item">
-            <span class="token-bar-label">{{ t('logDetail.input') }}</span>
-            <div class="token-bar-track">
-              <div class="token-bar-fill bar-input" :style="{ width: inputPercent + '%' }"></div>
+      <template v-else>
+        <!-- 详情加载失败（非 404）：警告横幅，保留列表行种子数据 -->
+        <a-alert v-if="detailError === 'error'" type="warning" class="load-fail-alert">
+          {{ t('logDetail.loadFail') }}
+        </a-alert>
+
+        <a-spin :loading="detailLoading" style="width: 100%">
+          <!-- 基本信息 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-file />
+                {{ t('logDetail.basicInfo') }}
+              </span>
+            </template>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.routeType') }}</span>
+              <span class="detail-value">{{ viewLog.route_type }}</span>
             </div>
-            <span class="token-bar-value">
-              {{ formatTokensLocale(log.input_tokens) }} ({{ inputPercent }}%)
-            </span>
-          </div>
-          <div class="token-bar-item">
-            <span class="token-bar-label">{{ t('logDetail.output') }}</span>
-            <div class="token-bar-track">
-              <div class="token-bar-fill bar-output" :style="{ width: outputPercent + '%' }"></div>
+            <div v-if="viewLog.error_type" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.errorType') }}</span>
+              <span class="detail-value">
+                <a-tag color="red" size="small">{{ viewLog.error_type }}</a-tag>
+              </span>
             </div>
-            <span class="token-bar-value">
-              {{ formatTokensLocale(log.output_tokens) }} ({{ outputPercent }}%)
-            </span>
-          </div>
-        </div>
-      </a-card>
+            <div v-if="viewLog.agent_type" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.agentType') }}</span>
+              <span class="detail-value">{{ viewLog.agent_type }}</span>
+            </div>
+          </a-card>
 
-      <!-- 模型与路由 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-swap />
-            {{ t('logDetail.modelAndRouting') }}
-          </span>
-        </template>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.requestModel') }}</span>
-          <span class="detail-value mono bold">{{ log.model_requested }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.actualModel') }}</span>
-          <span class="detail-value">
-            <template v-if="log.model_used && log.model_used !== log.model_requested">
-              <a-tooltip :content="t('logDetail.modelFallback')">
-                <a-tag color="orangered" size="small">{{ log.model_used }}</a-tag>
-              </a-tooltip>
+          <!-- 用量统计 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-bar-chart />
+                {{ t('logDetail.usageStats') }}
+              </span>
             </template>
-            <template v-else>{{ log.model_used || '-' }}</template>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.provider') }}</span>
-          <span class="detail-value">{{ providerName(log.provider_id) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.apiKey') }}</span>
-          <span class="detail-value">{{ keyName(log.api_key_id) }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.team') }}</span>
-          <span class="detail-value">{{ log.team_id ?? '-' }}</span>
-        </div>
-      </a-card>
+            <div class="usage-overview">
+              <div class="usage-metric">
+                <span class="usage-metric-value">
+                  {{ formatTokensLocale(viewLog.input_tokens + viewLog.output_tokens) }}
+                </span>
+                <span class="usage-metric-label">{{ t('logDetail.totalTokens') }}</span>
+              </div>
+              <div class="usage-metric">
+                <span class="usage-metric-value">
+                  {{ getCurrencySymbol(viewLog.currency)
+                  }}{{ viewLog.cost != null ? viewLog.cost.toFixed(4) : '-' }}
+                </span>
+                <span class="usage-metric-label">
+                  {{ t('logDetail.costWithCurrency', { currency: viewLog.currency }) }}
+                </span>
+              </div>
+              <div v-if="viewLog.billable_cost != null" class="usage-metric">
+                <span class="usage-metric-value">
+                  {{ getCurrencySymbol(viewLog.currency) }}{{ viewLog.billable_cost.toFixed(4) }}
+                </span>
+                <span class="usage-metric-label">
+                  <a-tooltip :content="billableHint">
+                    <span>{{ t('logDetail.billableCost', { currency: viewLog.currency }) }}</span>
+                  </a-tooltip>
+                </span>
+              </div>
+            </div>
+            <div v-if="totalTokens > 0" class="token-bar-group">
+              <div class="token-bar-item">
+                <span class="token-bar-label">{{ t('logDetail.input') }}</span>
+                <div class="token-bar-track">
+                  <div
+                    class="token-bar-fill bar-input"
+                    :style="{ width: inputPercent + '%' }"
+                  ></div>
+                </div>
+                <span class="token-bar-value">
+                  {{ formatTokensLocale(viewLog.input_tokens) }} ({{ inputPercent }}%)
+                </span>
+              </div>
+              <div class="token-bar-item">
+                <span class="token-bar-label">{{ t('logDetail.output') }}</span>
+                <div class="token-bar-track">
+                  <div
+                    class="token-bar-fill bar-output"
+                    :style="{ width: outputPercent + '%' }"
+                  ></div>
+                </div>
+                <span class="token-bar-value">
+                  {{ formatTokensLocale(viewLog.output_tokens) }} ({{ outputPercent }}%)
+                </span>
+              </div>
+            </div>
+          </a-card>
 
-      <!-- 性能指标 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-thunderbolt />
-            {{ t('logDetail.performanceMetrics') }}
-          </span>
-        </template>
-        <div class="perf-bar-item">
-          <span class="perf-bar-label">{{ t('logDetail.totalLatency') }}</span>
-          <div class="perf-bar-track">
+          <!-- Token 分析（详情接口专属；null = 未分析） -->
+          <a-card v-if="hasTokenAnalysis" class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-layers />
+                {{ t('logDetail.tokenAnalysis') }}
+              </span>
+            </template>
+            <div v-for="bucket in tokenBuckets" :key="bucket.label" class="detail-row">
+              <span class="detail-label">{{ bucket.label }}</span>
+              <span v-if="bucket.value != null" class="detail-value">
+                {{ formatTokensLocale(bucket.value) }}
+              </span>
+              <span v-else class="detail-value not-analyzed">{{ t('logDetail.notAnalyzed') }}</span>
+            </div>
             <div
-              class="perf-bar-fill"
-              :class="latencyBarClass(log.latency_ms)"
-              :style="{ width: latencyPercent(log.latency_ms) + '%' }"
-            ></div>
-          </div>
-          <span class="perf-bar-value">{{ formatLatency(log.latency_ms) }}</span>
-        </div>
-        <div class="perf-bar-item">
-          <span class="perf-bar-label">{{ t('logDetail.firstToken') }}</span>
-          <div class="perf-bar-track">
-            <div
-              class="perf-bar-fill bar-ttft"
-              :style="{ width: latencyPercent(log.first_token_ms ?? 0) + '%' }"
-            ></div>
-          </div>
-          <span class="perf-bar-value">
-            {{ log.first_token_ms != null ? `${log.first_token_ms}ms` : '-' }}
-          </span>
-        </div>
-      </a-card>
+              v-if="viewLog.context_utilization_bp != null"
+              class="token-bar-item context-bar-item"
+            >
+              <span class="token-bar-label context-bar-label">
+                {{ t('logDetail.contextUtilization') }}
+              </span>
+              <div class="token-bar-track">
+                <div
+                  class="token-bar-fill bar-context"
+                  :style="{ width: contextUtilPercent + '%' }"
+                ></div>
+              </div>
+              <span class="token-bar-value">{{ contextUtilPercent.toFixed(1) }}%</span>
+            </div>
+            <div v-if="viewLog.context_window != null" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.contextWindow') }}</span>
+              <span class="detail-value">{{ formatTokensLocale(viewLog.context_window) }}</span>
+            </div>
+            <div v-if="viewLog.analysis_flags != null" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.analysisFlags') }}</span>
+              <span class="detail-value mono">{{ viewLog.analysis_flags }}</span>
+            </div>
+            <div v-if="viewLog.context_snapshot" class="security-collapse">
+              <a-collapse :default-active-key="[]" :bordered="false">
+                <a-collapse-item key="snapshot" :header="t('logDetail.contextSnapshot')">
+                  <pre class="content-block">{{
+                    JSON.stringify(viewLog.context_snapshot, null, 2)
+                  }}</pre>
+                </a-collapse-item>
+              </a-collapse>
+            </div>
+          </a-card>
 
-      <!-- 容错与缓存 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-sync />
-            {{ t('logDetail.faultTolerance') }}
-          </span>
-        </template>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.fallbackCount') }}</span>
-          <span class="detail-value">
-            <a-tag v-if="log.fallback_count > 0" color="orangered" size="small">
-              {{ log.fallback_count }}
-            </a-tag>
-            <span v-else>0</span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.retryCount') }}</span>
-          <span class="detail-value">
-            <a-tag v-if="log.retry_count > 0" color="orangered" size="small">
-              {{ log.retry_count }}
-            </a-tag>
-            <span v-else>0</span>
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.cacheHit') }}</span>
-          <span class="detail-value">
-            <a-tag v-if="log.cache_hit" color="green" size="small">{{ t('common.yes') }}</a-tag>
-            <a-tag v-else color="gray" size="small">{{ t('common.no') }}</a-tag>
-          </span>
-        </div>
-      </a-card>
-
-      <!-- 安全与内容 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-safe />
-            {{ t('logDetail.security') }}
-          </span>
-        </template>
-        <div class="detail-row">
-          <span class="detail-label">{{ t('logDetail.guardrailTriggered') }}</span>
-          <span class="detail-value">
-            <a-tag v-if="log.guardrail_triggered" color="red" size="small">
-              {{ t('common.yes') }}
-            </a-tag>
-            <span v-else>{{ t('common.no') }}</span>
-          </span>
-        </div>
-        <div v-if="log.guardrail_rule" class="detail-row">
-          <span class="detail-label">{{ t('logDetail.guardrailRule') }}</span>
-          <span class="detail-value">{{ log.guardrail_rule }}</span>
-        </div>
-        <div v-if="log.security_events?.length" class="security-collapse">
-          <a-collapse :default-active-key="[]" :bordered="false">
-            <a-collapse-item key="events" :header="t('logDetail.securityEvents')">
-              <pre class="content-block">{{ JSON.stringify(log.security_events, null, 2) }}</pre>
-            </a-collapse-item>
-          </a-collapse>
-        </div>
-      </a-card>
-
-      <!-- 请求/响应内容 -->
-      <a-card class="detail-section" :bordered="false">
-        <template #title>
-          <span class="section-title">
-            <icon-code />
-            {{ t('logDetail.requestResponseContent') }}
-          </span>
-        </template>
-        <!-- 无正文时按内容日志开关状态区分：未开启 vs 历史记录（产生于开启之前） -->
-        <div v-if="!hasContent" class="content-empty">
-          <template v-if="contentLogEnabled === false">
-            <span>{{ t('logDetail.contentLogDisabled') }}</span>
-            <a-link v-if="canOpenSettings" @click="goSettings">
-              {{ t('logDetail.goSettings') }}
-            </a-link>
-          </template>
-          <span v-else-if="contentLogEnabled === true">{{ t('logDetail.contentLegacy') }}</span>
-          <span v-else>{{ t('logDetail.contentUnknown') }}</span>
-        </div>
-        <a-collapse v-else :default-active-key="[]" :bordered="false">
-          <a-collapse-item
-            v-if="log.user_message"
-            key="req"
-            :header="t('logDetail.requestContent')"
-          >
-            <template #extra>
-              <a-button size="mini" type="text" @click.stop="handleCopy(log.user_message!)">
-                <template #icon><icon-copy /></template>
-              </a-button>
+          <!-- 图片信息（image_count 为 null 表示非图片请求，整卡隐藏） -->
+          <a-card v-if="viewLog.image_count != null" class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-image />
+                {{ t('logDetail.imageInfo') }}
+              </span>
             </template>
-            <pre class="content-block">{{ formatContent(log.user_message) }}</pre>
-          </a-collapse-item>
-          <a-collapse-item
-            v-if="log.model_response"
-            key="res"
-            :header="t('logDetail.responseContent')"
-          >
-            <template #extra>
-              <a-button size="mini" type="text" @click.stop="handleCopy(log.model_response!)">
-                <template #icon><icon-copy /></template>
-              </a-button>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.imageCount') }}</span>
+              <span class="detail-value">{{ formatTokensLocale(viewLog.image_count) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.imageSize') }}</span>
+              <span class="detail-value">{{ viewLog.image_size || '-' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.imageQuality') }}</span>
+              <span class="detail-value">{{ viewLog.image_quality || '-' }}</span>
+            </div>
+          </a-card>
+
+          <!-- 模型与路由 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-swap />
+                {{ t('logDetail.modelAndRouting') }}
+              </span>
             </template>
-            <pre class="content-block">{{ formatContent(log.model_response) }}</pre>
-          </a-collapse-item>
-        </a-collapse>
-      </a-card>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.requestModel') }}</span>
+              <span class="detail-value mono bold">{{ viewLog.model_requested }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.actualModel') }}</span>
+              <span class="detail-value">
+                <template
+                  v-if="viewLog.model_used && viewLog.model_used !== viewLog.model_requested"
+                >
+                  <a-tooltip :content="t('logDetail.modelFallback')">
+                    <a-tag color="orangered" size="small">{{ viewLog.model_used }}</a-tag>
+                  </a-tooltip>
+                </template>
+                <template v-else>{{ viewLog.model_used || '-' }}</template>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.provider') }}</span>
+              <span class="detail-value">{{ providerName(viewLog.provider_id) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.apiKey') }}</span>
+              <span class="detail-value">{{ keyName(viewLog.api_key_id) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.team') }}</span>
+              <span class="detail-value">{{ viewLog.team_id ?? '-' }}</span>
+            </div>
+          </a-card>
+
+          <!-- 性能指标 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-thunderbolt />
+                {{ t('logDetail.performanceMetrics') }}
+              </span>
+            </template>
+            <div class="perf-bar-item">
+              <span class="perf-bar-label">{{ t('logDetail.totalLatency') }}</span>
+              <div class="perf-bar-track">
+                <div
+                  class="perf-bar-fill"
+                  :class="latencyBarClass(viewLog.latency_ms)"
+                  :style="{ width: latencyPercent(viewLog.latency_ms) + '%' }"
+                ></div>
+              </div>
+              <span class="perf-bar-value">{{ formatLatency(viewLog.latency_ms) }}</span>
+            </div>
+            <div class="perf-bar-item">
+              <span class="perf-bar-label">{{ t('logDetail.firstToken') }}</span>
+              <div class="perf-bar-track">
+                <div
+                  class="perf-bar-fill bar-ttft"
+                  :style="{ width: latencyPercent(viewLog.first_token_ms ?? 0) + '%' }"
+                ></div>
+              </div>
+              <span class="perf-bar-value">
+                {{ viewLog.first_token_ms != null ? `${viewLog.first_token_ms}ms` : '-' }}
+              </span>
+            </div>
+          </a-card>
+
+          <!-- 容错与缓存 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-sync />
+                {{ t('logDetail.faultTolerance') }}
+              </span>
+            </template>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.fallbackCount') }}</span>
+              <span class="detail-value">
+                <a-tag v-if="viewLog.fallback_count > 0" color="orangered" size="small">
+                  {{ viewLog.fallback_count }}
+                </a-tag>
+                <span v-else>0</span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.retryCount') }}</span>
+              <span class="detail-value">
+                <a-tag v-if="viewLog.retry_count > 0" color="orangered" size="small">
+                  {{ viewLog.retry_count }}
+                </a-tag>
+                <span v-else>0</span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.cacheHit') }}</span>
+              <span class="detail-value">
+                <a-tag v-if="viewLog.cache_hit" color="green" size="small">
+                  {{ t('common.yes') }}
+                </a-tag>
+                <a-tag v-else color="gray" size="small">{{ t('common.no') }}</a-tag>
+              </span>
+            </div>
+          </a-card>
+
+          <!-- 安全与内容 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-safe />
+                {{ t('logDetail.security') }}
+              </span>
+            </template>
+            <div class="detail-row">
+              <span class="detail-label">{{ t('logDetail.guardrailTriggered') }}</span>
+              <span class="detail-value">
+                <a-tag v-if="viewLog.guardrail_triggered" color="red" size="small">
+                  {{ t('common.yes') }}
+                </a-tag>
+                <span v-else>{{ t('common.no') }}</span>
+              </span>
+            </div>
+            <div v-if="viewLog.guardrail_rule" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.guardrailRule') }}</span>
+              <span class="detail-value">{{ viewLog.guardrail_rule }}</span>
+            </div>
+            <div v-if="viewLog.security_events?.length" class="security-collapse">
+              <a-collapse :default-active-key="[]" :bordered="false">
+                <a-collapse-item key="events" :header="t('logDetail.securityEvents')">
+                  <pre class="content-block">{{
+                    JSON.stringify(viewLog.security_events, null, 2)
+                  }}</pre>
+                </a-collapse-item>
+              </a-collapse>
+            </div>
+          </a-card>
+
+          <!-- 请求/响应内容 -->
+          <a-card class="detail-section" :bordered="false">
+            <template #title>
+              <span class="section-title">
+                <icon-code />
+                {{ t('logDetail.requestResponseContent') }}
+              </span>
+            </template>
+            <!-- 无正文时按内容日志开关状态区分：未开启 vs 历史记录（产生于开启之前） -->
+            <div v-if="!hasContent" class="content-empty">
+              <template v-if="contentLogEnabled === false">
+                <span>{{ t('logDetail.contentLogDisabled') }}</span>
+                <a-link v-if="canOpenSettings" @click="goSettings">
+                  {{ t('logDetail.goSettings') }}
+                </a-link>
+              </template>
+              <span v-else-if="contentLogEnabled === true">{{ t('logDetail.contentLegacy') }}</span>
+              <span v-else>{{ t('logDetail.contentUnknown') }}</span>
+            </div>
+            <a-collapse v-else :default-active-key="[]" :bordered="false">
+              <a-collapse-item
+                v-if="viewLog.user_message"
+                key="req"
+                :header="t('logDetail.requestContent')"
+              >
+                <template #extra>
+                  <a-button size="mini" type="text" @click.stop="handleCopy(viewLog.user_message!)">
+                    <template #icon><icon-copy /></template>
+                  </a-button>
+                </template>
+                <pre class="content-block">{{ formatContent(viewLog.user_message) }}</pre>
+              </a-collapse-item>
+              <a-collapse-item
+                v-if="viewLog.model_response"
+                key="res"
+                :header="t('logDetail.responseContent')"
+              >
+                <template #extra>
+                  <a-button
+                    size="mini"
+                    type="text"
+                    @click.stop="handleCopy(viewLog.model_response!)"
+                  >
+                    <template #icon><icon-copy /></template>
+                  </a-button>
+                </template>
+                <pre class="content-block">{{ formatContent(viewLog.model_response) }}</pre>
+              </a-collapse-item>
+            </a-collapse>
+          </a-card>
+        </a-spin>
+      </template>
     </template>
   </a-drawer>
 </template>
@@ -289,6 +400,7 @@ import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
 import { formatLatency, formatTokensLocale } from '@/utils/format'
 import { settingsApi } from '@/api/settings'
+import { usageApi } from '@/api/usage'
 import { useUserStore } from '@/store/modules/user'
 
 const props = defineProps<{
@@ -306,41 +418,115 @@ const { t } = useI18n()
 const router = useRouter()
 const userStore = useUserStore()
 
+// 详情拉取：列表接口已不返回内容字段，抽屉打开时用列表行作种子先渲染，
+// 再整体替换为 GET /usage/:id 的完整详情
+const detail = ref<UsageLog | null>(null)
+const detailLoading = ref(false)
+const detailError = ref<'not_found' | 'error' | null>(null)
+
+// 渲染目标：详情优先，列表行兜底（抽屉秒开，详情到达后新区块弹出）
+const viewLog = computed(() => detail.value ?? props.log)
+// 竞态守卫：快速连点不同行时丢弃过期响应
+let fetchSeq = 0
+
+watch(
+  () => [props.visible, props.log?.id] as const,
+  ([visible]) => {
+    if (!visible || !props.log) return
+    const seq = ++fetchSeq
+    detail.value = null
+    detailError.value = null
+    detailLoading.value = true
+    usageApi
+      .requestLogDetail(props.log.id)
+      .then((res) => {
+        if (seq !== fetchSeq) return
+        detail.value = res.data
+        // 拉到的详情仍无内容 → 查内容日志开关，区分「未开启」与「历史记录」
+        if (!res.data.user_message && !res.data.model_response) fetchContentLogSetting()
+      })
+      .catch((err: { response?: { status?: number } }) => {
+        if (seq !== fetchSeq) return
+        detailError.value = err?.response?.status === 404 ? 'not_found' : 'error'
+      })
+      .finally(() => {
+        if (seq === fetchSeq) detailLoading.value = false
+      })
+  },
+  { immediate: true },
+)
+
 // 内容日志：无正文时拉取当前开关，区分「未开启」与「历史记录（产生于开启之前）」两种情况
-const hasContent = computed(() => !!(props.log?.user_message || props.log?.model_response))
+const hasContent = computed(() => !!(viewLog.value?.user_message || viewLog.value?.model_response))
 const canOpenSettings = computed(() => userStore.hasPermission('system:view'))
 // null = 拉取失败或无权限（如企业版组织用户），用中性文案兜底
 const contentLogEnabled = ref<boolean | null>(null)
 
-watch(
-  () => props.visible,
-  (visible) => {
-    if (visible && !hasContent.value) {
-      settingsApi
-        .getContentLog()
-        .then((res) => {
-          contentLogEnabled.value = res.data.enabled
-        })
-        .catch(() => {
-          contentLogEnabled.value = null
-        })
-    }
-  },
-  { immediate: true },
-)
+function fetchContentLogSetting() {
+  contentLogEnabled.value = null
+  settingsApi
+    .getContentLog()
+    .then((res) => {
+      contentLogEnabled.value = res.data.enabled
+    })
+    .catch(() => {
+      contentLogEnabled.value = null
+    })
+}
 
 function goSettings() {
   router.push({ name: 'settings' })
 }
 
 // Computed — token usage
-const totalTokens = computed(() => (props.log?.input_tokens ?? 0) + (props.log?.output_tokens ?? 0))
+const totalTokens = computed(
+  () => (viewLog.value?.input_tokens ?? 0) + (viewLog.value?.output_tokens ?? 0),
+)
 const inputPercent = computed(() => {
   const total = totalTokens.value
   if (total === 0) return 0
-  return Math.round(((props.log?.input_tokens ?? 0) / total) * 100)
+  return Math.round(((viewLog.value?.input_tokens ?? 0) / total) * 100)
 })
 const outputPercent = computed(() => 100 - inputPercent.value)
+
+// Computed — token 分析（null = 未分析，区别于 0）
+const tokenBuckets = computed(() => [
+  { label: t('logDetail.tokenReasoning'), value: viewLog.value?.reasoning_tokens },
+  { label: t('logDetail.tokenSystem'), value: viewLog.value?.system_tokens },
+  { label: t('logDetail.tokenHistory'), value: viewLog.value?.history_tokens },
+  { label: t('logDetail.tokenQuestion'), value: viewLog.value?.question_tokens },
+  { label: t('logDetail.tokenTool'), value: viewLog.value?.tool_tokens },
+  { label: t('logDetail.tokenToolOutput'), value: viewLog.value?.tool_output_tokens },
+])
+const hasTokenAnalysis = computed(() => {
+  const log = viewLog.value
+  if (!log) return false
+  return [
+    log.reasoning_tokens,
+    log.system_tokens,
+    log.history_tokens,
+    log.question_tokens,
+    log.tool_tokens,
+    log.tool_output_tokens,
+    log.context_window,
+    log.context_utilization_bp,
+    log.analysis_flags,
+  ].some((v) => v != null)
+})
+// 基点 → 百分比（6540bp = 65.4%），显示上限 clamp 到 100
+const contextUtilPercent = computed(() => {
+  const bp = viewLog.value?.context_utilization_bp
+  if (bp == null) return 0
+  return Math.min(100, bp / 100)
+})
+
+// 计费费用提示：公式 + 由 billable_cost / cost 推导的 Key 单价倍率
+const billableHint = computed(() => {
+  const base = t('logDetail.billableCostHint')
+  const log = viewLog.value
+  if (!log || log.billable_cost == null || !(log.cost > 0)) return base
+  return `${base} (×${(log.billable_cost / log.cost).toFixed(2)})`
+})
 
 // Status
 function statusLabel(code: number): string {
@@ -649,5 +835,29 @@ function formatTime(val: string) {
   padding: 12px;
   font-size: 13px;
   color: var(--color-text-3);
+}
+
+// Detail fetch failure banner
+.load-fail-alert {
+  margin-bottom: 16px;
+}
+
+// Token bucket not analyzed (null)
+.not-analyzed {
+  color: var(--color-text-4);
+}
+
+// Context utilization bar (reuses token-bar layout, wider label)
+.context-bar-item {
+  padding: 8px 0;
+  border-top: 1px solid var(--color-fill-2);
+}
+
+.context-bar-label {
+  min-width: 96px;
+}
+
+.bar-context {
+  background: rgb(var(--purple-6));
 }
 </style>

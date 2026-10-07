@@ -37,6 +37,12 @@ export const usageApi = {
   requestLogs: (params?: UsageQuery) =>
     get<UsageLog[]>('/usage', params as Record<string, unknown>),
   /**
+   * 单条请求日志详情（含 user_message/model_response 与 token 分析、
+   * 计费、图片等详情专属字段；列表接口已不再返回内容字段）。
+   * 404 body: { error, error_code: 'not_found' } — 调用方据 status/error_code 区分。
+   */
+  requestLogDetail: (id: number) => get<UsageLog>(`/usage/${id}`),
+  /**
    * 对账 CSV 导出（按 Key × 模型聚合）。响应是文件流，必须走原始 axios
    * 实例（JWT 注入）+ responseType blob；后端出错时返回的 JSON 错误体
    * 也会被包成 blob，由调用方检测 blob.type 后提示。

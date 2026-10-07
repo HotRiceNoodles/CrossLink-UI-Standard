@@ -474,8 +474,31 @@ export interface UsageLog {
   cache_hit: boolean
   agent_type?: string
   security_events?: Record<string, unknown>[]
-  user_message?: string
-  model_response?: string
+  // 内容 — 仅 GET /usage/:id 详情返回（列表已移除）；null = 内容日志未开启
+  user_message?: string | null
+  model_response?: string | null
+  // Token 分析（详情专属；null = 未分析，区别于 0）
+  reasoning_tokens?: number | null
+  system_tokens?: number | null
+  history_tokens?: number | null
+  question_tokens?: number | null
+  tool_tokens?: number | null
+  tool_output_tokens?: number | null
+  context_window?: number | null
+  // 基点（basis points），1bp = 0.01%
+  context_utilization_bp?: number | null
+  analysis_flags?: number | null
+  context_snapshot?: Record<string, unknown> | null
+  // 计费费用（详情专属）= 费用 × Key 单价倍率
+  billable_cost?: number | null
+  // 图片元数据（详情专属；image_count 为 null 表示非图片请求）
+  image_count?: number | null
+  image_size?: string | null
+  image_quality?: string | null
+  // 标识（详情专属；暂不展示）
+  session_id?: string | null
+  template_id?: number | null
+  org_id?: number | null
   created_at: string
 }
 
