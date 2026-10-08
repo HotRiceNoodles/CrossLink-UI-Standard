@@ -60,6 +60,14 @@
                 {{ t('logDetail.errorDetail') }}
               </span>
             </template>
+            <div v-if="viewLog.error_stage" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.errorStage') }}</span>
+              <span class="detail-value">
+                <a-tag :color="stageColor(viewLog.error_stage)" size="small">
+                  {{ stageLabel(viewLog.error_stage) }}
+                </a-tag>
+              </span>
+            </div>
             <div v-if="viewLog.error_type" class="detail-row">
               <span class="detail-label">{{ t('logDetail.errorType') }}</span>
               <span class="detail-value">
@@ -90,6 +98,17 @@
                   <a-tag v-if="viewLog.upstream_error_code" class="upstream-code-tag" size="small">
                     {{ viewLog.upstream_error_code }}
                   </a-tag>
+                  <a-tag v-if="viewLog.upstream_error_type" class="upstream-code-tag" size="small">
+                    {{ viewLog.upstream_error_type }}
+                  </a-tag>
+                  <a-tooltip
+                    v-if="viewLog.upstream_error_param"
+                    :content="t('logDetail.upstreamParamHint')"
+                  >
+                    <a-tag class="upstream-code-tag" size="small">
+                      {{ viewLog.upstream_error_param }}
+                    </a-tag>
+                  </a-tooltip>
                 </template>
                 <a-tag v-else color="orange" size="small">
                   {{ t('logDetail.gatewayRejected') }}
@@ -596,7 +615,10 @@ const hasErrorDetail = computed(() => {
     log.error_type ||
     log.error_message != null ||
     log.upstream_status != null ||
-    log.upstream_error_code
+    log.upstream_error_code ||
+    log.error_stage != null ||
+    log.upstream_error_type ||
+    log.upstream_error_param
   )
 })
 // 修复前的历史记录：上游 4xx 曾被网关记为 5xx（如 502），修复后如实记录
@@ -610,6 +632,28 @@ const isMaskedUpstream = computed(() => {
     log.upstream_status < 500
   )
 })
+
+// 失败阶段（后端枚举 request|resolve|translate|upstream|internal）；未知值灰底显示原文
+const STAGE_COLORS: Record<string, string> = {
+  request: 'orange',
+  resolve: 'purple',
+  translate: 'cyan',
+  upstream: 'arcoblue',
+  internal: 'gray',
+}
+const STAGE_LABEL_KEYS: Record<string, string> = {
+  request: 'logDetail.stageRequest',
+  resolve: 'logDetail.stageResolve',
+  translate: 'logDetail.stageTranslate',
+  upstream: 'logDetail.stageUpstream',
+  internal: 'logDetail.stageInternal',
+}
+function stageColor(stage: string): string {
+  return STAGE_COLORS[stage] ?? 'gray'
+}
+function stageLabel(stage: string): string {
+  return STAGE_LABEL_KEYS[stage] ? t(STAGE_LABEL_KEYS[stage]) : stage
+}
 
 // Status
 function statusLabel(code: number): string {

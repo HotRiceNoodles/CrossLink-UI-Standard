@@ -524,12 +524,18 @@ export interface UsageLog {
   template_id?: number | null
   org_id?: number | null
   // 错误详情（详情专属；列表接口列白名单不含这些字段）
-  /** 脱敏错误文本（≤200 字符，org ID 已脱敏）；null = 成功 */
+  /** 脱敏错误文本（≤1000 字符，org ID 已脱敏）；null = 成功 */
   error_message?: string | null
   /** 上游 HTTP 状态；null = 网关侧拒绝（校验/护栏/无上游响应的网络错误） */
   upstream_status?: number | null
   /** 上游 error.code（如 model_not_found，≤64 字符） */
   upstream_error_code?: string | null
+  /** 失败阶段（request|resolve|translate|upstream|internal）；null = 成功或旧记录 */
+  error_stage?: string | null
+  /** 上游 error.type（如 invalid_request_error，≤64 字符） */
+  upstream_error_type?: string | null
+  /** 上游 error.param：被上游拒绝的请求字段名（如 max_tokens，≤128 字符） */
+  upstream_error_param?: string | null
   /** fallback 尝试时间线；null = 干净的单次成功 */
   attempts?: UsageAttempt[] | null
   created_at: string
