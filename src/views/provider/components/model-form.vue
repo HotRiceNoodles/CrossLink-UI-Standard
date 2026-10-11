@@ -18,7 +18,7 @@
         <a-select
           v-model="formData.provider_id"
           :placeholder="t('model.providerPlaceholder')"
-          :disabled="isProviderLocked"
+          :disabled="isProviderLocked || isEdit"
         >
           <a-option v-for="p in providerList" :key="p.id" :value="p.id" :label="p.display_name" />
         </a-select>
@@ -31,7 +31,12 @@
             :label="t('model.modelNameLabel')"
             :rules="[{ required: true, message: t('model.modelNameRequired') }]"
           >
-            <a-input v-model="formData.model_name" :placeholder="t('model.modelNamePlaceholder')" />
+            <!-- 后端 Update 不接受 model_name（改公开模型名属破坏性变更），编辑态禁改 -->
+            <a-input
+              v-model="formData.model_name"
+              :placeholder="t('model.modelNamePlaceholder')"
+              :disabled="isEdit"
+            />
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
@@ -40,9 +45,11 @@
             :label="t('model.providerModelLabel')"
             :rules="[{ required: true, message: t('model.providerModelRequired') }]"
           >
+            <!-- 后端 Update 不接受 provider_model，编辑态禁改 -->
             <a-input
               v-model="formData.provider_model"
               :placeholder="t('model.providerModelPlaceholder')"
+              :disabled="isEdit"
             />
           </a-form-item>
         </a-grid-item>
@@ -73,14 +80,7 @@
         </a-grid-item>
       </a-grid>
 
-      <a-form-item field="max_context" :label="t('model.maxContext')">
-        <a-input-number
-          v-model="formData.max_context"
-          :min="0"
-          :placeholder="t('model.maxContextPlaceholder')"
-          style="width: 100%"
-        />
-      </a-form-item>
+      <!-- max_context 暂不暴露：后端 Create/Update 均未接收该字段，运行时恒为 null -->
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
@@ -203,7 +203,6 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
     provider_model: '',
     weight: 1,
     priority: 1,
-    max_context: undefined,
     input_price: undefined,
     output_price: undefined,
     currency: 'CNY',
@@ -231,7 +230,6 @@ watch(
         provider_model: props.model.provider_model,
         weight: props.model.weight,
         priority: props.model.priority,
-        max_context: props.model.max_context,
         input_price: props.model.input_price,
         output_price: props.model.output_price,
         currency: props.model.currency,
@@ -271,7 +269,6 @@ async function handleSubmit() {
       provider_model: formData.provider_model,
       weight: formData.weight,
       priority: formData.priority,
-      max_context: formData.max_context ?? null,
       input_price: formData.input_price ?? null,
       output_price: formData.output_price ?? null,
       currency: formData.currency,
