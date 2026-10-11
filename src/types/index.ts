@@ -201,6 +201,9 @@ export interface APIKey {
   created_by: string
   created_by_id: number
   team_id: number | null
+  /** 'native' = 网关生成；'imported' = 原值注册的厂商密钥（equal-value key）。旧后端不返回。 */
+  key_source?: string
+  source_vendor?: string
 }
 
 export interface KeyCreateRequest {
@@ -221,6 +224,46 @@ export interface KeyCreateResponse {
   key: string
   key_prefix: string
   message: string
+}
+
+// Key import (equal-value vendor keys)
+export type KeyVendor = 'openai' | 'anthropic' | 'gemini' | 'azure' | 'other'
+
+export interface KeyImportItem {
+  key: string
+  name?: string
+  /** 选填：仅作来源记录（轮换时提示去哪家吊销），无网关运行时语义。 */
+  vendor?: KeyVendor
+  /** 选填：限制 Key 可调用的协议入口；留空 = openai/anthropic 两种均可。 */
+  protocol?: 'openai' | 'anthropic'
+  allowed_models?: string[]
+}
+
+export interface KeyImportRequest {
+  keys: KeyImportItem[]
+}
+
+export type KeyImportResultStatus =
+  | 'created'
+  | 'duplicate'
+  | 'invalid'
+  | 'model_not_found'
+  | 'failed'
+
+export interface KeyImportResult {
+  index: number
+  name?: string
+  status: KeyImportResultStatus
+  key_prefix?: string
+  key_id?: number
+  existing_key_id?: number
+  reason?: string
+  missing_models?: string[]
+}
+
+export interface KeyImportResponse {
+  created: number
+  results: KeyImportResult[]
 }
 
 // Usage

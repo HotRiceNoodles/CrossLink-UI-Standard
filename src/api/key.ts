@@ -1,9 +1,16 @@
 import { get, post, put, del } from './interceptor'
-import type { APIKey, KeyCreateRequest, KeyCreateResponse } from '@/types'
+import type {
+  APIKey,
+  KeyCreateRequest,
+  KeyCreateResponse,
+  KeyImportRequest,
+  KeyImportResponse,
+} from '@/types'
 
 export const keyApi = {
   list: () => get<APIKey[]>('/keys'),
   create: (data: KeyCreateRequest) => post<KeyCreateResponse>('/keys', data),
+  import: (data: KeyImportRequest) => post<KeyImportResponse>('/keys/import', data),
   update: (id: number, data: Partial<KeyCreateRequest & { status?: number }>) =>
     put<void>(`/keys/${id}`, data),
   delete: (id: number) => del<void>(`/keys/${id}`),

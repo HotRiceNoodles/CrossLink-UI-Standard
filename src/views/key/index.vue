@@ -42,6 +42,10 @@
               <template #icon><icon-plus /></template>
               {{ t('key.createKey') }}
             </a-button>
+            <a-button v-if="userStore.hasPermission('key:import')" @click="importVisible = true">
+              <template #icon><icon-upload /></template>
+              {{ t('key.import.open') }}
+            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -63,9 +67,16 @@
         @page-size-change="onPageSizeChange"
       >
         <template #columns>
-          <a-table-column :title="t('key.tableName')" data-index="name" :width="160">
+          <a-table-column :title="t('key.tableName')" data-index="name" :width="200">
             <template #cell="{ record }">
-              <span style="font-weight: 600">{{ record.name }}</span>
+              <a-space :size="4">
+                <span style="font-weight: 600">{{ record.name }}</span>
+                <a-tooltip v-if="record.key_source === 'imported'" :content="badgeTooltip(record)">
+                  <a-tag color="purple" size="small">
+                    {{ t('key.importedBadge') }}
+                  </a-tag>
+                </a-tooltip>
+              </a-space>
             </template>
           </a-table-column>
 
@@ -400,6 +411,13 @@
         </a-space>
       </div>
     </a-modal>
+
+    <!-- Batch Import Drawer -->
+    <ImportDrawer
+      v-model:visible="importVisible"
+      :model-options="modelOptions"
+      @success="fetchData"
+    />
   </div>
 </template>
 
@@ -411,15 +429,21 @@ import dayjs from 'dayjs'
 import { keyApi } from '@/api/key'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
+import { useUserStore } from '@/store'
+import ImportDrawer from './components/import-drawer.vue'
 import { formatTime } from '@/utils/format'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
 import type { APIKey } from '@/types'
 
 const { t } = useI18n()
+const userStore = useUserStore()
 
 // Auxiliary data
 const modelOptions = ref<string[]>([])
+
+// Batch import drawer
+const importVisible = ref(false)
 
 // 过期时间预设：'never' 仅创建态可选；编辑态去除，因后端无法把已存在的过期时间清回 null。
 const expirePreset = ref<string>('never')
@@ -589,6 +613,12 @@ function openEdit(record: APIKey) {
 
 function isExpired(record: APIKey) {
   return !!record.expires_at && dayjs(record.expires_at).isBefore(dayjs())
+}
+
+// imported badge tooltip：来源厂商 + 过渡态风险提示
+function badgeTooltip(record: APIKey) {
+  const tip = t('key.importedBadgeTip')
+  return record.source_vendor ? `${record.source_vendor} — ${tip}` : tip
 }
 
 function daysLeft(record: APIKey) {
