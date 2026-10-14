@@ -83,13 +83,13 @@
           <a-table-column
             :title="t('provider.modelTableWeight')"
             :width="70"
-            align="center"
+            align="right"
             data-index="weight"
           />
           <a-table-column
             :title="t('provider.modelTablePriority')"
             :width="70"
-            align="center"
+            align="right"
             data-index="priority"
           />
 
@@ -188,9 +188,10 @@ const providerColor = computed(() => {
   return colors[Math.abs(hash) % colors.length]
 })
 
+// 策略是配置维度而非状态，避开与「启用=绿/异常=红」的状态色语义
 const strategyColorMap: Record<string, string> = {
   weighted_random: '#1D4ED8',
-  round_robin: '#00B42A',
+  round_robin: '#D91AD9',
   least_latency: '#0FC6C2',
   least_cost: '#FF7D00',
   canary: '#722ED1',

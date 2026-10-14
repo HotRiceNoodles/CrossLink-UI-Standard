@@ -126,6 +126,7 @@ export default {
     requestCount: 'Requests',
     tokenCount: 'Tokens',
     modelDistribution: 'Model Distribution',
+    unknownModel: 'Unspecified model',
     proportion: 'Proportion',
     systemVersion: 'System Version',
     licenseStatus: 'License Status',
@@ -1630,7 +1631,7 @@ export default {
     eyebrow: 'Enterprise LLM API Gateway',
     title: 'A control plane between your apps and your models.',
     subtitle:
-      'Smart routing · automatic failover · per-request observability · fine-grained key governance — every provider, converged into one controllable pipe behind a single API.',
+      'Every provider, converged into one controllable, observable pipe behind a single API.',
     signIn: 'Sign in',
     cta: {
       primary: 'Enter console',
@@ -1912,6 +1913,7 @@ export default {
     reauthTitle: 'Confirm sensitive operation',
     reauthTip:
       'Changing the egress policy requires re-authentication. Enter your current account password',
+    passwordRequired: 'Please enter your password',
     passwordPlaceholder: 'Enter your current account password',
     applySuccess: 'Saved',
     resetSuccess: 'Page override deleted',

@@ -9,7 +9,8 @@
             function is supplied we render the value ourselves; otherwise we lean on
             a-statistic for grouping / precision / count-up animation.
           -->
-          <span v-if="format" class="kpi-value" :style="valueStyle">
+          <span v-if="isEmpty" class="kpi-value kpi-value-empty" :style="valueStyle">—</span>
+          <span v-else-if="format" class="kpi-value" :style="valueStyle">
             {{ prefix }}{{ displayValue }}{{ suffix }}
           </span>
           <a-statistic
@@ -63,7 +64,8 @@ type Size = 'lg' | 'sm'
 
 const props = withDefaults(
   defineProps<{
-    value: number
+    /** null/undefined = no data in range → renders an em-dash instead of a fake 0. */
+    value: number | null | undefined
     label: string
     icon?: string
     tone?: Tone
@@ -90,7 +92,9 @@ const props = withDefaults(
 
 const { t } = useI18n()
 
-const displayValue = computed(() => (props.format ? props.format(props.value) : ''))
+const isEmpty = computed(() => props.value == null || !Number.isFinite(props.value))
+
+const displayValue = computed(() => (props.format ? props.format(props.value ?? 0) : ''))
 
 const valueStyle = computed(() => {
   const fontSize = props.size === 'lg' ? '28px' : '20px'
@@ -151,6 +155,10 @@ const sparklineColor = computed(() => props.sparklineColor || TONE_COLOR[props.t
   color: var(--color-text-1);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.kpi-value-empty {
+  color: var(--color-text-4);
 }
 
 .kpi-label {

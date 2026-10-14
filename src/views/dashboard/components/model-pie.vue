@@ -25,8 +25,9 @@ const props = withDefaults(
 const cardTitle = computed(() => props.title || t('dashboard.modelDistribution'))
 
 const chartOption = computed<EChartsOption>(() => {
+  // Backend reports model-less traffic as '-' or '' — keep the traffic, give it a real label
   const seriesData = (props.data || []).map((item) => ({
-    name: item.model,
+    name: item.model && item.model !== '-' ? item.model : t('dashboard.unknownModel'),
     value: item.count,
   }))
 

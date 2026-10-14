@@ -205,7 +205,7 @@ function writeErrorMsg(err: unknown, fallback: string): string {
 async function executeWrite() {
   if (!pendingAction || !status.value) return
   if (!reauthPassword.value) {
-    Message.warning(t('ssrf.passwordPlaceholder'))
+    Message.warning(t('ssrf.passwordRequired'))
     return
   }
   writing.value = true

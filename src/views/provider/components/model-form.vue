@@ -162,7 +162,7 @@ const { t } = useI18n()
 
 const strategyMap: Record<string, { label: string; color: string }> = {
   weighted_random: { label: 'strategy.weighted_random', color: '#1D4ED8' },
-  round_robin: { label: 'strategy.round_robin', color: '#00B42A' },
+  round_robin: { label: 'strategy.round_robin', color: '#D91AD9' },
   least_latency: { label: 'strategy.least_latency', color: '#0FC6C2' },
   least_cost: { label: 'strategy.least_cost', color: '#FF7D00' },
   canary: { label: 'strategy.canary', color: '#722ED1' },

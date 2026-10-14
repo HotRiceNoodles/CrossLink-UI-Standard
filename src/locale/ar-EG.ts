@@ -126,6 +126,7 @@ export default {
     requestCount: 'الطلبات',
     tokenCount: 'الرموز',
     modelDistribution: 'توزيع النماذج',
+    unknownModel: 'نموذج غير محدد',
     proportion: 'النسبة',
     systemVersion: 'إصدار النظام',
     licenseStatus: 'حالة الترخيص',
@@ -1623,8 +1624,7 @@ export default {
   home: {
     eyebrow: 'بوابة API لنماذج LLM للمؤسسات',
     title: 'مستوى تحكّم بين تطبيقاتك ونماذجك.',
-    subtitle:
-      'توجيه ذكي · تجاوز تلقائي · رصد لكل طلب · حوكمة مفاتيح دقيقة — كل مزوّد يلتقي في مسار واحد قابل للتحكم خلف API واحد.',
+    subtitle: 'كل مزوّد يلتقي في مسار واحد قابل للتحكم والرصد خلف API واحد.',
     signIn: 'تسجيل الدخول',
     cta: {
       primary: 'الدخول إلى وحدة التحكم',
@@ -1902,6 +1902,7 @@ export default {
     readOnly: 'سياسة الاتصال الصادر إعداد عام — يمكن لمسؤولي المنصة فقط تعديلها',
     reauthTitle: 'تأكيد عملية حساسة',
     reauthTip: 'تعديل سياسة الاتصال الصادر يتطلب إعادة التحقق. أدخل كلمة مرور حسابك الحالية',
+    passwordRequired: 'يرجى إدخال كلمة المرور',
     passwordPlaceholder: 'أدخل كلمة مرور حسابك الحالية',
     applySuccess: 'تم الحفظ',
     resetSuccess: 'تم حذف تجاوز الصفحة',
