@@ -1,18 +1,12 @@
 <template>
-  <a-card class="general-card banner-card">
-    <div class="banner-content">
-      <div class="banner-left">
-        <h1 class="banner-title">{{ t('dashboard.welcomeBack', { name: displayName }) }}</h1>
-        <p class="banner-subtitle">
-          <a-tag v-if="tier" color="arcoblue" size="small">{{ tierLabel }}</a-tag>
-          <span v-if="version" class="banner-version">v{{ version }}</span>
-        </p>
-      </div>
-      <div class="banner-right">
-        <span class="banner-date">{{ currentDate }}</span>
-      </div>
-    </div>
-  </a-card>
+  <div class="dash-greeting">
+    <h1 class="greeting-title">
+      {{ t('dashboard.welcomeBack', { name: displayName }) }}
+      <a-tag v-if="tier" color="arcoblue" size="small">{{ tierLabel }}</a-tag>
+      <span v-if="version" class="greeting-version">v{{ version }}</span>
+    </h1>
+    <p class="greeting-date">{{ currentDate }}</p>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -48,49 +42,34 @@ const currentDate = computed(() => {
 </script>
 
 <style scoped lang="less">
-.banner-card {
-  margin-bottom: 16px;
-}
-
-.banner-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.banner-left {
+// 无卡片的紧凑页头：标题行内联徽标与版本，日期小字次行，右邻时间范围切换器
+.dash-greeting {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
+  min-width: 0;
 }
 
-.banner-title {
-  font-size: 22px;
+.greeting-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--color-text-1);
   margin: 0;
   line-height: 1.4;
 }
 
-.banner-subtitle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--color-text-3);
+.greeting-version {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-4);
+}
+
+.greeting-date {
+  font-size: 12px;
+  color: var(--color-text-4);
   margin: 0;
-}
-
-.banner-version {
-  color: var(--color-text-3);
-}
-
-.banner-right {
-  flex-shrink: 0;
-}
-
-.banner-date {
-  font-size: 14px;
-  color: var(--color-text-2);
 }
 </style>

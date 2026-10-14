@@ -456,7 +456,7 @@ onActivated(() => {
 
 .dashboard-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 16px;
@@ -468,11 +468,6 @@ onActivated(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-
-  :deep(.banner-card) {
-    flex: 1 1 auto;
-    margin-bottom: 0;
-  }
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -489,7 +484,6 @@ onActivated(() => {
   align-items: center;
   gap: 8px;
   padding: 6px 10px 6px 12px;
-  margin-top: 4px;
   background-color: var(--color-fill-1);
   border: 1px solid var(--color-border-2);
   border-radius: var(--cl-radius-lg);
