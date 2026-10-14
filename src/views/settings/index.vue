@@ -12,6 +12,13 @@
         >
           <runtime-config-tab />
         </a-tab-pane>
+        <a-tab-pane
+          v-if="userStore.hasPermission('system:view')"
+          key="ssrf"
+          :title="t('ssrf.tabTitle')"
+        >
+          <ssrf-tab />
+        </a-tab-pane>
         <a-tab-pane key="doctor" :title="t('doctor.tabTitle')">
           <doctor-tab />
         </a-tab-pane>
@@ -26,6 +33,7 @@ import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store/modules/user'
 import GeneralTab from './components/general-tab.vue'
 import RuntimeConfigTab from './components/runtime-config-tab.vue'
+import SsrfTab from './components/ssrf-tab.vue'
 import DoctorTab from './components/doctor-tab.vue'
 import { SETTINGS_TAB_EVENT } from './config-registry'
 
