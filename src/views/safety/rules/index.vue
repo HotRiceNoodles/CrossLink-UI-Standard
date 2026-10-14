@@ -184,7 +184,15 @@
 
     <!-- Main Rules Card -->
     <a-card class="general-card">
-      <template #title>{{ t('safety.rules.title') }}</template>
+      <template #title>
+        <PageCardTitle :title="t('safety.rules.title')" :subtitle="t('safety.rules.subtitle')" />
+      </template>
+      <template #extra>
+        <a-button type="primary" @click="handleCreate">
+          <template #icon><icon-plus /></template>
+          {{ t('safety.rules.createRule') }}
+        </a-button>
+      </template>
 
       <!-- Search / Filter -->
       <a-row :gutter="16" align="center">
@@ -225,10 +233,6 @@
           <a-space>
             <a-button type="primary" @click="applyFilter">{{ t('common.search') }}</a-button>
             <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
-            <a-button type="primary" @click="handleCreate">
-              <template #icon><icon-plus /></template>
-              {{ t('safety.rules.createRule') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -571,6 +575,7 @@ import { Message } from '@arco-design/web-vue'
 import { guardrailApi } from '@/api/safety'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
+import PageCardTitle from '@/components/page-card-title.vue'
 import { logger } from '@/logger'
 import { useLoading } from '@/hooks/loading'
 import { getDefaultsForEngine } from './engine-schema'

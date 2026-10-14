@@ -1,7 +1,19 @@
 <template>
   <div class="error-rule-page">
     <a-card class="general-card">
-      <template #title>{{ t('errorRule.title') }}</template>
+      <template #title>
+        <PageCardTitle :title="t('errorRule.title')" :subtitle="t('errorRule.subtitle')" />
+      </template>
+      <template #extra>
+        <a-button
+          v-if="userStore.hasPermission('error_rule:create')"
+          type="primary"
+          @click="handleCreate"
+        >
+          <template #icon><icon-plus /></template>
+          {{ t('errorRule.createRule') }}
+        </a-button>
+      </template>
 
       <!-- Search / Filter -->
       <a-row :gutter="16" align="center">
@@ -57,14 +69,6 @@
         </a-col>
         <a-col>
           <a-space>
-            <a-button
-              v-if="userStore.hasPermission('error_rule:create')"
-              type="primary"
-              @click="handleCreate"
-            >
-              <template #icon><icon-plus /></template>
-              {{ t('errorRule.createRule') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -255,6 +259,7 @@ import { errorRuleApi } from '@/api/error-rule'
 import { providerApi } from '@/api/provider'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store'
+import PageCardTitle from '@/components/page-card-title.vue'
 import type { ErrorRule, Adapter } from '@/types'
 
 const { t } = useI18n()

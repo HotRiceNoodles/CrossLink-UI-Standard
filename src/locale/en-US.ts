@@ -273,6 +273,7 @@ export default {
   },
   key: {
     title: 'API Keys',
+    subtitle: 'Credentials for apps calling the gateway — disable and rotate anytime',
     statusPlaceholder: 'Status',
     searchName: 'Search key name',
     totalKeys: '{0} keys',
@@ -902,6 +903,7 @@ export default {
     title: 'Content Safety',
     rules: {
       title: 'Guardrail Rules',
+      subtitle: 'Content moderation rules by engine and direction, with version history',
       createRule: 'Create Rule',
       editRule: 'Edit Rule',
       deleteRule: 'Delete Rule',
@@ -973,6 +975,7 @@ export default {
     },
     alerts: {
       title: 'Alert Logs',
+      subtitle: 'Guardrail trigger records, filterable by engine, severity and action',
       detail: 'Alert Detail',
       overview: 'Overview',
       todayCount: 'Today',

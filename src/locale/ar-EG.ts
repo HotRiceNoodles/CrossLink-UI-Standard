@@ -273,6 +273,7 @@ export default {
   },
   key: {
     title: 'مفاتيح API',
+    subtitle: 'بيانات الاعتماد لاستدعاء البوابة، مع إمكانية التعطيل والتدوير في أي وقت',
     statusPlaceholder: 'الحالة',
     searchName: 'ابحث باسم المفتاح',
     totalKeys: '{0} مفاتيح',
@@ -898,6 +899,7 @@ export default {
     title: 'أمان المحتوى',
     rules: {
       title: 'قواعد الحماية',
+      subtitle: 'قواعد مراجعة المحتوى حسب المحرك واتجاه الفحص، مع سجلّ للإصدارات',
       createRule: 'إنشاء قاعدة',
       editRule: 'تعديل القاعدة',
       deleteRule: 'حذف القاعدة',
@@ -970,6 +972,7 @@ export default {
     },
     alerts: {
       title: 'سجلات التنبيهات',
+      subtitle: 'سجلات تنفيذ قواعد الحماية، قابلة للتصفية حسب المحرك والخطورة والإجراء',
       detail: 'تفاصيل التنبيه',
       overview: 'نظرة عامة',
       todayCount: 'اليوم',

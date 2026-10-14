@@ -37,7 +37,7 @@
     <!-- Main Card -->
     <a-card class="general-card">
       <template #title>
-        <span class="page-title">{{ t('safety.alerts.title') }}</span>
+        <PageCardTitle :title="t('safety.alerts.title')" :subtitle="t('safety.alerts.subtitle')" />
       </template>
 
       <!-- Filters -->
@@ -266,6 +266,7 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { alertLogApi } from '@/api/safety'
+import PageCardTitle from '@/components/page-card-title.vue'
 import { logger } from '@/logger'
 import { useLoading } from '@/hooks/loading'
 import { formatTime } from '@/utils/format'
@@ -455,11 +456,6 @@ onMounted(() => {
 
 <style scoped lang="less">
 .alert-logs-page {
-  .page-title {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
   .filter-area {
     margin-bottom: 16px;
   }

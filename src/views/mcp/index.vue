@@ -1,7 +1,15 @@
 <template>
   <div class="mcp-page">
     <a-card class="general-card">
-      <template #title>{{ t('mcp.title') }}</template>
+      <template #title>
+        <PageCardTitle :title="t('mcp.title')" :subtitle="t('mcp.subtitle')" />
+      </template>
+      <template #extra>
+        <a-button v-if="userStore.hasPermission('mcp:create')" type="primary" @click="handleCreate">
+          <template #icon><icon-plus /></template>
+          {{ t('mcp.createServer') }}
+        </a-button>
+      </template>
 
       <!-- Toolbar -->
       <a-row justify="space-between" align="center" style="margin-bottom: 16px">
@@ -20,14 +28,6 @@
             />
             <a-button type="primary" @click="applyFilter">{{ t('common.search') }}</a-button>
             <a-button @click="resetFilter">{{ t('common.reset') }}</a-button>
-            <a-button
-              v-if="userStore.hasPermission('mcp:create')"
-              type="primary"
-              @click="handleCreate"
-            >
-              <template #icon><icon-plus /></template>
-              {{ t('mcp.createServer') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -310,6 +310,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { mcpApi } from '@/api/mcp'
 import { useCrud } from '@/composables/use-crud'
+import PageCardTitle from '@/components/page-card-title.vue'
 import { useUserStore } from '@/store'
 import { formatTime } from '@/utils/format'
 import type {

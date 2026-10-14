@@ -271,6 +271,7 @@ export default {
   },
   key: {
     title: 'API 密钥',
+    subtitle: '应用调用网关的凭证，可随时停用与轮换',
     statusPlaceholder: '状态',
     searchName: '搜索密钥名称',
     totalKeys: '共 {0} 个密钥',
@@ -895,6 +896,7 @@ export default {
     title: '内容安全',
     rules: {
       title: '护栏规则',
+      subtitle: '按引擎与检测方向配置内容审核规则，变更保留版本历史',
       createRule: '新建规则',
       editRule: '编辑规则',
       deleteRule: '删除规则',
@@ -965,6 +967,7 @@ export default {
     },
     alerts: {
       title: '告警日志',
+      subtitle: '护栏规则的触发记录，支持按引擎、级别与处置动作筛选',
       detail: '告警详情',
       overview: '统计概览',
       todayCount: '今日告警',

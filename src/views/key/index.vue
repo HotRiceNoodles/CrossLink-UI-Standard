@@ -1,7 +1,21 @@
 <template>
   <div class="key-page">
     <a-card class="general-card">
-      <template #title>{{ t('key.title') }}</template>
+      <template #title>
+        <PageCardTitle :title="t('key.title')" :subtitle="t('key.subtitle')" />
+      </template>
+      <template #extra>
+        <a-space>
+          <a-button type="primary" @click="openCreate">
+            <template #icon><icon-plus /></template>
+            {{ t('key.createKey') }}
+          </a-button>
+          <a-button v-if="userStore.hasPermission('key:import')" @click="importVisible = true">
+            <template #icon><icon-upload /></template>
+            {{ t('key.import.open') }}
+          </a-button>
+        </a-space>
+      </template>
 
       <!-- Search / Filter -->
       <a-row :gutter="16" align="center">
@@ -38,14 +52,6 @@
         </a-col>
         <a-col>
           <a-space>
-            <a-button type="primary" @click="openCreate">
-              <template #icon><icon-plus /></template>
-              {{ t('key.createKey') }}
-            </a-button>
-            <a-button v-if="userStore.hasPermission('key:import')" @click="importVisible = true">
-              <template #icon><icon-upload /></template>
-              {{ t('key.import.open') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -430,6 +436,7 @@ import { keyApi } from '@/api/key'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store'
+import PageCardTitle from '@/components/page-card-title.vue'
 import ImportDrawer from './components/import-drawer.vue'
 import { formatTime } from '@/utils/format'
 import { getCurrencySymbol } from '@/utils/currency'

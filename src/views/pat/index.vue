@@ -2,10 +2,13 @@
   <div class="pat-page">
     <a-card class="general-card">
       <template #title>
-        <div class="card-title">
-          <span>{{ t('pat.title') }}</span>
-          <span class="card-desc">{{ t('pat.description') }}</span>
-        </div>
+        <PageCardTitle :title="t('pat.title')" :subtitle="t('pat.description')" />
+      </template>
+      <template #extra>
+        <a-button type="primary" @click="handleCreate">
+          <template #icon><icon-plus /></template>
+          {{ t('pat.createToken') }}
+        </a-button>
       </template>
 
       <!-- Toolbar -->
@@ -17,10 +20,6 @@
         </a-col>
         <a-col>
           <a-space>
-            <a-button type="primary" @click="handleCreate">
-              <template #icon><icon-plus /></template>
-              {{ t('pat.createToken') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -201,6 +200,7 @@ import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
 import { patApi } from '@/api/pat'
 import { useCrud } from '@/composables/use-crud'
+import PageCardTitle from '@/components/page-card-title.vue'
 import { useUserStore } from '@/store/modules/user'
 import { permissionCatalog } from '@/views/auth/roles/components/permission-catalog'
 import { formatTime } from '@/utils/format'
@@ -322,18 +322,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="less">
-.card-title {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.card-desc {
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--color-text-3);
-}
-
 .scope-tag {
   font-family: var(--cl-font-mono);
   margin-right: 4px;

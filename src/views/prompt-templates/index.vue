@@ -1,7 +1,22 @@
 <template>
   <div class="template-page">
     <a-card class="general-card">
-      <template #title>{{ t('promptTemplate.title') }}</template>
+      <template #title>
+        <PageCardTitle
+          :title="t('promptTemplate.title')"
+          :subtitle="t('promptTemplate.subtitle')"
+        />
+      </template>
+      <template #extra>
+        <a-button
+          v-if="userStore.hasPermission('template:create')"
+          type="primary"
+          @click="handleCreate"
+        >
+          <template #icon><icon-plus /></template>
+          {{ t('promptTemplate.createTemplate') }}
+        </a-button>
+      </template>
 
       <!-- Search / Filter -->
       <a-row :gutter="16" align="center">
@@ -54,14 +69,6 @@
         </a-col>
         <a-col>
           <a-space>
-            <a-button
-              v-if="userStore.hasPermission('template:create')"
-              type="primary"
-              @click="handleCreate"
-            >
-              <template #icon><icon-plus /></template>
-              {{ t('promptTemplate.createTemplate') }}
-            </a-button>
             <a-tooltip :content="t('common.refresh')">
               <a-button @click="fetchData">
                 <template #icon><icon-refresh /></template>
@@ -378,6 +385,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { templateApi } from '@/api/template'
 import { useCrud } from '@/composables/use-crud'
+import PageCardTitle from '@/components/page-card-title.vue'
 import { useLoading } from '@/hooks/loading'
 import { useCopyWithFeedback } from '@/composables/use-copy-with-feedback'
 import { useUserStore } from '@/store'
