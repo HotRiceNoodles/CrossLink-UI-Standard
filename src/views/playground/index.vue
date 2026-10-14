@@ -289,8 +289,13 @@ async function handleNonStreamSend() {
       latency_ms: data.latency_ms,
       provider: data.provider,
     }
-  } catch {
-    errorMessage.value = t('playground.chatError')
+  } catch (e) {
+    // The error body carries `error` as a message string or as
+    // {type, message} (guardrail blocks) — prefer the backend message.
+    const apiError = (e as { response?: { data?: { error?: string | { message?: string } } } })
+      ?.response?.data?.error
+    errorMessage.value =
+      (typeof apiError === 'string' ? apiError : apiError?.message) || t('playground.chatError')
   } finally {
     sending.value = false
   }

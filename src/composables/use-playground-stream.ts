@@ -39,7 +39,13 @@ export function usePlaygroundStream() {
           handleUnauthorized()
         }
         const errBody = await response.json().catch(() => null)
-        throw new Error(errBody?.error || `HTTP ${response.status}`)
+        // The playground error body carries `error` either as a message
+        // string or as {type, message} (guardrail blocks) — extract the
+        // human-readable message, never "[object Object]".
+        const err = errBody?.error
+        const message =
+          typeof err === 'string' ? err : err?.message || err?.type || `HTTP ${response.status}`
+        throw new Error(message)
       }
 
       if (!response.body) {
@@ -48,6 +54,11 @@ export function usePlaygroundStream() {
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      // SSE event name from the last `event:` line (null until one arrives);
+      // the chat stream sends data-only frames, the responses path marks its
+      // terminal errors with `event: error`.
+      let currentEvent: string | null = null
+      let streamErrorEvent: { type?: string; message: string } | null = null
 
       while (true) {
         const { done, value } = await reader.read()
@@ -59,12 +70,36 @@ export function usePlaygroundStream() {
         buffer = lines.pop() || ''
 
         for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim()
+            continue
+          }
           if (!line.startsWith('data: ')) continue
           const payload = line.slice(6).trim()
           if (payload === '[DONE]') continue
 
           try {
             const event = JSON.parse(payload)
+
+            // Terminal stream error. Guardrail blocks arrive either as
+            // {error: {type: 'guardrail_blocked'|'guardrail_error', message}}
+            // (data-only frames) or as an `event: error` frame whose payload
+            // carries {type, message} directly.
+            if (event.error) {
+              const err = event.error as string | { type?: string; message?: string }
+              streamErrorEvent = {
+                type: typeof err === 'object' ? err.type : undefined,
+                message: typeof err === 'string' ? err : err.message || 'stream error',
+              }
+              continue
+            }
+            if (currentEvent === 'error') {
+              streamErrorEvent = {
+                type: event.type,
+                message: event.message || 'stream error',
+              }
+              continue
+            }
 
             if (event.type === 'usage') {
               usage.value = event.data
@@ -85,6 +120,12 @@ export function usePlaygroundStream() {
             // Malformed JSON chunk — skip
           }
         }
+      }
+
+      // A terminal error frame (e.g. guardrail block) ends the stream; report
+      // it as a failure instead of returning the partial content as success.
+      if (streamErrorEvent) {
+        throw new Error(streamErrorEvent.message)
       }
 
       return {
