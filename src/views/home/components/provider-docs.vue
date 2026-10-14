@@ -147,19 +147,22 @@ const providers: ProviderDoc[] = [
 
 .provider-card {
   background: var(--color-bg-2);
-  border: 1px solid var(--color-fill-2);
-  border-radius: var(--cl-radius-sm);
-  padding: 20px;
+  border: 1px solid var(--color-fill-1);
+  border-radius: var(--cl-radius-xl);
+  padding: 22px 20px;
+  box-shadow: var(--cl-shadow-card);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+    border-color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    border-color: rgb(var(--cl-primary-2));
     box-shadow: var(--cl-shadow-raised);
   }
 }
@@ -188,6 +191,16 @@ const providers: ProviderDoc[] = [
 .provider-links {
   display: flex;
   gap: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .provider-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
 }
 
 @media (max-width: 768px) {

@@ -1,7 +1,9 @@
 <template>
   <div class="capability-cards">
     <div v-for="card in cards" :key="card.key" class="cap-card">
-      <component :is="card.icon" class="cap-icon" />
+      <div class="cap-icon-wrap">
+        <component :is="card.icon" class="cap-icon" />
+      </div>
       <div class="cap-title">{{ t(card.titleKey) }}</div>
       <div class="cap-desc">{{ t(card.descKey) }}</div>
     </div>
@@ -51,21 +53,34 @@ const cards = [
 
 .cap-card {
   background: var(--color-bg-2);
-  border: 1px solid var(--color-fill-2);
-  border-radius: var(--cl-radius-sm);
-  padding: 24px;
+  border: 1px solid var(--color-fill-1);
+  border-radius: var(--cl-radius-xl);
+  padding: 26px 24px;
+  box-shadow: var(--cl-shadow-card);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+    box-shadow 0.25s cubic-bezier(0.25, 0.8, 0.25, 1),
+    border-color 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    border-color: rgb(var(--cl-primary-2));
     box-shadow: var(--cl-shadow-raised);
   }
 }
 
+.cap-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--cl-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgb(var(--cl-primary-1));
+}
+
 .cap-icon {
-  font-size: 24px;
+  font-size: 22px;
   color: rgb(var(--cl-primary-6));
 }
 
@@ -92,6 +107,16 @@ const cards = [
 @media (min-width: 769px) and (max-width: 1024px) {
   .capability-cards {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cap-card {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
   }
 }
 </style>
