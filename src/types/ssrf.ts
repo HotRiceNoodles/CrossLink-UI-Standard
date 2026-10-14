@@ -21,8 +21,8 @@ export interface SsrfAllowlistStatus {
   override_active: boolean
   /** 上次加载/刷新失败原因（内存保持最后已知良好策略） */
   degraded?: string
-  /** 删除页面覆盖后的回退预览 */
-  fallback_cidrs: string[]
+  /** 删除页面覆盖后的回退预览；无 env/YAML 静态配置时后端返回 null */
+  fallback_cidrs?: string[] | null
   fallback_source: SsrfSource
   consistency: SsrfConsistency
 }

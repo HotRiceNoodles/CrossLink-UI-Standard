@@ -54,7 +54,7 @@
               :span="2"
             >
               {{ t('ssrf.fallbackTo', { source: t(`ssrf.source_${status.fallback_source}`) }) }}
-              <template v-if="status.fallback_cidrs.length">
+              <template v-if="status.fallback_cidrs?.length">
                 <a-tag v-for="cidr in status.fallback_cidrs" :key="cidr" class="cidr-tag">
                   {{ cidr }}
                 </a-tag>
