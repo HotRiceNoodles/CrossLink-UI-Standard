@@ -254,7 +254,7 @@ function typeLabel(type: string): string {
     }
 
     .step-tool-name {
-      font-family: monospace;
+      font-family: var(--cl-font-mono);
       font-size: 12px;
       font-weight: 600;
       color: var(--color-text-1);
@@ -268,7 +268,7 @@ function typeLabel(type: string): string {
     background: var(--color-fill-2);
     border-radius: 4px;
     font-size: 12px;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     white-space: pre-wrap;
     word-break: break-all;
     max-height: 300px;

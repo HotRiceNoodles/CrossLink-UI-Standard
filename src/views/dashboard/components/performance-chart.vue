@@ -51,7 +51,7 @@ const chartOption = computed<EChartsOption>(() => ({
   },
   series: [
     buildLine(t('dashboard.avgLatency'), props.latency, '#00B42A', 'rgba(0,180,42,0.25)'),
-    buildLine(t('dashboard.firstTokenLatency'), props.ttft, '#165DFF', 'rgba(22,93,255,0.25)'),
+    buildLine(t('dashboard.firstTokenLatency'), props.ttft, '#1D4ED8', 'rgba(29,78,216,0.25)'),
   ],
 }))
 

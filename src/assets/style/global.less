@@ -69,6 +69,22 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+// 品牌色标签：color="arcoblue" 的 a-tag 重指向品牌色
+// （全站 35 处标签走这一条规则，无需逐个改 prop）
+.arco-tag.arco-tag-checked.arco-tag-arcoblue {
+  color: rgb(var(--cl-primary-7));
+  background-color: rgb(var(--cl-primary-1));
+}
+
+.arco-tag.arco-tag-checkable.arco-tag-checked.arco-tag-arcoblue.arco-tag:hover {
+  background-color: rgb(var(--cl-primary-2));
+}
+
+.arco-tag-checked.arco-tag-arcoblue.arco-tag-bordered,
+.arco-tag-checked.arco-tag-arcoblue.arco-tag-bordered:hover {
+  border-color: rgb(var(--cl-primary-6));
+}
+
 // ECharts tooltip
 .echarts-tooltip-diy {
   padding: 8px 12px;

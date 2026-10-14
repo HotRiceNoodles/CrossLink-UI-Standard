@@ -29,7 +29,7 @@ const props = withDefaults(
     height?: number
   }>(),
   {
-    color: 'rgb(var(--arcoblue-6))',
+    color: 'rgb(var(--cl-primary-6))',
     width: 80,
     height: 28,
   },

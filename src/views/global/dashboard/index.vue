@@ -258,8 +258,8 @@ onActivated(() => {
     font-size: 20px;
 
     &--blue {
-      background: rgba(22, 93, 255, 0.1);
-      color: #165dff;
+      background: rgb(var(--cl-primary-1));
+      color: rgb(var(--cl-primary-6));
     }
     &--green {
       background: rgba(0, 180, 42, 0.1);

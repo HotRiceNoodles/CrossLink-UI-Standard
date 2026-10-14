@@ -299,7 +299,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
   height: 100%;
   border-radius: 3px;
   // background set inline per-row (model color); keep a fallback for safety
-  background: rgb(var(--arcoblue-6));
+  background: rgb(var(--cl-primary-6));
   transition: width 0.3s ease;
 }
 
@@ -315,7 +315,7 @@ function formatValue(v: number, kind: ColKind, currencySymbol = '$') {
 }
 
 .sort-active {
-  color: rgb(var(--arcoblue-6));
+  color: rgb(var(--cl-primary-6));
   font-weight: 600;
 }
 

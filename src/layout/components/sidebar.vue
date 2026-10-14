@@ -186,11 +186,11 @@ function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
   }
 
   &.active {
-    background-color: rgb(var(--arcoblue-1));
-    color: rgb(var(--arcoblue-6));
+    background-color: rgb(var(--cl-primary-1));
+    color: rgb(var(--cl-primary-6));
 
     .footer-action-icon {
-      color: rgb(var(--arcoblue-6));
+      color: rgb(var(--cl-primary-6));
     }
   }
 }

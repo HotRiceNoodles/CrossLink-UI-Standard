@@ -258,8 +258,8 @@ const secondaryMetrics = computed<SecMetric[]>(() => {
 
 // tone → arco palette
 .tone-blue {
-  background-color: rgba(var(--arcoblue-1), 0.8);
-  color: rgb(var(--arcoblue-6));
+  background-color: rgba(var(--cl-primary-1), 0.8);
+  color: rgb(var(--cl-primary-6));
 }
 .tone-green {
   background-color: rgba(var(--green-1), 0.8);

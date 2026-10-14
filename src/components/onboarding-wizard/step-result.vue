@@ -163,7 +163,7 @@ function goto(name: 'keys' | 'providers') {
   margin-bottom: 24px;
 }
 .key-input {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
 }
 .examples {
   padding: 16px;
@@ -187,7 +187,7 @@ function goto(name: 'keys' | 'providers') {
   background: var(--color-bg-1);
   border: 1px solid var(--color-fill-2);
   border-radius: 6px;
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
   font-size: 12px;
   line-height: 1.6;
   overflow-x: auto;

@@ -254,7 +254,7 @@ watch(
   }
 
   &.bar-actual {
-    background: #165dff;
+    background: rgb(var(--cl-primary-6));
   }
 }
 

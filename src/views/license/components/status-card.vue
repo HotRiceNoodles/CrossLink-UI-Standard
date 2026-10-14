@@ -167,8 +167,8 @@ async function copyField(value: string | null | undefined) {
 }
 
 .tier-community {
-  background-color: rgba(var(--arcoblue-1), 0.8);
-  color: rgb(var(--arcoblue-6));
+  background-color: rgba(var(--cl-primary-1), 0.8);
+  color: rgb(var(--cl-primary-6));
 }
 
 .tier-pro {
@@ -209,7 +209,7 @@ async function copyField(value: string | null | undefined) {
   color: var(--color-text-1);
 
   &.mono {
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family: var(--cl-font-mono);
     font-size: 13px;
     word-break: break-all;
   }
@@ -233,7 +233,7 @@ async function copyField(value: string | null | undefined) {
     }
 
     &:hover {
-      color: rgb(var(--arcoblue-6));
+      color: rgb(var(--cl-primary-6));
     }
   }
 }

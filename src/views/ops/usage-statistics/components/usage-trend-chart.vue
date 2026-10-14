@@ -32,7 +32,7 @@ function emitChange() {
   emit('change', metric.value)
 }
 
-const PRIMARY = '#165DFF'
+const PRIMARY = '#1D4ED8'
 const SECONDARY = '#00B42A'
 
 const chartOption = computed<EChartsOption>(() => {
@@ -80,8 +80,8 @@ const chartOption = computed<EChartsOption>(() => {
           x2: 0,
           y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(22,93,255,0.25)' },
-            { offset: 1, color: 'rgba(22,93,255,0.02)' },
+            { offset: 0, color: 'rgba(29,78,216,0.25)' },
+            { offset: 1, color: 'rgba(29,78,216,0.02)' },
           ],
         },
       },

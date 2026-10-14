@@ -154,7 +154,7 @@ const { copy } = useCopyWithFeedback()
 
   .hop-url {
     margin-top: 6px;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     font-size: 12px;
     color: var(--color-text-2);
     word-break: break-all;
@@ -183,7 +183,7 @@ const { copy } = useCopyWithFeedback()
     background: var(--color-fill-2);
     border-radius: 4px;
     font-size: 12px;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     white-space: pre-wrap;
     word-break: break-all;
     max-height: 360px;

@@ -120,7 +120,7 @@ const emit = defineEmits<{
 // Avatar color — hash-based from provider-card pattern
 const avatarColor = computed(() => {
   const colors = [
-    '#165DFF',
+    '#1D4ED8',
     '#00B42A',
     '#FF7D00',
     '#722ED1',
@@ -250,7 +250,7 @@ function formatDate(dateStr: string): string {
   &__slug {
     font-size: 12px;
     color: var(--color-text-3);
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-family: var(--cl-font-mono);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

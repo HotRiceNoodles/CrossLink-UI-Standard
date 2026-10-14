@@ -61,9 +61,7 @@
                 <a-avatar :size="28" :style="{ backgroundColor: avatarColor(record) }">
                   {{ record.display_name?.charAt(0)?.toUpperCase() || '?' }}
                 </a-avatar>
-                <span
-                  style="font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px"
-                >
+                <span style="font-family: var(--cl-font-mono); font-size: 13px">
                   {{ record.name }}
                 </span>
               </div>
@@ -387,7 +385,7 @@ const cardPageSize = ref(12)
 
 // Shared helpers
 const COLORS = [
-  '#165DFF',
+  '#1D4ED8',
   '#00B42A',
   '#FF7D00',
   '#722ED1',

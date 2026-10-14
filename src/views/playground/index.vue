@@ -419,8 +419,8 @@ function handleImageParamChange(key: string, value: unknown) {
   }
 
   &.active {
-    color: rgb(var(--arcoblue-6));
-    border-bottom-color: rgb(var(--arcoblue-6));
+    color: rgb(var(--cl-primary-6));
+    border-bottom-color: rgb(var(--cl-primary-6));
   }
 }
 

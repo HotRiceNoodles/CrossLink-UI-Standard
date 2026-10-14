@@ -7,7 +7,7 @@
  * differently.
  */
 export const MODEL_COLORS = [
-  '#165DFF',
+  '#1D4ED8',
   '#00B42A',
   '#FF7D00',
   '#722ED1',

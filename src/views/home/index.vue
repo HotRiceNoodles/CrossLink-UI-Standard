@@ -88,7 +88,7 @@ function openRepo() {
   font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgb(var(--arcoblue-6));
+  color: rgb(var(--cl-primary-6));
   font-weight: 600;
 }
 

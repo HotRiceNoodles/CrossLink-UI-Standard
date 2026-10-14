@@ -335,7 +335,7 @@ onMounted(() => {
 }
 
 .scope-tag {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
   margin-right: 4px;
 }
 
@@ -370,7 +370,7 @@ onMounted(() => {
 
   .scope-raw {
     margin-left: 4px;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     font-size: 12px;
     color: var(--color-text-4);
   }
@@ -382,6 +382,6 @@ onMounted(() => {
 }
 
 .token-input {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
 }
 </style>

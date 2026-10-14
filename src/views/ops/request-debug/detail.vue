@@ -111,7 +111,7 @@ watch(() => route.params.seq, fetchDetail, { immediate: true })
     flex-wrap: wrap;
 
     .detail-id {
-      font-family: monospace;
+      font-family: var(--cl-font-mono);
       font-size: 13px;
       color: var(--color-text-1);
     }
@@ -123,7 +123,7 @@ watch(() => route.params.seq, fetchDetail, { immediate: true })
     }
 
     .detail-path {
-      font-family: monospace;
+      font-family: var(--cl-font-mono);
       font-size: 12px;
       color: var(--color-text-3);
     }

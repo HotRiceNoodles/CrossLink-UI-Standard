@@ -22,7 +22,9 @@
         />
         <a-table-column :title="t('mcp.logMethod')" :width="140">
           <template #cell="{ record }">
-            <span style="font-family: monospace; font-size: 12px">{{ record.method }}</span>
+            <span style="font-family: var(--cl-font-mono); font-size: 12px">
+              {{ record.method }}
+            </span>
           </template>
         </a-table-column>
         <a-table-column :title="t('mcp.logStatus')" :width="90" align="center">

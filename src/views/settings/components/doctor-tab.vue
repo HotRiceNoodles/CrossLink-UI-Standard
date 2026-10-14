@@ -181,7 +181,7 @@ onMounted(load)
   }
 
   &.info {
-    background-color: rgb(var(--arcoblue-6));
+    background-color: rgb(var(--cl-primary-6));
   }
 
   &.ok {

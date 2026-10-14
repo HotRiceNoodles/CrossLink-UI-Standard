@@ -749,7 +749,7 @@ function formatTime(val: string) {
 }
 
 .drawer-request-id {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text-1);
@@ -802,7 +802,7 @@ function formatTime(val: string) {
   word-break: break-all;
 
   &.mono {
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     font-size: 12px;
   }
 
@@ -872,7 +872,7 @@ function formatTime(val: string) {
   transition: width 0.3s ease;
 
   &.bar-input {
-    background: rgb(var(--arcoblue-6));
+    background: rgb(var(--cl-primary-6));
   }
 
   &.bar-output {
@@ -932,7 +932,7 @@ function formatTime(val: string) {
   }
 
   &.bar-ttft {
-    background: rgb(var(--arcoblue-6));
+    background: rgb(var(--cl-primary-6));
   }
 }
 
@@ -957,7 +957,7 @@ function formatTime(val: string) {
   background: var(--color-fill-2);
   border-radius: 4px;
   font-size: 12px;
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 300px;
@@ -1017,7 +1017,7 @@ function formatTime(val: string) {
 
 .upstream-code-tag {
   margin-inline-start: 8px;
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
 }
 
 .status-pill {

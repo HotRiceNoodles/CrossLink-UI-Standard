@@ -134,7 +134,11 @@
           </a-table-column>
           <a-table-column :title="t('key.import.colPrefix')" :width="110" align="center">
             <template #cell="{ record }">
-              <a-tag v-if="record.key_prefix" color="arcoblue" style="font-family: monospace">
+              <a-tag
+                v-if="record.key_prefix"
+                color="arcoblue"
+                style="font-family: var(--cl-font-mono)"
+              >
                 {{ record.key_prefix }}...
               </a-tag>
               <span v-else style="color: var(--color-text-4)">-</span>

@@ -116,15 +116,15 @@ const filteredTeams = computed(() => {
   }
 
   &.active {
-    background-color: rgb(var(--arcoblue-1));
+    background-color: rgb(var(--cl-primary-1));
 
     .team-item-name {
-      color: rgb(var(--arcoblue-6));
+      color: rgb(var(--cl-primary-6));
       font-weight: 600;
     }
 
     .team-item-count {
-      color: rgb(var(--arcoblue-6));
+      color: rgb(var(--cl-primary-6));
     }
   }
 }

@@ -249,8 +249,8 @@ onMounted(async () => {
 }
 
 .db-icon {
-  background-color: rgba(var(--arcoblue-1), 0.8);
-  color: rgb(var(--arcoblue-6));
+  background-color: rgba(var(--cl-primary-1), 0.8);
+  color: rgb(var(--cl-primary-6));
 }
 
 .cache-icon {

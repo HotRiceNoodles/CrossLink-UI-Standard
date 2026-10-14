@@ -172,7 +172,7 @@ function toggleExpand() {
 
 const providerColor = computed(() => {
   const colors = [
-    '#165DFF',
+    '#1D4ED8',
     '#00B42A',
     '#FF7D00',
     '#722ED1',
@@ -189,7 +189,7 @@ const providerColor = computed(() => {
 })
 
 const strategyColorMap: Record<string, string> = {
-  weighted_random: '#165DFF',
+  weighted_random: '#1D4ED8',
   round_robin: '#00B42A',
   least_latency: '#0FC6C2',
   least_cost: '#FF7D00',
@@ -304,12 +304,12 @@ function formatPrice(price: number | null | undefined, currency?: string): strin
     }
 
     .meta-value {
-      font-family: monospace;
+      font-family: var(--cl-font-mono);
     }
   }
 
   .mono-text {
-    font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+    font-family: var(--cl-font-mono);
     color: var(--color-text-3);
     font-size: 13px;
   }

@@ -88,7 +88,7 @@ const chartOption = computed<EChartsOption>(() => {
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
-        itemStyle: { color: '#165DFF' },
+        itemStyle: { color: '#1D4ED8' },
         lineStyle: { width: 2 },
         areaStyle: {
           color: {
@@ -98,8 +98,8 @@ const chartOption = computed<EChartsOption>(() => {
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(22,93,255,0.25)' },
-              { offset: 1, color: 'rgba(22,93,255,0.02)' },
+              { offset: 0, color: 'rgba(29,78,216,0.25)' },
+              { offset: 1, color: 'rgba(29,78,216,0.02)' },
             ],
           },
         },

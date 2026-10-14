@@ -139,7 +139,7 @@ const trendOption = computed<EChartsOption>(() => ({
       smooth: true,
       symbol: 'circle',
       symbolSize: 6,
-      itemStyle: { color: 'rgb(var(--arcoblue-6))' },
+      itemStyle: { color: 'rgb(var(--cl-primary-6))' },
       lineStyle: { width: 2 },
       areaStyle: {
         color: {
@@ -149,8 +149,8 @@ const trendOption = computed<EChartsOption>(() => ({
           x2: 0,
           y2: 1,
           colorStops: [
-            { offset: 0, color: 'rgba(var(--arcoblue-6), 0.25)' },
-            { offset: 1, color: 'rgba(var(--arcoblue-6), 0.02)' },
+            { offset: 0, color: 'rgba(var(--cl-primary-6), 0.25)' },
+            { offset: 1, color: 'rgba(var(--cl-primary-6), 0.02)' },
           ],
         },
       },

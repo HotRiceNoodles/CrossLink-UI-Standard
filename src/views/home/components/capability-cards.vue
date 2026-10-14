@@ -66,7 +66,7 @@ const cards = [
 
 .cap-icon {
   font-size: 24px;
-  color: rgb(var(--arcoblue-6));
+  color: rgb(var(--cl-primary-6));
 }
 
 .cap-title {

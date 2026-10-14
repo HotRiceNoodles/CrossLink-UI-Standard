@@ -163,7 +163,7 @@ function onPresetToggle(p: string, checked: boolean | (string | number | boolean
   gap: 8px 16px;
 }
 .model-id {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
 }
 .model-owner {
   margin-inline-start: 8px;

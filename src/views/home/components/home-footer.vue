@@ -59,7 +59,7 @@ a {
   transition: color 0.15s ease;
 
   &:hover {
-    color: rgb(var(--arcoblue-6));
+    color: rgb(var(--cl-primary-6));
   }
 }
 

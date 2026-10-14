@@ -123,7 +123,7 @@ function headerText(h: HttpHeaders | undefined): string {
     background: var(--color-fill-2);
     border-radius: 4px;
     font-size: 12px;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
     white-space: pre-wrap;
     word-break: break-all;
     max-height: 420px;

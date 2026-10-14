@@ -274,7 +274,7 @@ onMounted(load)
 
   .cidr-tag {
     margin: 0 4px 4px 0;
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
   }
 
   .strict-empty {
@@ -290,7 +290,7 @@ onMounted(load)
   }
 
   .cidr-editor {
-    font-family: monospace;
+    font-family: var(--cl-font-mono);
   }
 
   .editor-tip {

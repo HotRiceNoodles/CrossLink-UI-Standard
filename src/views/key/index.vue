@@ -87,7 +87,7 @@
             align="center"
           >
             <template #cell="{ record }">
-              <a-tag color="arcoblue" style="font-family: monospace">
+              <a-tag color="arcoblue" style="font-family: var(--cl-font-mono)">
                 {{ record.key_prefix }}...
               </a-tag>
             </template>
@@ -401,7 +401,7 @@
       <a-alert type="warning" :closable="false" style="margin-bottom: 16px">
         {{ t('key.keyCreatedWarning') }}
       </a-alert>
-      <a-input :model-value="createdKey" readonly style="font-family: monospace" />
+      <a-input :model-value="createdKey" readonly style="font-family: var(--cl-font-mono)" />
       <div style="margin-top: 16px; text-align: end">
         <a-space>
           <a-button v-if="copyFailed" @click="confirmCopied">

@@ -210,8 +210,8 @@ function onCodeClick(e: MouseEvent) {
 }
 
 .avatar-user {
-  background: rgb(var(--arcoblue-1));
-  color: rgb(var(--arcoblue-6));
+  background: rgb(var(--cl-primary-1));
+  color: rgb(var(--cl-primary-6));
 }
 
 .avatar-assistant {
@@ -245,7 +245,7 @@ function onCodeClick(e: MouseEvent) {
   display: inline-block;
   width: 2px;
   height: 16px;
-  background: rgb(var(--arcoblue-6));
+  background: rgb(var(--cl-primary-6));
   margin-inline-start: 2px;
   vertical-align: text-bottom;
   animation: blink 1s step-end infinite;
@@ -261,7 +261,7 @@ function onCodeClick(e: MouseEvent) {
   background: var(--color-fill-1);
 
   &.is-thinking {
-    border-inline-start-color: rgb(var(--arcoblue-6));
+    border-inline-start-color: rgb(var(--cl-primary-6));
   }
 }
 
@@ -285,7 +285,7 @@ function onCodeClick(e: MouseEvent) {
   color: rgb(var(--warning-6));
 
   &.pulsing {
-    color: rgb(var(--arcoblue-6));
+    color: rgb(var(--cl-primary-6));
     animation: pulse 1.2s ease-in-out infinite;
   }
 }
@@ -405,14 +405,14 @@ function onCodeClick(e: MouseEvent) {
   blockquote {
     margin: 8px 0;
     padding: 4px 12px;
-    border-inline-start: 3px solid rgb(var(--arcoblue-6));
+    border-inline-start: 3px solid rgb(var(--cl-primary-6));
     background: var(--color-fill-1);
     border-radius: 0 4px 4px 0;
     color: var(--color-text-2);
   }
 
   a {
-    color: rgb(var(--arcoblue-6));
+    color: rgb(var(--cl-primary-6));
     text-decoration: none;
     &:hover {
       text-decoration: underline;
@@ -478,8 +478,8 @@ function onCodeClick(e: MouseEvent) {
       cursor: pointer;
       transition: all 0.2s;
       &:hover {
-        color: rgb(var(--arcoblue-6));
-        border-color: rgb(var(--arcoblue-6));
+        color: rgb(var(--cl-primary-6));
+        border-color: rgb(var(--cl-primary-6));
       }
     }
 
@@ -498,7 +498,7 @@ function onCodeClick(e: MouseEvent) {
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
-    color: rgb(var(--arcoblue-6));
+    color: rgb(var(--cl-primary-6));
   }
 }
 </style>

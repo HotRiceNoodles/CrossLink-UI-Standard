@@ -8,7 +8,7 @@
             :title="t('safety.alerts.todayCount')"
             :value="todayCount"
             :loading="statsLoading"
-            :value-style="{ color: 'rgb(var(--arcoblue-6))' }"
+            :value-style="{ color: 'rgb(var(--cl-primary-6))' }"
           />
         </a-card>
       </a-col>

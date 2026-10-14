@@ -148,7 +148,7 @@ export default {
 }
 
 .attempt-model {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-1);
@@ -164,7 +164,7 @@ export default {
 }
 
 .attempt-error-type {
-  font-family: monospace;
+  font-family: var(--cl-font-mono);
 }
 
 .status-pill {

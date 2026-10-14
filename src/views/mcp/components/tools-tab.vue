@@ -24,7 +24,9 @@
       <template #columns>
         <a-table-column :title="t('mcp.toolName')" data-index="name" :width="220">
           <template #cell="{ record }">
-            <span style="font-family: monospace; font-weight: 600">{{ record.name }}</span>
+            <span style="font-family: var(--cl-font-mono); font-weight: 600">
+              {{ record.name }}
+            </span>
           </template>
         </a-table-column>
         <a-table-column :title="t('mcp.toolDescription')" :ellipsis="true" :tooltip="true">
