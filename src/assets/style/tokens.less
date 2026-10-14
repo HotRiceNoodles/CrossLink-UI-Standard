@@ -1,0 +1,68 @@
+/**
+ * CrossLink 设计 token —— 全站视觉唯一来源
+ *
+ * 品牌色：深蓝（色相 223°、明度 48%，取 logo 渐变蓝色段的深度，观感沉稳不发紫）
+ * 输出线青色（#25CDED）作为数据/成功类 accent
+ * 紫→蓝渐变只出现在品牌插画场景（logo / hero），不进入交互组件
+ *
+ * 注意：
+ * - 值为 RGB 三元组（Arco 约定），使用时写 rgb(var(--cl-primary-6))
+ * - 选择器必须是 body：Arco 把默认调色板定义在 body 上，
+ *   写 :root 会被 body 覆盖（本文件在 arco.css 之后引入，级联胜出）
+ */
+
+body {
+  /* ---- 品牌主色：深蓝（1-10 对齐 Arco 默认蓝的明度节奏） ---- */
+  --cl-primary-1: 232, 239, 253; /* #E8EFFD 浅底填充 */
+  --cl-primary-2: 211, 224, 251; /* #D3E0FB */
+  --cl-primary-3: 173, 197, 247; /* #ADC5F7 */
+  --cl-primary-4: 127, 164, 240; /* #7FA4F0 */
+  --cl-primary-5: 76, 127, 232; /* #4C7FE8 hover 亮一档 */
+  --cl-primary-6: 29, 78, 216; /* #1D4ED8 主色 */
+  --cl-primary-7: 26, 68, 191; /* #1A44BF active 深一档 */
+  --cl-primary-8: 22, 55, 154; /* #16379A */
+  --cl-primary-9: 18, 41, 117; /* #122975 */
+  --cl-primary-10: 11, 26, 74; /* #0B1A4A */
+
+  /* ---- Accent：青（logo 输出线色系，用于图表第二系列 / 数据强调） ---- */
+  --cl-accent-1: 224, 250, 255;
+  --cl-accent-2: 178, 240, 252;
+  --cl-accent-3: 121, 227, 244;
+  --cl-accent-4: 44, 200, 226;
+  --cl-accent-5: 6, 182, 212; /* #06B6D4 主 accent */
+  --cl-accent-6: 3, 155, 183;
+  --cl-accent-7: 2, 130, 156;
+
+  /* ---- 品牌渐变（仅 hero / login / logo 场景使用） ---- */
+  --cl-gradient-brand: linear-gradient(135deg, #2e73f3 0%, #5b5bf2 52%, #8d47f5 100%);
+  --cl-gradient-accent: linear-gradient(90deg, #3e71f4 0%, #25cded 100%);
+
+  /* ---- 圆角阶梯（此前 4/6/8px 手写散布 60+ 处，统一收敛） ---- */
+  --cl-radius-sm: 4px; /* 标签、小按钮 */
+  --cl-radius-md: 6px; /* 按钮、输入框 */
+  --cl-radius-lg: 10px; /* 卡片、下拉面板 */
+  --cl-radius-full: 999px; /* 胶囊 */
+
+  /* ---- 阴影（收敛为此前散落的 3 种朴素投影） ---- */
+  --cl-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --cl-shadow-raised: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --cl-shadow-overlay: 0 8px 24px rgba(15, 23, 42, 0.14);
+
+  /* ---- 字体 ---- */
+  /* 正文：Inter（拉丁）+ 系统中文栈，见 global.less font-family */
+  --cl-font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono',
+    monospace;
+
+  /* ---- 品牌色注入 Arco 主题（组件库全量换肤） ---- */
+  --primary-1: var(--cl-primary-1);
+  --primary-2: var(--cl-primary-2);
+  --primary-3: var(--cl-primary-3);
+  --primary-4: var(--cl-primary-4);
+  --primary-5: var(--cl-primary-5);
+  --primary-6: var(--cl-primary-6);
+  --primary-7: var(--cl-primary-7);
+  --primary-8: var(--cl-primary-8);
+  --primary-9: var(--cl-primary-9);
+  --primary-10: var(--cl-primary-10);
+}

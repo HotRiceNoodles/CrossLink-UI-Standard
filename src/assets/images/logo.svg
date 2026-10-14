@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="CrossLink">
+  <defs>
+    <linearGradient id="cl-main" gradientUnits="userSpaceOnUse" x1="0" y1="160" x2="0" y2="352">
+      <stop offset="0" stop-color="#2E73F3"/>
+      <stop offset="1" stop-color="#8D47F5"/>
+    </linearGradient>
+    <linearGradient id="cl-out" gradientUnits="userSpaceOnUse" x1="336" y1="0" x2="448" y2="0">
+      <stop offset="0" stop-color="#3E71F4"/>
+      <stop offset="1" stop-color="#25CDED"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#cl-main)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 五条输入线：相邻线条中途交叉编织，汇聚于节点左缘中点 -->
+    <path d="M96 160 C 168 168, 148 234, 254 254"/>
+    <path d="M96 208 C 148 200, 196 226, 254 254"/>
+    <path d="M96 256 C 148 250, 200 262, 254 256"/>
+    <path d="M96 304 C 148 312, 196 286, 254 258"/>
+    <path d="M96 352 C 168 344, 148 278, 254 258"/>
+    <!-- 圆角三角节点（指向右） -->
+    <path d="M261.2 179.4 L324.8 244.6 Q336 256 324.8 267.4 L261.2 332.6 Q250 344 250 328 L250 184 Q250 168 261.2 179.4 Z"/>
+  </g>
+  <g fill="url(#cl-main)">
+    <circle cx="96" cy="160" r="7"/>
+    <circle cx="96" cy="208" r="7"/>
+    <circle cx="96" cy="256" r="7"/>
+    <circle cx="96" cy="304" r="7"/>
+    <circle cx="96" cy="352" r="7"/>
+  </g>
+  <line x1="340" y1="256" x2="448" y2="256" stroke="url(#cl-out)" stroke-width="11" stroke-linecap="round"/>
+</svg>
