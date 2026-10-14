@@ -1,11 +1,15 @@
 <template>
   <a-grid :cols="24" :col-gap="12" :row-gap="12" class="kpi-grid">
-    <!-- Primary KPIs -->
+    <!-- Primary KPIs: reuse the dashboard KpiCard so typography and empty
+         states stay consistent across pages -->
     <a-grid-item v-for="kpi in primary" :key="kpi.key" :span="6">
-      <a-card class="general-card kpi-card">
-        <div class="kpi-label">{{ kpi.label }}</div>
-        <div class="kpi-value" :title="kpi.raw">{{ kpi.display }}</div>
-      </a-card>
+      <KpiCard
+        :value="kpi.value"
+        :label="kpi.label"
+        :precision="kpi.precision"
+        :prefix="kpi.prefix"
+        :format="kpi.format"
+      />
     </a-grid-item>
 
     <!-- Secondary KPIs -->
@@ -21,6 +25,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import KpiCard from '@/views/dashboard/components/kpi-card.vue'
 import { getCurrencySymbol } from '@/utils/currency'
 import { formatTokensCompact, formatLatency } from '@/utils/format'
 import type { UsageStats } from '@/types'
@@ -33,6 +38,15 @@ interface Kpi {
   label: string
   display: string
   raw?: string
+}
+
+interface PrimaryKpi {
+  key: string
+  label: string
+  value: number | null | undefined
+  precision?: number
+  prefix?: string
+  format?: (value: number) => string
 }
 
 function pct(v: number | undefined): string {
@@ -50,28 +64,30 @@ const spanSecondary = computed(() => {
   return 3
 })
 
-const primary = computed<Kpi[]>(() => [
+const primary = computed<PrimaryKpi[]>(() => [
   {
     key: 'requests',
     label: t('usageStat.kpiRequests'),
-    display: props.stats.total_requests.toLocaleString(),
-    raw: String(props.stats.total_requests),
+    value: props.stats.total_requests,
   },
   {
     key: 'tokens',
     label: t('usageStat.kpiTokens'),
-    display: formatTokensCompact(props.stats.total_tokens),
-    raw: props.stats.total_tokens.toLocaleString(),
+    value: props.stats.total_tokens,
+    format: formatTokensCompact,
   },
   {
     key: 'cost',
     label: t('usageStat.kpiCost'),
-    display: `${currencySymbol.value}${props.stats.total_cost.toFixed(2)}`,
+    value: props.stats.total_cost,
+    precision: 2,
+    prefix: currencySymbol.value,
   },
   {
     key: 'latency',
     label: t('usageStat.kpiLatency'),
-    display: formatLatency(props.stats.avg_latency_ms),
+    value: props.stats.avg_latency_ms,
+    format: formatLatency,
   },
 ])
 

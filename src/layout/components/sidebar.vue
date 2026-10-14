@@ -1,7 +1,7 @@
 <template>
   <aside class="layout-sider" :class="{ collapsed: menuCollapse }">
     <div class="logo-area">
-      <img src="@/assets/images/CrossLinkLogo.png" alt="CrossLink" class="logo-img" />
+      <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo-img" />
       <transition name="fade">
         <span v-show="!menuCollapse" class="logo-text">CrossLink</span>
       </transition>
@@ -132,9 +132,9 @@ function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
 }
 
 .logo-img {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  width: 38px;
+  height: 38px;
+
   flex-shrink: 0;
 }
 
