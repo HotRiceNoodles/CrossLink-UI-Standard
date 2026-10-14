@@ -69,22 +69,22 @@
         v-if="!loading && filteredProviders.length === 0 && providerList.length === 0"
         class="empty-guide"
       >
-        <a-empty>
-          <template #description>
+        <EmptyState :desc="t('provider.noProviders')">
+          <div class="empty-guide-text">
             <span>{{ t('provider.noProviders') }}</span>
-            <p style="color: var(--color-text-4); font-size: 13px; margin-top: 4px">
-              {{ t('provider.noProvidersGuide') }}
-            </p>
-          </template>
-          <div style="margin-top: 12px">
+            <p>{{ t('provider.noProvidersGuide') }}</p>
+          </div>
+          <template #action>
             <a-button type="primary" @click="reopenOnboarding">
               {{ t('onboarding.reopenFromEmpty') }}
             </a-button>
-          </div>
-        </a-empty>
+          </template>
+        </EmptyState>
       </div>
       <!-- 有数据但筛选为空的常规空状态 -->
-      <a-empty v-else-if="!loading && filteredProviders.length === 0 && providerList.length > 0" />
+      <EmptyState
+        v-else-if="!loading && filteredProviders.length === 0 && providerList.length > 0"
+      />
     </a-spin>
 
     <!-- 底部统计 -->
@@ -173,11 +173,7 @@
             </a-radio>
           </a-radio-group>
 
-          <a-empty
-            v-if="testTargetModels.length === 0"
-            :description="t('provider.testNoModels')"
-            :style="{ padding: '16px 0' }"
-          />
+          <EmptyState v-if="testTargetModels.length === 0" :desc="t('provider.testNoModels')" />
         </template>
       </a-spin>
     </a-modal>
@@ -195,6 +191,7 @@ import { modelApi } from '@/api/model'
 import { useLoading } from '@/hooks/loading'
 import type { Provider, ProviderModel, Adapter } from '@/types'
 import ProviderCard from './components/provider-card.vue'
+import EmptyState from '@/components/empty-state.vue'
 import ProviderForm from './components/provider-form.vue'
 import ModelForm from './components/model-form.vue'
 import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
@@ -508,8 +505,24 @@ onMounted(() => {
 }
 
 .empty-guide {
-  padding: 60px 0;
-  text-align: center;
+  padding: 40px 0;
+
+  .empty-guide-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    span {
+      font-size: 14px;
+      color: var(--color-text-2);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--color-text-4);
+    }
+  }
 }
 
 .list-footer {

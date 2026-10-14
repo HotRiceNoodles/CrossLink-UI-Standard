@@ -19,7 +19,7 @@
       </a-col>
     </a-row>
 
-    <a-empty v-if="!loading && !permissions.length" :description="t('mcp.permEmpty')" />
+    <EmptyState v-if="!loading && !permissions.length" :desc="t('mcp.permEmpty')" />
 
     <a-table
       v-else
@@ -133,6 +133,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'

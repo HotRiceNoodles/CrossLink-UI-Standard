@@ -2,7 +2,7 @@
   <a-card class="general-card top-n-card">
     <template #title>{{ title }}</template>
     <a-spin :loading="loading" style="width: 100%">
-      <a-empty v-if="!loading && !rows.length" :description="t('dashboard.noData')" />
+      <EmptyState v-if="!loading && !rows.length" :desc="t('dashboard.noData')" />
       <div v-else class="top-n-list">
         <div class="top-n-row top-n-head" :style="{ gridTemplateColumns: gridTemplate }">
           <span class="col-rank">#</span>
@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import EmptyState from '@/components/empty-state.vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { formatTokensCompact, formatCost } from '@/utils/format'

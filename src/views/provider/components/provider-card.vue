@@ -132,7 +132,7 @@
         </template>
       </a-table>
 
-      <a-empty v-else :description="t('provider.noModels')" :style="{ padding: '16px 0' }" />
+      <EmptyState v-else :desc="t('provider.noModels')" />
     </div>
   </a-card>
 </template>
@@ -140,6 +140,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import EmptyState from '@/components/empty-state.vue'
 import type { Provider, ProviderModel, Adapter } from '@/types'
 
 const { t } = useI18n()

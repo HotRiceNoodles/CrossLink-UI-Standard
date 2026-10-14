@@ -86,13 +86,14 @@
       </template>
     </a-table>
 
-    <a-empty v-if="!loading && members.length === 0" style="margin-top: 32px">
+    <EmptyState v-if="!loading && members.length === 0" style="margin-top: 32px">
       {{ t('auth.organizations.noMembers') }}
-    </a-empty>
+    </EmptyState>
   </div>
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, reactive, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'

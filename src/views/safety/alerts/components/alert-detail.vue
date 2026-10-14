@@ -62,12 +62,13 @@
         </a-descriptions-item>
       </a-descriptions>
 
-      <a-empty v-else />
+      <EmptyState v-else />
     </a-spin>
   </a-drawer>
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { useI18n } from 'vue-i18n'
 import { formatTime } from '@/utils/format'
 import type { GuardrailAlertLog } from '@/types'

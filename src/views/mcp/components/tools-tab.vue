@@ -10,7 +10,7 @@
       </a-button>
     </a-space>
 
-    <a-empty v-if="!loading && !tools.length" :description="t('mcp.toolsEmpty')" />
+    <EmptyState v-if="!loading && !tools.length" :desc="t('mcp.toolsEmpty')" />
 
     <a-table
       v-else
@@ -41,6 +41,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'

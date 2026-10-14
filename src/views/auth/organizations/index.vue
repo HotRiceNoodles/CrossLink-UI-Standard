@@ -142,7 +142,7 @@
             />
           </a-col>
         </a-row>
-        <a-empty v-if="!loading && filteredList.length === 0" style="padding: 48px 0" />
+        <EmptyState v-if="!loading && filteredList.length === 0" style="padding: 48px 0" />
       </a-spin>
 
       <!-- Pagination (card view only — table has its own) -->
@@ -326,6 +326,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'

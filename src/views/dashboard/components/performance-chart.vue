@@ -1,7 +1,7 @@
 <template>
   <a-card class="general-card">
     <template #title>{{ t('dashboard.performanceTrend') }}</template>
-    <a-empty v-if="!labels.length" :description="t('dashboard.noData')" />
+    <EmptyState v-if="!labels.length" :desc="t('dashboard.noData')" />
     <Chart v-else :option="chartOption" height="280px" width="100%" />
   </a-card>
 </template>
@@ -10,6 +10,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Chart from '@/components/chart/index.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { formatLatency } from '@/utils/format'
 import type { EChartsOption } from 'echarts'
 

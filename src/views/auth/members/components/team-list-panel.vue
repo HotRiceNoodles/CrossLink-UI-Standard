@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <a-empty v-if="filteredTeams.length === 0 && !loading" style="margin-top: 24px" />
+      <EmptyState v-if="filteredTeams.length === 0 && !loading" style="margin-top: 24px" />
     </div>
 
     <!-- Create team button -->
@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Team } from '@/types'

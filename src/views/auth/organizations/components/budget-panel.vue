@@ -41,12 +41,13 @@
         </div>
       </template>
 
-      <a-empty v-else-if="!loading" />
+      <EmptyState v-else-if="!loading" />
     </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'

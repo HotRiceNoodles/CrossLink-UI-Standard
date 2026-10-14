@@ -38,12 +38,13 @@
         </a-tab-pane>
       </a-tabs>
 
-      <a-empty v-else :description="t('common.loading')" />
+      <EmptyState v-else :desc="t('common.noData')" />
     </a-card>
   </div>
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'

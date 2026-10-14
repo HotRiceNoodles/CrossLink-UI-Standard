@@ -1,6 +1,39 @@
 <template>
   <div class="dashboard-page">
-    <a-spin :loading="loading" style="width: 100%">
+    <!-- 首次加载骨架屏：横幅 + KPI 行 + 图表行，避免整页白屏转圈 -->
+    <div v-if="booting" class="dashboard-skeleton">
+      <a-skeleton animation :loading="true" :title="{ width: '30%' }" :paragraph="{ rows: 0 }" />
+      <div class="sk-kpi-row">
+        <div v-for="i in 4" :key="i" class="sk-card">
+          <a-skeleton
+            animation
+            :loading="true"
+            :title="{ width: '40%' }"
+            :paragraph="{ rows: 1 }"
+          />
+        </div>
+      </div>
+      <div class="sk-kpi-row">
+        <div class="sk-card sk-card--wide">
+          <a-skeleton
+            animation
+            :loading="true"
+            :title="{ width: '20%' }"
+            :paragraph="{ rows: 4 }"
+          />
+        </div>
+        <div class="sk-card sk-card--wide">
+          <a-skeleton
+            animation
+            :loading="true"
+            :title="{ width: '20%' }"
+            :paragraph="{ rows: 4 }"
+          />
+        </div>
+      </div>
+    </div>
+
+    <a-spin v-else :loading="loading" style="width: 100%">
       <div class="page-content">
         <!-- Header: welcome banner + time-range toolbar -->
         <div class="dashboard-header">
@@ -166,6 +199,9 @@ defineOptions({ name: 'Dashboard' })
 const { t } = useI18n()
 const userStore = useUserStore()
 const { loading, setLoading } = useLoading(true)
+// 首次加载用骨架屏；之后的时间范围切换保持原内容不闪白
+const loaded = ref(false)
+const booting = computed(() => loading.value && !loaded.value)
 const { range, days, dateBounds, prevDateBounds, datalensTimeRange } = useRange('7d')
 
 const usageStats = ref<UsageStats>({
@@ -367,6 +403,7 @@ async function fetchDashboardData() {
     await fetchCore()
   } finally {
     setLoading(false)
+    loaded.value = true
   }
   // DataLens loads in the background; sections render their own loading/empty state.
   fetchDataLens()
@@ -384,6 +421,30 @@ onActivated(() => {
 </script>
 
 <style scoped lang="less">
+.dashboard-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 8px;
+
+  .sk-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .sk-card {
+    background: var(--color-bg-2);
+    border-radius: var(--cl-radius-lg);
+    padding: 20px;
+    box-shadow: var(--cl-shadow-card);
+  }
+
+  .sk-card--wide {
+    grid-column: span 2;
+  }
+}
+
 .dashboard-page {
   padding: 0;
 }

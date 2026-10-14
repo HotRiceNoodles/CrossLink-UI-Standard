@@ -88,22 +88,22 @@
       </a-card>
 
       <!-- Empty State -->
-      <a-empty v-if="!loading && !orgs.length" class="global-dashboard__empty">
-        <template #image>
-          <icon-public :size="64" />
-        </template>
+      <EmptyState v-if="!loading && !orgs.length" class="global-dashboard__empty" desc="">
         <div class="global-dashboard__empty-title">{{ t('globalDashboard.emptyTitle') }}</div>
         <div class="global-dashboard__empty-desc">{{ t('globalDashboard.emptyDesc') }}</div>
-        <a-button type="primary" @click="router.push({ name: 'globalOrganizations' })">
-          <template #icon><icon-plus /></template>
-          {{ t('globalDashboard.createFirst') }}
-        </a-button>
-      </a-empty>
+        <template #action>
+          <a-button type="primary" @click="router.push({ name: 'globalOrganizations' })">
+            <template #icon><icon-plus /></template>
+            {{ t('globalDashboard.createFirst') }}
+          </a-button>
+        </template>
+      </EmptyState>
     </a-spin>
   </div>
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/empty-state.vue'
 import { ref, computed, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
