@@ -5,7 +5,7 @@
       <a-collapse :default-active-key="[]" :bordered="false">
         <a-collapse-item key="config" :header="t('safety.rules.configTitle')">
           <a-row :gutter="24" align="center">
-            <a-col :span="8">
+            <a-col :span="6">
               <a-space direction="vertical" :size="4">
                 <a-switch v-model="globalConfig.enabled" @change="handleConfigChange('enabled')" />
                 <span style="font-weight: 600">{{ t('safety.rules.configEnabled') }}</span>
@@ -14,7 +14,7 @@
                 </span>
               </a-space>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="6">
               <a-space direction="vertical" :size="4">
                 <a-switch
                   v-model="globalConfig.log_only"
@@ -26,7 +26,7 @@
                 </span>
               </a-space>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="6">
               <a-space direction="vertical" :size="4">
                 <a-switch
                   v-model="globalConfig.fail_open"
@@ -36,6 +36,145 @@
                 <span style="color: var(--color-text-3); font-size: 12px">
                   {{ t('safety.rules.configFailOpenTip') }}
                 </span>
+              </a-space>
+            </a-col>
+            <a-col :span="6">
+              <a-space direction="vertical" :size="4">
+                <a-switch
+                  v-model="globalConfig.strict_coverage"
+                  @change="handleConfigChange('strict_coverage')"
+                />
+                <span style="font-weight: 600">{{ t('safety.rules.configStrictCoverage') }}</span>
+                <span style="color: var(--color-text-3); font-size: 12px">
+                  {{ t('safety.rules.configStrictCoverageTip') }}
+                </span>
+              </a-space>
+            </a-col>
+          </a-row>
+
+          <a-divider style="margin: 12px 0" />
+
+          <a-row :gutter="24" align="center">
+            <a-col :span="8">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">{{ t('safety.rules.configStreamMode') }}</span>
+                <a-select
+                  :model-value="globalConfig.stream_mode"
+                  :placeholder="t('common.default')"
+                  allow-clear
+                  @change="handleConfigSelect('stream_mode', $event)"
+                  @clear="handleConfigClear('stream_mode')"
+                >
+                  <a-option value="window" :label="t('safety.rules.streamModeWindow')" />
+                  <a-option value="strict" :label="t('safety.rules.streamModeStrict')" />
+                </a-select>
+                <span style="color: var(--color-text-3); font-size: 12px">
+                  {{ t('safety.rules.configStreamModeTip') }}
+                </span>
+              </a-space>
+            </a-col>
+            <a-col :span="8">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">{{ t('safety.rules.configOversizeAction') }}</span>
+                <a-select
+                  :model-value="globalConfig.oversize_action"
+                  :placeholder="t('common.default')"
+                  allow-clear
+                  @change="handleConfigSelect('oversize_action', $event)"
+                  @clear="handleConfigClear('oversize_action')"
+                >
+                  <a-option value="truncate" :label="t('safety.rules.oversizeTruncate')" />
+                  <a-option value="reject" :label="t('safety.rules.oversizeReject')" />
+                </a-select>
+                <span style="color: var(--color-text-3); font-size: 12px">
+                  {{ t('safety.rules.configOversizeActionTip') }}
+                </span>
+              </a-space>
+            </a-col>
+            <a-col :span="8">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">
+                  {{ t('safety.rules.configEngineErrorAction') }}
+                </span>
+                <a-select
+                  :model-value="globalConfig.engine_error_action"
+                  :placeholder="t('common.default')"
+                  allow-clear
+                  @change="handleConfigSelect('engine_error_action', $event)"
+                  @clear="handleConfigClear('engine_error_action')"
+                >
+                  <a-option value="skip" :label="t('safety.rules.engineErrorSkip')" />
+                  <a-option value="block" :label="t('safety.rules.engineErrorBlock')" />
+                </a-select>
+                <span style="color: var(--color-text-3); font-size: 12px">
+                  {{ t('safety.rules.configEngineErrorActionTip') }}
+                </span>
+              </a-space>
+            </a-col>
+          </a-row>
+
+          <a-divider style="margin: 12px 0" />
+
+          <a-row :gutter="24" align="center">
+            <a-col :span="4">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">
+                  {{ t('safety.rules.configStrictMaxRunes') }}
+                </span>
+                <a-input-number
+                  :model-value="globalConfig.stream_strict_max_runes"
+                  :min="1"
+                  hide-button
+                  @change="handleConfigNumber('stream_strict_max_runes', $event)"
+                />
+              </a-space>
+            </a-col>
+            <a-col :span="4">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">
+                  {{ t('safety.rules.configStrictMaxBytes') }}
+                </span>
+                <a-input-number
+                  :model-value="globalConfig.stream_strict_max_bytes"
+                  :min="1"
+                  hide-button
+                  @change="handleConfigNumber('stream_strict_max_bytes', $event)"
+                />
+              </a-space>
+            </a-col>
+            <a-col :span="4">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">
+                  {{ t('safety.rules.configStrictMaxEvents') }}
+                </span>
+                <a-input-number
+                  :model-value="globalConfig.stream_strict_max_events"
+                  :min="1"
+                  hide-button
+                  @change="handleConfigNumber('stream_strict_max_events', $event)"
+                />
+              </a-space>
+            </a-col>
+            <a-col :span="4">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">{{ t('safety.rules.configRequestBudget') }}</span>
+                <a-input-number
+                  :model-value="globalConfig.request_budget_ms"
+                  :min="1"
+                  hide-button
+                  @change="handleConfigNumber('request_budget_ms', $event)"
+                />
+              </a-space>
+            </a-col>
+            <a-col :span="4">
+              <a-space direction="vertical" :size="4" fill>
+                <span style="font-weight: 600">{{ t('safety.rules.configResponseBudget') }}</span>
+                <a-input-number
+                  :model-value="globalConfig.response_budget_ms"
+                  :min="1"
+                  hide-button
+                  @change="handleConfigNumber('response_budget_ms', $event)"
+                />
               </a-space>
             </a-col>
           </a-row>
@@ -116,6 +255,7 @@
           <a-table-column :title="t('safety.rules.formName')" data-index="name" :width="160">
             <template #cell="{ record }">
               <span style="font-weight: 600">{{ record.name }}</span>
+              <span class="rule-version">v{{ record.version }}</span>
             </template>
           </a-table-column>
 
@@ -182,7 +322,7 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('common.actions')" :width="200" fixed="right">
+          <a-table-column :title="t('common.actions')" :width="250" fixed="right">
             <template #cell="{ record }">
               <a-space :size="4">
                 <a-button type="text" size="small" @click="handleEdit(record)">
@@ -190,6 +330,9 @@
                 </a-button>
                 <a-button type="text" size="small" @click="handleTest(record)">
                   {{ t('safety.rules.testName') }}
+                </a-button>
+                <a-button type="text" size="small" @click="handleHistory(record)">
+                  {{ t('safety.rules.history') }}
                 </a-button>
                 <a-popconfirm
                   :content="t('safety.rules.deleteConfirm')"
@@ -337,6 +480,87 @@
         </a-card>
       </a-space>
     </a-modal>
+
+    <!-- Version History Drawer (append-only snapshots; rollback restores as a NEW version) -->
+    <a-drawer
+      :visible="historyVisible"
+      :width="640"
+      :title="t('safety.rules.historyTitle', { name: historyRule?.name ?? '' })"
+      unmount-on-close
+      :footer="false"
+      @cancel="historyVisible = false"
+    >
+      <a-alert style="margin-bottom: 12px">
+        {{ t('safety.rules.currentVersion') }}: v{{ historyCurrentVersion }}
+      </a-alert>
+      <a-table
+        :data="historyList"
+        :loading="historyLoading"
+        :pagination="false"
+        row-key="id"
+        size="small"
+      >
+        <template #columns>
+          <a-table-column
+            :title="t('safety.rules.colVersion')"
+            data-index="version"
+            :width="80"
+            align="center"
+          >
+            <template #cell="{ record }">
+              <a-tag v-if="record.version === historyCurrentVersion" color="arcoblue">
+                v{{ record.version }}
+              </a-tag>
+              <span v-else>v{{ record.version }}</span>
+            </template>
+          </a-table-column>
+
+          <a-table-column :title="t('safety.rules.colChangeKind')" :width="90" align="center">
+            <template #cell="{ record }">
+              <a-tag :color="changeKindColor(record.change_kind)">
+                {{ t(`safety.rules.changeKind.${record.change_kind}`) }}
+              </a-tag>
+            </template>
+          </a-table-column>
+
+          <a-table-column :title="t('safety.rules.colActor')" data-index="actor" :width="120">
+            <template #cell="{ record }">
+              {{ record.actor || '-' }}
+            </template>
+          </a-table-column>
+
+          <a-table-column :title="t('safety.rules.colTime')" :width="170">
+            <template #cell="{ record }">
+              {{ formatTime(record.created_at) }}
+            </template>
+          </a-table-column>
+
+          <a-table-column :title="t('common.actions')" :width="130" align="center">
+            <template #cell="{ record }">
+              <!-- A delete snapshot documents removal — it is not a restorable state. -->
+              <a-tooltip
+                v-if="record.change_kind === 'delete'"
+                :content="t('safety.rules.notRollbackable')"
+              >
+                <a-button type="text" size="small" disabled>
+                  {{ t('safety.rules.rollback') }}
+                </a-button>
+              </a-tooltip>
+              <a-popconfirm
+                v-else-if="record.version !== historyCurrentVersion"
+                :content="t('safety.rules.rollbackConfirm')"
+                type="warning"
+                @ok="handleRollback(record)"
+              >
+                <a-button type="text" size="small">
+                  {{ t('safety.rules.rollback') }}
+                </a-button>
+              </a-popconfirm>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+    </a-drawer>
   </div>
 </template>
 
@@ -352,10 +576,12 @@ import { useLoading } from '@/hooks/loading'
 import { getDefaultsForEngine } from './engine-schema'
 import type {
   GuardrailRule,
+  GuardrailRuleVersion,
   GuardrailConfig,
   GuardrailTestResult,
   GuardrailEngineType,
 } from '@/types'
+import { formatTime } from '@/utils/format'
 import EngineConfigEditor from './components/engine-config-editor.vue'
 
 const { t } = useI18n()
@@ -419,13 +645,49 @@ async function fetchConfig() {
 
 async function handleConfigChange(key: keyof GuardrailConfig) {
   try {
-    await guardrailApi.updateConfig({ [key]: globalConfig.value[key] })
+    await guardrailApi.updateConfig({ [key]: globalConfig.value[key] } as Partial<GuardrailConfig>)
     Message.success(t('common.updateSuccess'))
   } catch {
     Message.error(t('common.operationFail'))
     // Revert by re-fetching
     await fetchConfig()
   }
+}
+
+// Select 类配置项：后端只接受枚举值，清空（undefined）不发送请求
+function handleConfigSelect(
+  key: 'stream_mode' | 'oversize_action' | 'engine_error_action',
+  value: string | number | boolean | undefined,
+) {
+  if (value === undefined || value === null || value === '') {
+    handleConfigClear(key)
+    return
+  }
+  globalConfig.value[key] = value as never
+  handleConfigChange(key)
+}
+
+// 清空 = 恢复服务端值（后端无“未设置”语义，不做 PUT）
+async function handleConfigClear(_key: 'stream_mode' | 'oversize_action' | 'engine_error_action') {
+  await fetchConfig()
+}
+
+// 数字类配置项：后端要求正整数，空值不发送请求并回填服务端值
+function handleConfigNumber(
+  key:
+    | 'stream_strict_max_runes'
+    | 'stream_strict_max_bytes'
+    | 'stream_strict_max_events'
+    | 'request_budget_ms'
+    | 'response_budget_ms',
+  value: number | undefined,
+) {
+  if (value === undefined || value === null) {
+    fetchConfig()
+    return
+  }
+  globalConfig.value[key] = value
+  handleConfigChange(key)
 }
 
 // useCrud setup
@@ -477,6 +739,10 @@ const {
     if (f.enabled) pass = pass && String(item.enabled) === f.enabled
     return pass
   },
+  // 乐观锁：并发修改返回 409 version_conflict，提示用户刷新后重试
+  errorCodeMap: {
+    version_conflict: 'safety.rules.versionConflict',
+  },
 })
 
 const formRules = {
@@ -500,9 +766,68 @@ async function handleToggleEnabled(record: GuardrailRule) {
   try {
     await guardrailApi.update(record.id, { enabled: !record.enabled })
     record.enabled = !record.enabled
+  } catch (err: unknown) {
+    const code = (err as { response?: { data?: { error_code?: string } } })?.response?.data
+      ?.error_code
+    if (code === 'version_conflict') {
+      Message.error(t('safety.rules.versionConflict'))
+      // 列表里的 version 已过期，重新拉取
+      await fetchData()
+    } else {
+      Message.error(t('common.operationFail'))
+    }
+  }
+}
+
+// Version history drawer (append-only snapshots served sanitized by the backend)
+const historyVisible = ref(false)
+const historyLoading = ref(false)
+const historyRule = ref<GuardrailRule | null>(null)
+const historyList = ref<GuardrailRuleVersion[]>([])
+const historyCurrentVersion = ref(0)
+
+async function handleHistory(record: GuardrailRule) {
+  historyRule.value = record
+  historyVisible.value = true
+  historyLoading.value = true
+  try {
+    const res = await guardrailApi.versions(record.id)
+    historyList.value = res.data
+    historyCurrentVersion.value = res.current_version
   } catch {
     Message.error(t('common.operationFail'))
+  } finally {
+    historyLoading.value = false
   }
+}
+
+async function handleRollback(record: GuardrailRuleVersion) {
+  if (!historyRule.value) return
+  try {
+    await guardrailApi.rollback(historyRule.value.id, { to_version: record.version })
+    Message.success(t('safety.rules.rollbackSuccess'))
+    // 回滚以新版本落库 — 刷新历史与规则列表
+    await handleHistory(historyRule.value)
+    await fetchData()
+  } catch (err: unknown) {
+    const e = err as { response?: { data?: { error_code?: string; error?: string } } }
+    Message.error(
+      e?.response?.data?.error_code === 'version_conflict'
+        ? t('safety.rules.versionConflict')
+        : e?.response?.data?.error || t('common.operationFail'),
+    )
+  }
+}
+
+function changeKindColor(kind: string): string {
+  const map: Record<string, string> = {
+    create: 'green',
+    update: 'blue',
+    delete: 'red',
+    rollback: 'orange',
+    migrate: 'gray',
+  }
+  return map[kind] || 'blue'
 }
 
 // Severity & action tag colors
@@ -566,6 +891,13 @@ onMounted(() => {
 .safety-page {
   :deep(.arco-table) {
     font-size: 13px;
+  }
+
+  .rule-version {
+    margin-left: 6px;
+    color: var(--color-text-3);
+    font-size: 12px;
+    font-weight: 400;
   }
 }
 </style>

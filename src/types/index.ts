@@ -538,6 +538,8 @@ export interface UsageLog {
   retry_count: number
   guardrail_triggered: boolean
   guardrail_rule?: string
+  /** 部分覆盖标志：内容超过大小上限被截断后检查，并非干净通过。 */
+  guardrail_truncated?: boolean
   cache_hit: boolean
   agent_type?: string
   security_events?: Record<string, unknown>[]

@@ -4,6 +4,9 @@ import type {
   GuardrailCreateRequest,
   GuardrailConfig,
   GuardrailTestResult,
+  GuardrailRuleVersion,
+  GuardrailVersionsResponse,
+  GuardrailRollbackRequest,
   GuardrailAlertLog,
   AlertLogQuery,
   AlertLogListResponse,
@@ -19,6 +22,14 @@ export const guardrailApi = {
   update: (id: number, data: Partial<GuardrailCreateRequest>) =>
     put<GuardrailRule>(`/guardrails/${id}`, data),
   delete: (id: number) => del<void>(`/guardrails/${id}`),
+
+  // 规则版本历史与回滚（M3-A：回滚以新版本落库，历史只读）
+  versions: (ruleId: number) =>
+    get<GuardrailRuleVersion[]>('/guardrails/versions', {
+      rule_id: ruleId,
+    }) as Promise<GuardrailVersionsResponse>,
+  rollback: (id: number, data: GuardrailRollbackRequest) =>
+    post<GuardrailRule>(`/guardrails/${id}/rollback`, data),
 
   // 规则测试
   test: (id: number, text: string) => post<GuardrailTestResult>(`/guardrails/${id}/test`, { text }),

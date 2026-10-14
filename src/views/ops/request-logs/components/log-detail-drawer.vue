@@ -400,6 +400,16 @@
               <span class="detail-label">{{ t('logDetail.guardrailRule') }}</span>
               <span class="detail-value">{{ viewLog.guardrail_rule }}</span>
             </div>
+            <div v-if="viewLog.guardrail_truncated" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.guardrailTruncated') }}</span>
+              <span class="detail-value">
+                <a-tooltip :content="t('logDetail.guardrailTruncatedTip')">
+                  <a-tag color="orange" size="small">
+                    {{ t('logDetail.guardrailTruncated') }}
+                  </a-tag>
+                </a-tooltip>
+              </span>
+            </div>
             <div v-if="viewLog.security_events?.length" class="security-collapse">
               <a-collapse :default-active-key="[]" :bordered="false">
                 <a-collapse-item key="events" :header="t('logDetail.securityEvents')">

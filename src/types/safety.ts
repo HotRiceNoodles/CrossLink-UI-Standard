@@ -36,8 +36,40 @@ export interface GuardrailRule {
   severity: GuardrailSeverity
   action: GuardrailAction
   model_filter?: string
+  /** 版本化写路径维护的单调递增版本号；并发修改会返回 409 version_conflict。 */
+  version: number
   created_at: string
   updated_at: string
+}
+
+// 规则历史快照（append-only，config 已在服务端脱敏）
+export interface GuardrailRuleVersion {
+  id: number
+  rule_id: number
+  version: number
+  name: string
+  type: GuardrailEngineType
+  direction: GuardrailDirection
+  enabled: boolean
+  config: Record<string, unknown>
+  severity: GuardrailSeverity
+  action: GuardrailAction
+  model_filter?: string | null
+  change_kind: GuardrailChangeKind
+  actor: string
+  created_at: string
+}
+
+export type GuardrailChangeKind = 'create' | 'update' | 'delete' | 'rollback' | 'migrate'
+
+// GET /guardrails/versions 响应（current_version 在 data 之外）
+export interface GuardrailVersionsResponse extends ApiResponse<GuardrailRuleVersion[]> {
+  current_version: number
+}
+
+// 回滚请求：把历史版本作为新版本恢复（delete 快照不可回滚）
+export interface GuardrailRollbackRequest {
+  to_version: number
 }
 
 // 创建规则请求
@@ -53,10 +85,30 @@ export interface GuardrailCreateRequest {
 }
 
 // 护栏全局配置
+// NOTE: stream_*/budget/action/coverage 字段由较新后端返回，全部可选，
+// 旧后端（仅 enabled/log_only/fail_open）的载荷仍能通过类型检查。
+export type GuardrailStreamMode = 'window' | 'strict'
+export type GuardrailOversizeAction = 'truncate' | 'reject'
+export type GuardrailEngineErrorAction = 'skip' | 'block'
+
 export interface GuardrailConfig {
   enabled: boolean
   log_only: boolean
   fail_open: boolean
+  /** 流式检查模式：window 按增量窗口检查；strict 缓冲至完整响应，超限即阻断。 */
+  stream_mode?: GuardrailStreamMode
+  stream_strict_max_runes?: number
+  stream_strict_max_bytes?: number
+  stream_strict_max_events?: number
+  /** 单次请求/响应护栏检查的超时预算（毫秒，正整数）。 */
+  request_budget_ms?: number
+  response_budget_ms?: number
+  /** 内容超过大小上限时的处理。 */
+  oversize_action?: GuardrailOversizeAction
+  /** 引擎错误时的处理。 */
+  engine_error_action?: GuardrailEngineErrorAction
+  /** 截断后的检查视为部分覆盖（标记），而非干净通过。 */
+  strict_coverage?: boolean
 }
 
 // 规则测试结果
