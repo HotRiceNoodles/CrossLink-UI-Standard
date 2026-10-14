@@ -1,21 +1,24 @@
 <template>
   <div class="login-page">
     <div class="login-banner">
+      <DataPlaneCanvas
+        class="banner-canvas"
+        edge-color="rgba(255, 255, 255, 0.12)"
+        light-color="rgba(37, 205, 237, 0.85)"
+        node-color="rgba(255, 255, 255, 0.8)"
+        glow-color="rgba(76, 127, 232, 0.35)"
+      />
       <div class="banner-content">
         <div class="banner-logo">
-          <img src="@/assets/images/CrossLinkLogo.png" alt="CrossLink" class="logo-img" />
+          <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo-img" />
           <span class="logo-text">CrossLink</span>
         </div>
-        <h1 class="banner-title">{{ t('login.bannerTitle1') }}</h1>
-        <h1 class="banner-title">{{ t('login.bannerTitle2') }}</h1>
+        <h1 class="banner-title">
+          {{ t('login.bannerTitle1') }}
+          <br />
+          {{ t('login.bannerTitle2') }}
+        </h1>
         <p class="banner-desc">{{ t('login.bannerDesc') }}</p>
-        <div class="banner-decoration">
-          <div class="deco-circle deco-circle-1" />
-          <div class="deco-circle deco-circle-2" />
-          <div class="deco-circle deco-circle-3" />
-          <div class="deco-line deco-line-1" />
-          <div class="deco-line deco-line-2" />
-        </div>
       </div>
     </div>
     <div class="login-form-wrapper">
@@ -36,6 +39,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LoginForm from './components/login-form.vue'
 import ForceChangePassword from './components/force-change-password.vue'
+import DataPlaneCanvas from '@/views/home/components/data-plane-canvas.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -67,7 +71,8 @@ onMounted(() => {
 
 .login-banner {
   flex: 0 0 60%;
-  background: linear-gradient(135deg, #0e42d2, #165dff, #4080ff);
+  // 深蓝底：品牌色 9 档过渡到近黑深蓝，尾部一丝 logo 紫
+  background: linear-gradient(155deg, rgb(var(--cl-primary-9)) 0%, #0b1a4a 55%, #1c1550 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,11 +80,16 @@ onMounted(() => {
   overflow: hidden;
 }
 
+.banner-canvas {
+  opacity: 0.9;
+}
+
 .banner-content {
   position: relative;
   z-index: 1;
   padding: 60px;
   color: #fff;
+  max-width: 560px;
 }
 
 .banner-logo {
@@ -89,86 +99,32 @@ onMounted(() => {
 }
 
 .logo-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(4px);
-  padding: 4px;
-  box-sizing: content-box;
+  width: 44px;
+  height: 44px;
 }
 
 .logo-text {
   margin-inline-start: 12px;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.92;
 }
 
 .banner-title {
-  font-size: 36px;
+  font-size: 34px;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.4;
   margin: 0;
+  letter-spacing: 0.01em;
 }
 
 .banner-desc {
-  font-size: 16px;
-  opacity: 0.8;
-  margin-top: 16px;
-}
-
-.banner-decoration {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.deco-circle {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.deco-circle-1 {
-  width: 400px;
-  height: 400px;
-  top: -100px;
-  right: -100px;
-}
-
-.deco-circle-2 {
-  width: 200px;
-  height: 200px;
-  bottom: 80px;
-  left: 80px;
-}
-
-.deco-circle-3 {
-  width: 100px;
-  height: 100px;
-  top: 40%;
-  right: 20%;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.deco-line {
-  position: absolute;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-}
-
-.deco-line-1 {
-  width: 300px;
-  top: 30%;
-  left: 10%;
-  transform: rotate(-15deg);
-}
-
-.deco-line-2 {
-  width: 200px;
-  bottom: 25%;
-  right: 15%;
-  transform: rotate(25deg);
+  font-size: 15px;
+  line-height: 1.8;
+  opacity: 0.72;
+  margin-top: 20px;
+  max-width: 40em;
 }
 
 .login-form-wrapper {
@@ -177,7 +133,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--color-bg-1);
   position: relative;
 }
 

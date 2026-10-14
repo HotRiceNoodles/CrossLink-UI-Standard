@@ -19,6 +19,23 @@ interface Edge {
   speed: number
 }
 
+// Canvas can't resolve CSS vars → colors come in as concrete rgba strings.
+// Defaults match the light home hero; dark surfaces (login) pass overrides.
+const props = withDefaults(
+  defineProps<{
+    edgeColor?: string
+    lightColor?: string
+    nodeColor?: string
+    glowColor?: string
+  }>(),
+  {
+    edgeColor: 'rgba(201, 205, 212, 0.6)',
+    lightColor: 'rgba(29, 78, 216, 0.55)',
+    nodeColor: 'rgba(29, 78, 216, 0.7)',
+    glowColor: 'rgba(29, 78, 216, 0.35)',
+  },
+)
+
 const NODE_COUNT = 10
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -107,8 +124,7 @@ function draw() {
     ctx.beginPath()
     ctx.moveTo(a.x, a.y)
     ctx.lineTo(b.x, b.y)
-    // Canvas does not resolve CSS vars → use a concrete low-contrast gray.
-    ctx.strokeStyle = 'rgba(201, 205, 212, 0.6)'
+    ctx.strokeStyle = props.edgeColor
     ctx.lineWidth = 1
     ctx.stroke()
 
@@ -118,15 +134,15 @@ function draw() {
     const py = a.y + (b.y - a.y) * t
     ctx.beginPath()
     ctx.arc(px, py, 1.6, 0, Math.PI * 2)
-    ctx.fillStyle = 'rgba(22, 93, 255, 0.55)'
+    ctx.fillStyle = props.lightColor
     ctx.fill()
   }
 
   // Nodes
   for (const n of nodes) {
     const grad = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 4)
-    grad.addColorStop(0, 'rgba(22, 93, 255, 0.35)')
-    grad.addColorStop(1, 'rgba(22, 93, 255, 0)')
+    grad.addColorStop(0, props.glowColor)
+    grad.addColorStop(1, 'rgba(29, 78, 216, 0)')
     ctx.beginPath()
     ctx.arc(n.x, n.y, n.r * 4, 0, Math.PI * 2)
     ctx.fillStyle = grad
@@ -134,7 +150,7 @@ function draw() {
 
     ctx.beginPath()
     ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2)
-    ctx.fillStyle = 'rgba(22, 93, 255, 0.7)'
+    ctx.fillStyle = props.nodeColor
     ctx.fill()
   }
 }

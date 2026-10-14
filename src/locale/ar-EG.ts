@@ -87,9 +87,10 @@ export default {
     logoutOk: 'تسجيل الخروج',
     loggedOut: 'تم تسجيل الخروج',
     user: 'المستخدم',
-    bannerTitle1: 'نماذج LLM للمؤسسات',
-    bannerTitle2: 'منصة بوابة API',
-    bannerDesc: 'إدارة موحّدة لنماذج LLM متعددة، توجيه ذكي، تحسين التكلفة',
+    bannerTitle1: 'طبقة تحكّم ورصد بين تطبيقاتك',
+    bannerTitle2: 'ونماذج LLM الخاصة بك',
+    bannerDesc:
+      'اتصل بجميع مزوّدي نماذج LLM من نقطة واحدة، مع توجيه تلقائي حسب زمن الاستجابة والتكلفة وتتبّع لكل طلب',
     forceChangeTitle: 'تغيير كلمة المرور',
     forceChangeDesc: 'للأمان، يرجى تغيير كلمة المرور الافتراضية قبل المتابعة.',
     forceNewPassword: 'كلمة المرور الجديدة',

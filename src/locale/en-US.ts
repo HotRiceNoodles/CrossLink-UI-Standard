@@ -87,9 +87,10 @@ export default {
     logoutOk: 'Logout',
     loggedOut: 'Logged out',
     user: 'User',
-    bannerTitle1: 'Enterprise LLM',
-    bannerTitle2: 'API Gateway Platform',
-    bannerDesc: 'Unified multi-LLM management, smart routing, cost optimization',
+    bannerTitle1: 'A controllable, observable layer',
+    bannerTitle2: 'between your apps and models',
+    bannerDesc:
+      'Connect every LLM provider once — routing by latency and cost, traceable per request',
     forceChangeTitle: 'Change Password',
     forceChangeDesc: 'For security, please change your default password before continuing.',
     forceNewPassword: 'New Password',
