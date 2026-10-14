@@ -9,16 +9,18 @@
         glow-color="rgba(76, 127, 232, 0.35)"
       />
       <div class="banner-content">
-        <div class="banner-logo">
+        <div class="banner-logo cl-fade-up">
           <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo-img" />
           <span class="logo-text">CrossLink</span>
         </div>
-        <h1 class="banner-title">
+        <h1 class="banner-title cl-fade-up" style="animation-delay: 0.08s">
           {{ t('login.bannerTitle1') }}
           <br />
           {{ t('login.bannerTitle2') }}
         </h1>
-        <p class="banner-desc">{{ t('login.bannerDesc') }}</p>
+        <p class="banner-desc cl-fade-up" style="animation-delay: 0.16s">
+          {{ t('login.bannerDesc') }}
+        </p>
       </div>
     </div>
     <div class="login-form-wrapper">

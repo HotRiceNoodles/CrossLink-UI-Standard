@@ -5,10 +5,14 @@
     <section class="hero">
       <DataPlaneCanvas class="hero-bg" />
       <div class="hero-content">
-        <div class="eyebrow">{{ t('home.eyebrow') }}</div>
-        <h1 class="hero-title">{{ t('home.title') }}</h1>
-        <p class="hero-subtitle">{{ t('home.subtitle') }}</p>
-        <div class="hero-cta">
+        <div class="eyebrow cl-fade-up">{{ t('home.eyebrow') }}</div>
+        <h1 class="hero-title cl-fade-up" style="animation-delay: 0.08s">
+          {{ t('home.title') }}
+        </h1>
+        <p class="hero-subtitle cl-fade-up" style="animation-delay: 0.16s">
+          {{ t('home.subtitle') }}
+        </p>
+        <div class="hero-cta cl-fade-up" style="animation-delay: 0.24s">
           <a-button type="primary" size="large" @click="goLogin">
             {{ t('home.cta.primary') }}
           </a-button>

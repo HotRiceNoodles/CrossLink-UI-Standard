@@ -2,7 +2,7 @@
   <div class="data-panel">
     <!-- Primary KPIs: the four metrics that matter most at a glance -->
     <a-grid :cols="24" :col-gap="16" :row-gap="16" class="kpi-row">
-      <a-grid-item :span="6">
+      <a-grid-item :span="6" class="cl-fade-up">
         <KpiCard
           :value="stats.total_requests"
           :label="t('dashboard.totalRequests')"
@@ -12,7 +12,7 @@
           :sparkline="series.count"
         />
       </a-grid-item>
-      <a-grid-item :span="6">
+      <a-grid-item :span="6" class="cl-fade-up">
         <KpiCard
           :value="stats.total_cost"
           :label="t('dashboard.totalCost')"
@@ -24,7 +24,7 @@
           :sparkline="series.cost"
         />
       </a-grid-item>
-      <a-grid-item :span="6">
+      <a-grid-item :span="6" class="cl-fade-up">
         <KpiCard
           :value="stats.total_tokens"
           :label="t('dashboard.tokenUsage')"
@@ -35,7 +35,7 @@
           :sparkline="series.tokens"
         />
       </a-grid-item>
-      <a-grid-item :span="6">
+      <a-grid-item :span="6" class="cl-fade-up">
         <KpiCard
           :value="stats.avg_latency_ms"
           :label="t('dashboard.avgLatency')"
@@ -192,6 +192,19 @@ const secondaryMetrics = computed<SecMetric[]>(() => {
   flex-direction: column;
   gap: 16px;
   margin-bottom: 16px;
+}
+
+// KPI 行交错入场（配合全局 .cl-fade-up）
+.kpi-row > :nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.kpi-row > :nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.kpi-row > :nth-child(4) {
+  animation-delay: 0.15s;
 }
 
 .secondary-card {

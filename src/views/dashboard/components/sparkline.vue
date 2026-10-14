@@ -14,6 +14,8 @@
       stroke-width="1.75"
       stroke-linecap="round"
       stroke-linejoin="round"
+      pathLength="1"
+      class="cl-draw-line"
     />
   </svg>
 </template>

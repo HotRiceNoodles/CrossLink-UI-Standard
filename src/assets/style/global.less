@@ -117,3 +117,66 @@ body {
 #nprogress .bar {
   background: rgb(var(--cl-primary-6)) !important;
 }
+
+/* ---- 入场动效 ----
+   只用 transform/opacity；所有动效在 prefers-reduced-motion 下关闭 */
+@keyframes cl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cl-fade-up {
+  animation: cl-fade-up 0.35s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+
+@keyframes cl-draw-line {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.cl-draw-line {
+  stroke-dasharray: 1;
+  animation: cl-draw-line 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+}
+
+/* ---- 路由切换过渡 ---- */
+.route-fade-enter-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.route-fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.route-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.route-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cl-fade-up,
+  .cl-draw-line {
+    animation: none;
+  }
+
+  .route-fade-enter-active,
+  .route-fade-leave-active {
+    transition: none;
+  }
+}

@@ -47,9 +47,11 @@
 
       <main class="layout-content">
         <router-view v-slot="{ Component }">
-          <keep-alive :include="['Dashboard', 'GlobalDashboard']">
-            <component :is="Component" />
-          </keep-alive>
+          <transition name="route-fade" mode="out-in">
+            <keep-alive :include="['Dashboard', 'GlobalDashboard']">
+              <component :is="Component" />
+            </keep-alive>
+          </transition>
         </router-view>
       </main>
     </div>

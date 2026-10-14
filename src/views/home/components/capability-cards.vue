@@ -1,6 +1,11 @@
 <template>
   <div class="capability-cards">
-    <div v-for="card in cards" :key="card.key" class="cap-card">
+    <div
+      v-for="(card, i) in cards"
+      :key="card.key"
+      class="cap-card cl-fade-up"
+      :style="{ animationDelay: `${0.05 * i}s` }"
+    >
       <div class="cap-icon-wrap">
         <component :is="card.icon" class="cap-icon" />
       </div>
