@@ -64,12 +64,13 @@ const currentDate = computed(() => {
 .greeting-version {
   font-size: 12px;
   font-weight: 400;
-  color: var(--color-text-4);
+  color: var(--color-text-3);
 }
 
+// 页头直接落在灰底上（无卡片），用 text-3 保证与背景的可读对比度
 .greeting-date {
   font-size: 12px;
-  color: var(--color-text-4);
+  color: var(--color-text-3);
   margin: 0;
 }
 </style>
