@@ -201,7 +201,7 @@ onUnmounted(() => {
     max-height: calc(100vh - 280px);
     overflow-y: auto;
     border: 1px solid var(--color-border);
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
   }
 
   .log-item {
@@ -272,7 +272,7 @@ onUnmounted(() => {
   .log-stack {
     background: var(--color-fill-2);
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     color: rgb(var(--red-6));
     margin: 0;
@@ -283,7 +283,7 @@ onUnmounted(() => {
   .log-data {
     background: var(--color-fill-2);
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     color: var(--color-text-2);
     margin: 0;

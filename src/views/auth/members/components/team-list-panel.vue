@@ -107,7 +107,7 @@ const filteredTeams = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   cursor: pointer;
   transition: background-color 0.2s;
   margin-bottom: 2px;
@@ -158,7 +158,7 @@ const filteredTeams = computed(() => {
   flex-shrink: 0;
   background: var(--color-fill-2);
   padding: 0 6px;
-  border-radius: 10px;
+  border-radius: var(--cl-radius-lg);
   line-height: 18px;
 }
 

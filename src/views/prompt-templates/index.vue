@@ -153,6 +153,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -386,6 +389,7 @@ import { Message } from '@arco-design/web-vue'
 import { templateApi } from '@/api/template'
 import { useCrud } from '@/composables/use-crud'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { useLoading } from '@/hooks/loading'
 import { useCopyWithFeedback } from '@/composables/use-copy-with-feedback'
 import { useUserStore } from '@/store'
@@ -701,6 +705,6 @@ onMounted(() => {
   color: var(--color-text-1);
   background: var(--color-fill-2);
   padding: 8px;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
 }
 </style>

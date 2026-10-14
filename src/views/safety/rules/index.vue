@@ -351,6 +351,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -576,6 +579,7 @@ import { guardrailApi } from '@/api/safety'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { logger } from '@/logger'
 import { useLoading } from '@/hooks/loading'
 import { getDefaultsForEngine } from './engine-schema'

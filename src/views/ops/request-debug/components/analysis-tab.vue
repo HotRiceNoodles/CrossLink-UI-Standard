@@ -266,7 +266,7 @@ function typeLabel(type: string): string {
     margin: 0;
     padding: 10px;
     background: var(--color-fill-2);
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     font-family: var(--cl-font-mono);
     white-space: pre-wrap;

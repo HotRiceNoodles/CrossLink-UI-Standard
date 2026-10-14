@@ -123,6 +123,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -201,6 +204,7 @@ import dayjs from 'dayjs'
 import { patApi } from '@/api/pat'
 import { useCrud } from '@/composables/use-crud'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { useUserStore } from '@/store/modules/user'
 import { permissionCatalog } from '@/views/auth/roles/components/permission-catalog'
 import { formatTime } from '@/utils/format'
@@ -341,7 +345,7 @@ onMounted(() => {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--color-border-2);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   max-height: 320px;
   overflow-y: auto;
 }

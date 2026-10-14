@@ -151,7 +151,7 @@ onMounted(load)
 .check-item {
   padding: 10px 14px;
   background-color: var(--color-fill-1);
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
 }
 
 .check-title {

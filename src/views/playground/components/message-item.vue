@@ -202,7 +202,7 @@ function onCodeClick(e: MouseEvent) {
 .avatar {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -256,7 +256,7 @@ function onCodeClick(e: MouseEvent) {
   margin-bottom: 8px;
   border: 1px solid var(--color-border-2);
   border-inline-start: 3px solid rgb(var(--warning-6));
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   overflow: hidden;
   background: var(--color-fill-1);
 
@@ -448,7 +448,7 @@ function onCodeClick(e: MouseEvent) {
   .code-block {
     position: relative;
     margin: 8px 0;
-    border-radius: 8px;
+    border-radius: var(--cl-radius-lg);
     overflow: hidden;
     background: var(--color-fill-2);
 
@@ -473,7 +473,7 @@ function onCodeClick(e: MouseEvent) {
       color: var(--color-text-2);
       background: none;
       border: 1px solid var(--color-border-2);
-      border-radius: 4px;
+      border-radius: var(--cl-radius-sm);
       padding: 1px 8px;
       cursor: pointer;
       transition: all 0.2s;
@@ -496,7 +496,7 @@ function onCodeClick(e: MouseEvent) {
   code:not(.hljs) {
     background: var(--color-fill-2);
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 0.9em;
     color: rgb(var(--cl-primary-6));
   }

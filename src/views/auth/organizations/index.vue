@@ -327,6 +327,7 @@
 
 <script setup lang="ts">
 import EmptyState from '@/components/empty-state.vue'
+import { colorFromName } from '@/utils/palette'
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -385,24 +386,8 @@ const cardCurrent = ref(1)
 const cardPageSize = ref(12)
 
 // Shared helpers
-const COLORS = [
-  '#1D4ED8',
-  '#00B42A',
-  '#FF7D00',
-  '#722ED1',
-  '#0FC6C2',
-  '#F77234',
-  '#3491FA',
-  '#9FDB1D',
-]
-
 function avatarColor(org: { display_name?: string; name: string }) {
-  let hash = 0
-  const name = org.display_name || org.name
-  for (const ch of name) {
-    hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
-  }
-  return COLORS[Math.abs(hash) % COLORS.length]
+  return colorFromName(org.display_name || org.name)
 }
 
 function progressColor(budget: OrgBudget) {

@@ -425,7 +425,7 @@ onUnmounted(() => stopTimer())
     justify-content: center;
     min-width: 36px;
     height: 22px;
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;

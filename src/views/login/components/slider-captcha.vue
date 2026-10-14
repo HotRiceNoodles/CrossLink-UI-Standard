@@ -191,7 +191,7 @@ watch(
 
 .sc-stage {
   position: relative;
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   overflow: hidden;
   background: var(--color-fill-2);
   border: 1px solid var(--color-border-2);
@@ -244,7 +244,7 @@ watch(
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   cursor: pointer;
   color: var(--color-text-2);
   background: rgba(var(--gray-1), 0.7);

@@ -148,7 +148,7 @@ const providers: ProviderDoc[] = [
 .provider-card {
   background: var(--color-bg-2);
   border: 1px solid var(--color-fill-2);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -160,7 +160,7 @@ const providers: ProviderDoc[] = [
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--cl-shadow-raised);
   }
 }
 

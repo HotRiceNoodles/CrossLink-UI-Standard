@@ -862,13 +862,13 @@ function formatTime(val: string) {
   flex: 1;
   height: 8px;
   background: var(--color-fill-2);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   overflow: hidden;
 }
 
 .token-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   transition: width 0.3s ease;
 
   &.bar-input {
@@ -910,13 +910,13 @@ function formatTime(val: string) {
   flex: 1;
   height: 8px;
   background: var(--color-fill-2);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   overflow: hidden;
 }
 
 .perf-bar-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   transition: width 0.3s ease;
 
   &.bar-fast {
@@ -955,7 +955,7 @@ function formatTime(val: string) {
   margin: 0;
   padding: 12px;
   background: var(--color-fill-2);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   font-size: 12px;
   font-family: var(--cl-font-mono);
   white-space: pre-wrap;
@@ -1027,7 +1027,7 @@ function formatTime(val: string) {
   min-width: 32px;
   height: 20px;
   padding: 0 8px;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

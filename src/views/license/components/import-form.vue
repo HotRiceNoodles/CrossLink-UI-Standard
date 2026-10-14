@@ -77,7 +77,7 @@ function handleImport() {
   margin-top: 8px;
   padding: 6px 12px;
   background-color: var(--color-fill-1);
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   font-size: 13px;
   color: var(--color-text-2);
 }

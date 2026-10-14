@@ -154,7 +154,7 @@ async function copyField(value: string | null | undefined) {
   align-items: center;
   gap: 10px;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
 
   .tier-icon {
     font-size: 22px;

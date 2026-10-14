@@ -85,7 +85,7 @@ const { copy } = useCopyWithFeedback()
   .hop {
     padding: 12px 16px;
     background: var(--color-fill-1);
-    border-radius: 6px;
+    border-radius: var(--cl-radius-md);
     margin-bottom: 12px;
 
     &:last-child {
@@ -117,7 +117,7 @@ const { copy } = useCopyWithFeedback()
       justify-content: center;
       min-width: 32px;
       height: 20px;
-      border-radius: 4px;
+      border-radius: var(--cl-radius-sm);
       font-size: 12px;
       font-weight: 600;
 
@@ -165,7 +165,7 @@ const { copy } = useCopyWithFeedback()
     padding: 6px 10px;
     background: var(--color-danger-light-1);
     color: rgb(var(--red-6));
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     display: flex;
     align-items: center;
@@ -181,7 +181,7 @@ const { copy } = useCopyWithFeedback()
     margin: 0;
     padding: 12px;
     background: var(--color-fill-2);
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     font-family: var(--cl-font-mono);
     white-space: pre-wrap;

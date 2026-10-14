@@ -309,13 +309,13 @@ onMounted(load)
   padding: 10px 16px;
   background-color: var(--color-bg-2);
   border: 1px solid var(--color-border-2);
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   opacity: 0.65;
 
   &.active {
     opacity: 1;
     border-color: rgb(var(--cl-primary-3));
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--cl-shadow-raised);
   }
 }
 

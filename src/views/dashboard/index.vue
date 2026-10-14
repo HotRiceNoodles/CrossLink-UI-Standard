@@ -492,7 +492,7 @@ onActivated(() => {
   margin-top: 4px;
   background-color: var(--color-fill-1);
   border: 1px solid var(--color-border-2);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
 }
 
 .range-icon {

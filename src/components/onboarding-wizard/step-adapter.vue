@@ -80,7 +80,7 @@ onMounted(async () => {
 .adapter-card {
   padding: 14px;
   border: 1px solid var(--color-fill-3);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   cursor: pointer;
   transition: all 0.15s;
   &:hover {

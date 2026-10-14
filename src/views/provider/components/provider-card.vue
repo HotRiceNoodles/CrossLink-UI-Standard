@@ -141,6 +141,7 @@
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import EmptyState from '@/components/empty-state.vue'
+import { colorFromName } from '@/utils/palette'
 import type { Provider, ProviderModel, Adapter } from '@/types'
 
 const { t } = useI18n()
@@ -171,23 +172,7 @@ function toggleExpand() {
   expanded.value = !expanded.value
 }
 
-const providerColor = computed(() => {
-  const colors = [
-    '#1D4ED8',
-    '#00B42A',
-    '#FF7D00',
-    '#722ED1',
-    '#0FC6C2',
-    '#F77234',
-    '#3491FA',
-    '#9FDB1D',
-  ]
-  let hash = 0
-  for (const ch of props.provider.display_name) {
-    hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
-  }
-  return colors[Math.abs(hash) % colors.length]
-})
+const providerColor = computed(() => colorFromName(props.provider.display_name))
 
 // 策略是配置维度而非状态，避开与「启用=绿/异常=红」的状态色语义
 const strategyColorMap: Record<string, string> = {

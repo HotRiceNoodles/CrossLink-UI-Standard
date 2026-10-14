@@ -259,10 +259,7 @@
         </template>
 
         <template #empty>
-          <div class="empty-state">
-            <icon-file class="empty-icon" />
-            <p>{{ t('ops.noLogs') }}</p>
-          </div>
+          <EmptyState :desc="t('ops.noLogs')" />
         </template>
       </a-table>
     </a-card>
@@ -283,6 +280,7 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { usageApi } from '@/api/usage'
+import EmptyState from '@/components/empty-state.vue'
 import { modelApi } from '@/api/model'
 import { providerApi } from '@/api/provider'
 import { keyApi } from '@/api/key'
@@ -559,7 +557,7 @@ onMounted(() => {
     justify-content: center;
     min-width: 36px;
     height: 22px;
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -617,23 +615,6 @@ onMounted(() => {
 
   .cell-dash {
     color: var(--color-text-4);
-  }
-
-  .empty-state {
-    padding: 48px 0;
-    color: var(--color-text-4);
-    text-align: center;
-
-    .empty-icon {
-      font-size: 36px;
-      margin-bottom: 8px;
-      opacity: 0.4;
-    }
-
-    p {
-      margin: 0;
-      font-size: 13px;
-    }
   }
 }
 </style>

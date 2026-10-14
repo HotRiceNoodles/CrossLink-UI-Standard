@@ -174,7 +174,7 @@ export default {
   min-width: 32px;
   height: 20px;
   padding: 0 8px;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

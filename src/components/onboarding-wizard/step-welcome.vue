@@ -70,7 +70,7 @@ const emit = defineEmits<{ select: [OnboardingMode] }>()
   text-align: start;
   padding: 20px;
   border: 1px solid var(--color-fill-3);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   cursor: pointer;
   transition: all 0.15s;
   &:hover {

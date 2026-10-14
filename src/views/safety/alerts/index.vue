@@ -247,10 +247,7 @@
         </template>
 
         <template #empty>
-          <div class="empty-state">
-            <icon-file class="empty-icon" />
-            <p>{{ t('safety.rules.noResult') }}</p>
-          </div>
+          <EmptyState :desc="t('safety.rules.noResult')" />
         </template>
       </a-table>
     </a-card>
@@ -267,6 +264,7 @@ import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
 import { alertLogApi } from '@/api/safety'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { logger } from '@/logger'
 import { useLoading } from '@/hooks/loading'
 import { formatTime } from '@/utils/format'
@@ -513,23 +511,6 @@ onMounted(() => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .empty-state {
-    padding: 48px 0;
-    color: var(--color-text-4);
-    text-align: center;
-
-    .empty-icon {
-      font-size: 36px;
-      margin-bottom: 8px;
-      opacity: 0.4;
-    }
-
-    p {
-      margin: 0;
-      font-size: 13px;
-    }
   }
 }
 </style>

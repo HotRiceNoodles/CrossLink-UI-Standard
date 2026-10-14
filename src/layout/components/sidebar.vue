@@ -175,7 +175,7 @@ function visibleChildren(route: RouteRecordRaw): RouteRecordRaw[] {
   gap: 10px;
   height: 32px;
   padding: 0 8px;
-  border-radius: 4px;
+  border-radius: var(--cl-radius-sm);
   cursor: pointer;
   transition: background-color 0.2s;
   white-space: nowrap;

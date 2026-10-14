@@ -374,7 +374,7 @@ function handleImageParamChange(key: string, value: unknown) {
   display: flex;
   overflow: hidden;
   background: var(--color-bg-2);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   border: 1px solid var(--color-border-1);
 }
 
@@ -482,7 +482,7 @@ function handleImageParamChange(key: string, value: unknown) {
   margin: 8px 0;
   background: rgb(var(--red-1));
   color: rgb(var(--red-6));
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   font-size: 13px;
 }
 </style>

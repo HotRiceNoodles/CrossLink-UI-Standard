@@ -98,6 +98,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from '@/store'
+import { colorFromName } from '@/utils/palette'
 import type { Organization, OrgBudget } from '@/types'
 
 const { t } = useI18n()
@@ -117,25 +118,8 @@ const emit = defineEmits<{
   (e: 'enter', org: Organization): void
 }>()
 
-// Avatar color — hash-based from provider-card pattern
-const avatarColor = computed(() => {
-  const colors = [
-    '#1D4ED8',
-    '#00B42A',
-    '#FF7D00',
-    '#722ED1',
-    '#0FC6C2',
-    '#F77234',
-    '#3491FA',
-    '#9FDB1D',
-  ]
-  let hash = 0
-  const name = props.org.display_name || props.org.name
-  for (const ch of name) {
-    hash = ((hash << 5) - hash + ch.charCodeAt(0)) | 0
-  }
-  return colors[Math.abs(hash) % colors.length]
-})
+// Avatar color — shared categorical palette
+const avatarColor = computed(() => colorFromName(props.org.display_name || props.org.name))
 
 // Progress color — same logic as budget-panel.vue
 const progressColor = computed(() => {
@@ -196,14 +180,14 @@ function formatDate(dateStr: string): string {
 .org-card {
   background: var(--color-bg-2);
   border: 1px solid var(--color-border-2);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   padding: 16px;
   transition:
     box-shadow 0.2s,
     border-color 0.2s;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--cl-shadow-raised);
     border-color: var(--color-border-3);
   }
 

@@ -166,6 +166,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -260,6 +263,7 @@ import { providerApi } from '@/api/provider'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import type { ErrorRule, Adapter } from '@/types'
 
 const { t } = useI18n()

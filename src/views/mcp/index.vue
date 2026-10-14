@@ -140,6 +140,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -311,6 +314,7 @@ import { Message } from '@arco-design/web-vue'
 import { mcpApi } from '@/api/mcp'
 import { useCrud } from '@/composables/use-crud'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import { useUserStore } from '@/store'
 import { formatTime } from '@/utils/format'
 import type {

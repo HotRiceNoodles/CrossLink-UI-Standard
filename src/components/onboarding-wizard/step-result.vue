@@ -168,7 +168,7 @@ function goto(name: 'keys' | 'providers') {
 .examples {
   padding: 16px;
   background: var(--color-fill-1);
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   &__bar {
     margin-bottom: 8px;
   }
@@ -186,7 +186,7 @@ function goto(name: 'keys' | 'providers') {
   padding: 12px;
   background: var(--color-bg-1);
   border: 1px solid var(--color-fill-2);
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   font-family: var(--cl-font-mono);
   font-size: 12px;
   line-height: 1.6;

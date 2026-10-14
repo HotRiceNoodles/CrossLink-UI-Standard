@@ -203,7 +203,7 @@ const sparklineColor = computed(() => props.sparklineColor || TONE_COLOR[props.t
   align-items: center;
   gap: 2px;
   padding: 2px 8px;
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   font-size: 12px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;

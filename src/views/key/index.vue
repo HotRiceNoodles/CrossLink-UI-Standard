@@ -235,6 +235,9 @@
             </template>
           </a-table-column>
         </template>
+        <template #empty>
+          <EmptyState :desc="t('common.noData')" />
+        </template>
       </a-table>
     </a-card>
 
@@ -437,6 +440,7 @@ import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store'
 import PageCardTitle from '@/components/page-card-title.vue'
+import EmptyState from '@/components/empty-state.vue'
 import ImportDrawer from './components/import-drawer.vue'
 import { formatTime } from '@/utils/format'
 import { getCurrencySymbol } from '@/utils/currency'

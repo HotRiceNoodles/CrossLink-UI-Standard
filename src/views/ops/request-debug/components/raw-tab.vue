@@ -114,14 +114,14 @@ function headerText(h: HttpHeaders | undefined): string {
   .block-collapse {
     margin-bottom: 16px;
     background: var(--color-fill-1);
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
   }
 
   .content-block {
     margin: 0;
     padding: 12px;
     background: var(--color-fill-2);
-    border-radius: 4px;
+    border-radius: var(--cl-radius-sm);
     font-size: 12px;
     font-family: var(--cl-font-mono);
     white-space: pre-wrap;

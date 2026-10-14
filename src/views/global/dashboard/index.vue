@@ -232,7 +232,7 @@ onActivated(() => {
   &__stat-item {
     background: var(--color-bg-2);
     border: 1px solid var(--color-border-2);
-    border-radius: 8px;
+    border-radius: var(--cl-radius-lg);
     padding: 16px;
     display: flex;
     align-items: center;
@@ -242,7 +242,7 @@ onActivated(() => {
       border-color 0.2s;
 
     &:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      box-shadow: var(--cl-shadow-raised);
       border-color: var(--color-border-3);
     }
   }
@@ -250,7 +250,7 @@ onActivated(() => {
   &__stat-icon {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: var(--cl-radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -213,7 +213,7 @@ async function downloadImage(img: PlaygroundImageData, idx: number) {
   margin: 8px 0;
   background: rgb(var(--red-1));
   color: rgb(var(--red-6));
-  border-radius: 6px;
+  border-radius: var(--cl-radius-md);
   font-size: 13px;
 }
 
@@ -274,7 +274,7 @@ async function downloadImage(img: PlaygroundImageData, idx: number) {
 
 .image-card {
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--cl-radius-lg);
   overflow: hidden;
   border: 1px solid var(--color-border-2);
   aspect-ratio: 1;
