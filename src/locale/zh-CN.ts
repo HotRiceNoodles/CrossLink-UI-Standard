@@ -1441,6 +1441,8 @@ export default {
     noExpiry: '永久授权',
     fingerprint: '设备指纹',
     cryptoMode: '加密模式',
+    verifyMode: '验证模式',
+    identityError: '节点身份异常',
     maxNodes: '最大节点数',
     licenseId: '授权编号',
     daysRemaining: '剩余 {0} 天',

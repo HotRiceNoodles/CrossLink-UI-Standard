@@ -53,6 +53,14 @@
           <span class="field-value">{{ maxNodesDisplay }}</span>
         </div>
       </a-grid-item>
+      <a-grid-item v-if="license?.verify_mode" :span="8">
+        <div class="field-item">
+          <span class="field-label">{{ t('license.verifyMode') }}</span>
+          <span class="field-value mono">
+            {{ verifyModeDisplay }}
+          </span>
+        </div>
+      </a-grid-item>
       <a-grid-item v-if="license?.license_id" :span="8">
         <div class="field-item">
           <span class="field-label">{{ t('license.licenseId') }}</span>
@@ -80,6 +88,23 @@
       style="margin-top: 16px"
     >
       {{ t('license.upgradePrompt') }}
+    </a-alert>
+
+    <!-- Degraded verification: why licensing fell back (node identity / keyless
+         auto / misconfiguration lockdown). Raw backend text — operator-facing. -->
+    <a-alert
+      v-if="license?.identity_error || license?.verify_note"
+      type="warning"
+      style="margin-top: 16px"
+    >
+      <div class="verify-issue">
+        <span v-if="license?.identity_error" class="verify-line">
+          {{ t('license.identityError') }}: {{ license.identity_error }}
+        </span>
+        <span v-if="license?.verify_note" class="verify-line mono">
+          {{ license.verify_note }}
+        </span>
+      </div>
     </a-alert>
   </a-card>
 </template>
@@ -128,6 +153,15 @@ const expiryDisplay = computed(() => {
 const maxNodesDisplay = computed(() => {
   if (!props.license?.max_nodes) return t('common.unlimited')
   return String(props.license.max_nodes)
+})
+
+// 有效模式（off|warn|enforce）；配置为 auto 却解析成别的模式时一并展示
+const verifyModeDisplay = computed(() => {
+  const l = props.license
+  if (!l?.verify_mode) return '--'
+  return l.verify_configured && l.verify_configured !== l.verify_mode
+    ? `${l.verify_mode} (${l.verify_configured})`
+    : l.verify_mode
 })
 
 async function copyField(value: string | null | undefined) {
@@ -185,6 +219,17 @@ async function copyField(value: string | null | undefined) {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.verify-issue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .verify-line.mono {
+    font-family: var(--cl-font-mono);
+    font-size: 12px;
+  }
 }
 
 .days-remaining {

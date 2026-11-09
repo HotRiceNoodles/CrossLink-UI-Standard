@@ -1469,6 +1469,8 @@ export default {
     noExpiry: 'Perpetual',
     fingerprint: 'Machine Fingerprint',
     cryptoMode: 'Crypto Mode',
+    verifyMode: 'Verify Mode',
+    identityError: 'Node identity error',
     maxNodes: 'Max Nodes',
     licenseId: 'License ID',
     daysRemaining: '{0} days remaining',

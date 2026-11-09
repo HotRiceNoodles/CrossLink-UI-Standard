@@ -1463,6 +1463,8 @@ export default {
     noExpiry: 'دائم',
     fingerprint: 'بصمة الجهاز',
     cryptoMode: 'وضع التشفير',
+    verifyMode: 'وضع التحقق',
+    identityError: 'خطأ في هوية العقدة',
     maxNodes: 'أقصى عدد عُقد',
     licenseId: 'معرّف الترخيص',
     daysRemaining: 'باقٍ {0} يومًا',

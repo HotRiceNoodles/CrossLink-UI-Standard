@@ -475,6 +475,11 @@ export interface LicenseStatus {
   license_id: string | null
   expires_at: string | null
   max_nodes: number | null
+  // 验证与节点身份（较新后端返回；identity_error/verify_note 解释授权为何降级）
+  verify_mode?: string
+  verify_configured?: string
+  identity_error?: string
+  verify_note?: string
 }
 
 // System Settings
