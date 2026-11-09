@@ -42,6 +42,9 @@ const route: RouteRecordRaw = {
         menuKey: 'errorRules',
         icon: 'icon-filter',
         requiredPermission: 'error_rule:list',
+        // 2026-11-09 起后端将 error_rule:* 上移 Pro 档；与 safety 模块保持
+        // 权限位 + tier 双重门控的一致惯例
+        requiredTier: ['pro', 'enterprise'],
       },
     },
     {
