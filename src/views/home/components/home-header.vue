@@ -1,7 +1,7 @@
 <template>
   <header class="home-header">
     <div class="brand">
-      <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo" />
+      <img src="@/assets/images/logo.png" alt="CrossLink" class="logo" />
       <span class="wordmark">CrossLink</span>
     </div>
     <div class="actions">

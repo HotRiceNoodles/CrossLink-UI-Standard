@@ -10,7 +10,7 @@
       />
       <div class="banner-content">
         <div class="banner-logo cl-fade-up">
-          <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo-img" />
+          <img src="@/assets/images/logo.png" alt="CrossLink" class="logo-img" />
           <span class="logo-text">CrossLink</span>
         </div>
         <h1 class="banner-title cl-fade-up" style="animation-delay: 0.08s">

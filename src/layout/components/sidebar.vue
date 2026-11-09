@@ -1,7 +1,7 @@
 <template>
   <aside class="layout-sider" :class="{ collapsed: menuCollapse }">
     <div class="logo-area">
-      <img src="@/assets/images/logo.svg" alt="CrossLink" class="logo-img" />
+      <img src="@/assets/images/logo.png" alt="CrossLink" class="logo-img" />
       <transition name="fade">
         <span v-show="!menuCollapse" class="logo-text">CrossLink</span>
       </transition>
