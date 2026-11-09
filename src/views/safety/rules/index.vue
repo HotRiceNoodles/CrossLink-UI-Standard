@@ -412,7 +412,12 @@
               <a-select v-model="formData.action">
                 <a-option value="block" :label="t('safety.action.block')" />
                 <a-option value="log" :label="t('safety.action.log')" />
-                <a-option value="mask" :label="t('safety.action.mask')" />
+                <!-- content_length 引擎不支持 mask（后端 ValidateRuleAction 拒绝 400） -->
+                <a-option
+                  value="mask"
+                  :label="t('safety.action.mask')"
+                  :disabled="formData.type === 'content_length'"
+                />
               </a-select>
             </a-form-item>
           </a-grid-item>
@@ -760,15 +765,27 @@ const formRules = {
   direction: [{ required: true, message: t('safety.rules.formDirection') }],
 }
 
-// Reset config when engine type changes (create mode only)
+// Reset config when engine type changes (create mode only); also drop an
+// invalid mask action (content_length 不支持 mask，后端按引擎校验动作)
 watch(
   () => formData.type,
   (newType, oldType) => {
     if (!isEdit.value && newType !== oldType && newType) {
       formData.config = getDefaultsForEngine(newType as GuardrailEngineType)
     }
+    if (newType === 'content_length' && formData.action === 'mask') {
+      formData.action = 'block'
+    }
   },
 )
+
+// 存量规则可能带着历史遗留的非法组合（content_length + mask）：打开编辑时
+// 一并修正，否则提交会被后端 400 拒绝
+watch(drawerVisible, (visible) => {
+  if (visible && formData.type === 'content_length' && formData.action === 'mask') {
+    formData.action = 'block'
+  }
+})
 
 // Inline enabled toggle (bypass useCrud)
 async function handleToggleEnabled(record: GuardrailRule) {
