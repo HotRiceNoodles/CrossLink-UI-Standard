@@ -1223,6 +1223,21 @@ export default {
     exportFail: 'Export failed',
   },
   requestDebug: {
+    replay: {
+      title: 'Replay',
+      quotaTip:
+        'Replay re-sends the request through the full gateway chain as the selected key — its quota and budget are consumed (forced non-streaming).',
+      key: 'API key',
+      keyPlaceholder: 'Pick the key to replay as',
+      overrides: 'Overrides (optional)',
+      overridesPlaceholder:
+        'JSON object merged into the original request body top level, e.g. {"temperature": 0.2}',
+      overridesInvalid: 'Overrides is not valid JSON',
+      overridesObject: 'Overrides must be a JSON object',
+      execute: 'Replay',
+      result: 'Replay response',
+      pathNotAllowed: 'Only /v1/chat/completions and /v1/messages are replayable',
+    },
     title: 'Request Debugging',
     subtitle:
       'Capture and inspect the full request/response and upstream chain of each gateway call (in-memory, max 100 entries, cleared on restart)',

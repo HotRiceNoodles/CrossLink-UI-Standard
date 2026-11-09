@@ -14,6 +14,24 @@
           </a-tag>
           <span v-if="model" class="detail-model">{{ model }}</span>
           <span v-if="detail" class="detail-path">{{ detail.method }} {{ detail.path }}</span>
+          <!-- Replay: only chat/messages entries, never truncated ones; quota is consumed -->
+          <a-button
+            v-if="detail && replayable"
+            size="small"
+            type="outline"
+            @click="replayVisible = true"
+          >
+            <template #icon><icon-refresh /></template>
+            {{ t('requestDebug.replay.title') }}
+          </a-button>
+          <a-tooltip
+            v-else-if="detail && !detail.truncated"
+            :content="t('requestDebug.replay.pathNotAllowed')"
+          >
+            <a-button size="small" type="outline" disabled>
+              {{ t('requestDebug.replay.title') }}
+            </a-button>
+          </a-tooltip>
         </div>
       </template>
 
@@ -45,6 +63,8 @@
         </a-tabs>
       </a-spin>
     </a-card>
+
+    <replay-modal v-model:visible="replayVisible" :seq="detail?.seq ?? 0" />
   </div>
 </template>
 
@@ -58,6 +78,7 @@ import { useUserStore } from '@/store'
 import RawTab from './components/raw-tab.vue'
 import UpstreamTab from './components/upstream-tab.vue'
 import AnalysisTab from './components/analysis-tab.vue'
+import ReplayModal from './components/replay-modal.vue'
 import type { DebugEntryDetail } from '@/types'
 
 const route = useRoute()
@@ -72,6 +93,14 @@ const detail = ref<DebugEntryDetail | null>(null)
 const error = ref(false)
 // detail payload has no model field — carry it from the list row via query
 const model = computed(() => (route.query.model as string) || '')
+
+// Replay preconditions mirror the backend whitelist: only the two chat
+// protocols, and the captured body must not be truncated.
+const REPLAYABLE_PATHS = ['/v1/chat/completions', '/v1/messages']
+const replayable = computed(
+  () => !!detail.value && !detail.value.truncated && REPLAYABLE_PATHS.includes(detail.value.path),
+)
+const replayVisible = ref(false)
 
 function statusColor(code: number): string {
   if (code >= 200 && code < 300) return 'green'
