@@ -285,6 +285,22 @@
             </template>
           </a-table-column>
 
+          <!-- 流式能力：由引擎类型与配置静态推导（6c003c4），标注规则对流式请求的影响 -->
+          <a-table-column
+            v-if="hasStreamCapability"
+            :title="t('safety.rules.colStreamCap')"
+            :width="120"
+            align="center"
+          >
+            <template #cell="{ record }">
+              <a-tooltip :content="streamCapTooltip(record)">
+                <a-tag :color="streamCapColor(record)" size="small">
+                  {{ streamStrategyLabel(record.stream_capability?.strategy) }}
+                </a-tag>
+              </a-tooltip>
+            </template>
+          </a-table-column>
+
           <a-table-column
             :title="t('safety.rules.formSeverity')"
             data-index="severity"
@@ -843,6 +859,47 @@ async function handleRollback(record: GuardrailRuleVersion) {
         : e?.response?.data?.error || t('common.operationFail'),
     )
   }
+}
+
+// 流式能力列：任一规则带 stream_capability 才显示（旧后端无此字段时整列隐藏）
+const hasStreamCapability = computed(() =>
+  filteredList.value.some((r) => r.stream_capability !== undefined),
+)
+
+function streamCapColor(rule: GuardrailRule): string {
+  const cap = rule.stream_capability
+  if (!cap) return 'blue'
+  if (cap.configuration_error) return 'red'
+  const map: Record<string, string> = {
+    safe_prefix: 'green',
+    response_complete: 'orange',
+    request_only: 'gray',
+  }
+  return map[cap.strategy] || 'blue'
+}
+
+// 已知策略走 i18n；新后端引入的未知策略原样展示，不落回完整 key 路径
+function streamStrategyLabel(strategy?: string): string {
+  if (!strategy) return ''
+  return ['safe_prefix', 'response_complete', 'request_only'].includes(strategy)
+    ? t(`safety.rules.streamStrategy.${strategy}`)
+    : strategy
+}
+
+function streamCapTooltip(rule: GuardrailRule): string {
+  const cap = rule.stream_capability
+  if (!cap) return ''
+  const parts: string[] = [streamStrategyLabel(cap.strategy)]
+  parts.push(
+    cap.mask_supported
+      ? t('safety.rules.streamMaskSupported')
+      : t('safety.rules.streamMaskUnsupported'),
+  )
+  if (cap.reason_codes.length) parts.push(cap.reason_codes.join(', '))
+  if (cap.configuration_error) {
+    parts.push(`${t('safety.rules.streamConfigError')}: ${cap.configuration_error}`)
+  }
+  return parts.join(' · ')
 }
 
 function changeKindColor(kind: string): string {

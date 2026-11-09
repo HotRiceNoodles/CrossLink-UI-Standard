@@ -38,8 +38,21 @@ export interface GuardrailRule {
   model_filter?: string
   /** 版本化写路径维护的单调递增版本号；并发修改会返回 409 version_conflict。 */
   version: number
+  /** 流式能力标注（后端按引擎类型与配置静态推导，只读；旧后端不返回）。 */
+  stream_capability?: GuardrailStreamCapability
   created_at: string
   updated_at: string
+}
+
+// 流式检查策略：safe_prefix 可增量检查；response_complete 需缓冲完整响应；
+// request_only 规则只作用于请求方向，不影响流式响应
+export type GuardrailStreamStrategy = 'safe_prefix' | 'response_complete' | 'request_only'
+
+export interface GuardrailStreamCapability {
+  strategy: GuardrailStreamStrategy
+  reason_codes: string[]
+  mask_supported: boolean
+  configuration_error?: string
 }
 
 // 规则历史快照（append-only，config 已在服务端脱敏）
