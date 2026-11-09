@@ -29,7 +29,7 @@ const CHECK_IDS = [
 
 // Variants each check can emit (readiness.go DetailKey/FixHintKey values).
 const VARIANTS: Record<(typeof CHECK_IDS)[number], string[]> = {
-  encryptionKey: ['title', 'active', 'plaintextProviders', 'notConfigured', 'hint'],
+  encryptionKey: ['title', 'active', 'plaintextProviders', 'notConfigured', 'hint', 'hintConfig'],
   setupWizard: ['title', 'done', 'skipped', 'hint', 'notRun'],
   providers: ['title', 'none', 'hint', 'ok'],
   apiKey: ['title', 'none', 'hint', 'ok'],

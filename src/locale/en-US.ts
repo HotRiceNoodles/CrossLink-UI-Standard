@@ -1952,6 +1952,8 @@ export default {
         plaintextProviders: '{provider_count} provider secret(s) are stored in plaintext.',
         notConfigured: 'No encryption key is active; secrets are stored in plaintext.',
         hint: 'Run the setup wizard to generate an encryption key.',
+        hintConfig:
+          'UI generation is disabled by security policy; provision the master key via CL_ENCRYPTION_KEY or secret_manager.encryption_key before startup.',
       },
       setupWizard: {
         title: 'Setup wizard',
@@ -2051,6 +2053,8 @@ export default {
       base_url_invalid: 'Base URL must be http(s) and must not point to an internal address.',
       encryption_key_active:
         'An encryption key is already active; it cannot be replaced from the setup wizard.',
+      encryption_key_ui_disabled:
+        'Security policy disables generating the encryption key from the UI (secret_manager.allow_wizard_generation=false); provision the master key at install time via CL_ENCRYPTION_KEY or the config file. The option was unchecked automatically — you can finish setup now.',
       submitFail: 'Setup failed. Please retry later.',
     },
   },

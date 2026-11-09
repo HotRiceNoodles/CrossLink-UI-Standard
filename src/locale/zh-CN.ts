@@ -1916,6 +1916,8 @@ export default {
         plaintextProviders: '有 {provider_count} 个 Provider 凭据以明文存储。',
         notConfigured: '未启用加密密钥，敏感信息以明文存储。',
         hint: '运行初始设置向导生成加密密钥。',
+        hintConfig:
+          '界面生成已被安全策略禁用；请由运维在启动前通过 CL_ENCRYPTION_KEY 或 secret_manager.encryption_key 配置主密钥。',
       },
       setupWizard: {
         title: '初始设置向导',
@@ -2012,6 +2014,8 @@ export default {
       timezone_invalid: '时区必须是有效的 IANA 名称，如 Asia/Shanghai。',
       base_url_invalid: '基础 URL 需为 http(s) 且不可指向内网地址。',
       encryption_key_active: '加密密钥已存在，无法通过设置向导更换。',
+      encryption_key_ui_disabled:
+        '安全策略已禁用界面生成加密密钥（secret_manager.allow_wizard_generation=false），主密钥需在安装时通过 CL_ENCRYPTION_KEY 或配置文件提供。已自动取消勾选，可直接继续完成设置。',
       submitFail: '设置失败，请稍后重试。',
     },
   },

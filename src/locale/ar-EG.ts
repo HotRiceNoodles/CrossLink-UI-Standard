@@ -1940,6 +1940,8 @@ export default {
         plaintextProviders: '{provider_count} من بيانات المزوّدين مخزنة نصًا صريحًا.',
         notConfigured: 'لا يوجد مفتاح تشفير نشط؛ الأسرار مخزنة نصًا صريحًا.',
         hint: 'شغّل معالج الإعداد لتوليد مفتاح تشفير.',
+        hintConfig:
+          'التوليد من الواجهة معطّل بسياسة الأمان؛ وفّر المفتاح الرئيسي عبر CL_ENCRYPTION_KEY أو secret_manager.encryption_key قبل التشغيل.',
       },
       setupWizard: {
         title: 'معالج الإعداد',
@@ -2037,6 +2039,8 @@ export default {
       timezone_invalid: 'يجب أن تكون المنطقة اسم IANA صالحًا، مثل Asia/Shanghai.',
       base_url_invalid: 'يجب أن يكون العنوان http(s) وألا يشير إلى عنوان داخلي.',
       encryption_key_active: 'مفتاح التشفير موجود بالفعل ولا يمكن استبداله من المعالج.',
+      encryption_key_ui_disabled:
+        'سياسة الأمان تعطّل توليد مفتاح التشفير من الواجهة (secret_manager.allow_wizard_generation=false)؛ يجب توفير المفتاح الرئيسي وقت التثبيت عبر CL_ENCRYPTION_KEY أو ملف الإعداد. تم إلغاء تحديد الخيار تلقائيًا ويمكن متابعة الإعداد.',
       submitFail: 'فشل الإعداد. يرجى إعادة المحاولة لاحقًا.',
     },
   },

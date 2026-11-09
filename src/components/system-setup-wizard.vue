@@ -232,6 +232,9 @@ function resolveError(err: unknown): string {
     timezone_invalid: t('setup.errors.timezone_invalid'),
     base_url_invalid: t('setup.errors.base_url_invalid'),
     encryption_key_active: t('setup.errors.encryption_key_active'),
+    // 策略禁用界面生成（secret_manager.allow_wizard_generation=false，默认）：
+    // 取消勾选后用户仍可完成向导
+    encryption_key_ui_disabled: t('setup.errors.encryption_key_ui_disabled'),
   }
   return map[code] || e.response?.data?.error || t('setup.errors.submitFail')
 }
@@ -247,7 +250,14 @@ async function submit() {
       status: 'done',
     })
     step.value = 3
-  } catch (err) {
+  } catch (err: unknown) {
+    const code = (err as { response?: { data?: { error_code?: string } } })?.response?.data
+      ?.error_code
+    // 密钥需由运维在安装期通过 CL_ENCRYPTION_KEY / 配置提供 — 自动取消勾选，
+    // 用户重试即可不带生成选项完成向导
+    if (code === 'encryption_key_ui_disabled') {
+      form.value.generate_encryption_key = false
+    }
     submitError.value = resolveError(err)
   } finally {
     submitting.value = false
