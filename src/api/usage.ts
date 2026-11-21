@@ -8,6 +8,7 @@ import type {
   RoutingStats,
   UsageQuery,
   UsageLog,
+  KeyUsageSummary,
 } from '@/types'
 
 /** 从 Content-Disposition 解析 filename，失败回退默认名。 */
@@ -17,6 +18,8 @@ function parseFilename(disposition: unknown, fallback: string): string {
 }
 
 export const usageApi = {
+  // GET /keys/usage-summary — per-key day/week/month 聚合（key 列表预算进度列）
+  keyUsageSummary: () => get<KeyUsageSummary[]>('/keys/usage-summary'),
   stats: (params?: UsageQuery) =>
     get<UsageStats>('/usage/stats', params as Record<string, unknown>),
   daily: (params?: UsageQuery & { days?: number }) =>

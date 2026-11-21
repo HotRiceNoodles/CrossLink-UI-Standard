@@ -266,6 +266,18 @@ export interface KeyImportResponse {
   results: KeyImportResult[]
 }
 
+// GET /keys/usage-summary — 按 key 聚合的日/ISO 周/月 用量与计费成本
+// （与预算、对账同口径；供 key 列表的预算进度列消费）
+export interface KeyUsageSummary {
+  api_key_id: number
+  day_requests: number
+  day_cost: number
+  week_requests: number
+  week_cost: number
+  month_requests: number
+  month_cost: number
+}
+
 // Usage
 // NOTE: the backend `/usage/stats` handler returns far more fields than the
 // dashboard previously modeled. All extended fields are optional so partial

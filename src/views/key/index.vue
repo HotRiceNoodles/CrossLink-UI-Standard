@@ -171,20 +171,40 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableBudget')" :width="120" align="right">
+          <a-table-column :title="t('key.tableBudget')" :width="150" align="right">
             <template #cell="{ record }">
               <template v-if="record.max_budget">
-                {{ getCurrencySymbol() }}{{ record.max_budget }} /
-                {{ budgetPeriodLabel(record.budget_period) }}
+                <a-tooltip :content="usageTooltip(record)">
+                  <div class="budget-cell">
+                    <span>
+                      {{ getCurrencySymbol() }}{{ periodCost(record, record.budget_period) }} /
+                      {{ record.max_budget }}（{{ budgetPeriodLabel(record.budget_period) }}）
+                    </span>
+                    <a-progress
+                      :percent="budgetPercent(record)"
+                      size="small"
+                      :show-text="false"
+                      :status="
+                        budgetPercent(record) >= 100
+                          ? 'danger'
+                          : budgetPercent(record) >= 80
+                            ? 'warning'
+                            : 'normal'
+                      "
+                    />
+                  </div>
+                </a-tooltip>
               </template>
               <span v-else style="color: var(--color-text-3)">-</span>
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('key.tableCallCount')" :width="120" align="right">
+          <a-table-column :title="t('key.tableCallCount')" :width="140" align="right">
             <template #cell="{ record }">
               <template v-if="record.max_calls">
-                {{ record.max_calls }} / {{ callPeriodLabel(record.call_period) }}
+                {{ periodRequests(record, record.call_period) }} / {{ record.max_calls }}（{{
+                  callPeriodLabel(record.call_period)
+                }}）
               </template>
               <span v-else style="color: var(--color-text-3)">-</span>
             </template>
@@ -436,6 +456,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
 import { keyApi } from '@/api/key'
+import { usageApi } from '@/api/usage'
 import { modelApi } from '@/api/model'
 import { useCrud } from '@/composables/use-crud'
 import { useUserStore } from '@/store'
@@ -445,7 +466,7 @@ import ImportDrawer from './components/import-drawer.vue'
 import { formatTime } from '@/utils/format'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
-import type { APIKey } from '@/types'
+import type { APIKey, KeyUsageSummary } from '@/types'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -669,6 +690,68 @@ function closeKeyModal() {
   copyFailed.value = false
 }
 
+// ---- per-key 用量聚合（GET /keys/usage-summary，与预算/对账同计费口径）----
+const usageSummary = ref<Map<number, KeyUsageSummary>>(new Map())
+
+async function fetchUsageSummary() {
+  try {
+    const res = await usageApi.keyUsageSummary()
+    usageSummary.value = new Map(res.data.map((row) => [row.api_key_id, row]))
+  } catch {
+    // 非关键：预算列回落为仅显示上限
+    usageSummary.value = new Map()
+  }
+}
+
+function summaryFor(record: APIKey): KeyUsageSummary | undefined {
+  return usageSummary.value.get(record.id)
+}
+
+// 按 key 自身的预算周期取对应窗口的成本
+function periodCost(record: APIKey, period: string): string {
+  const row = summaryFor(record)
+  if (!row) return '0'
+  const cost =
+    period === 'daily' ? row.day_cost : period === 'weekly' ? row.week_cost : row.month_cost
+  return cost.toFixed(2)
+}
+
+function periodRequests(record: APIKey, period: string): number | string {
+  const row = summaryFor(record)
+  if (!row) return '-'
+  return period === 'daily'
+    ? row.day_requests
+    : period === 'weekly'
+      ? row.week_requests
+      : row.month_requests
+}
+
+function budgetPercent(record: APIKey): number {
+  if (!record.max_budget) return 0
+  const row = summaryFor(record)
+  const cost =
+    record.budget_period === 'daily'
+      ? row?.day_cost
+      : record.budget_period === 'weekly'
+        ? row?.week_cost
+        : row?.month_cost
+  const percent = ((cost ?? 0) / record.max_budget) * 100
+  return Math.min(100, Math.round(percent))
+}
+
+function usageTooltip(record: APIKey): string {
+  const row = summaryFor(record)
+  if (!row) return t('key.usageUnavailable')
+  return t('key.usageTooltip', {
+    dayReq: row.day_requests,
+    dayCost: row.day_cost.toFixed(2),
+    weekReq: row.week_requests,
+    weekCost: row.week_cost.toFixed(2),
+    monthReq: row.month_requests,
+    monthCost: row.month_cost.toFixed(2),
+  })
+}
+
 function budgetPeriodLabel(period: string) {
   const map: Record<string, string> = {
     daily: t('key.periodDay'),
@@ -699,10 +782,19 @@ async function fetchModels() {
 onMounted(() => {
   fetchData()
   fetchModels()
+  fetchUsageSummary()
 })
 </script>
 
 <style scoped lang="less">
+.budget-cell {
+  text-align: right;
+
+  span {
+    font-size: 12px;
+  }
+}
+
 .key-page {
   :deep(.arco-table) {
     font-size: 13px;

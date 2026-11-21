@@ -312,6 +312,9 @@ export default {
     periodMonthly: '每月',
     budgetDisplay: '¥{amount} / {period}',
     tableCallCount: '调用限制',
+    usageTooltip:
+      '今日 {dayReq} 次 / {dayCost}；本周 {weekReq} 次 / {weekCost}；本月 {monthReq} 次 / {monthCost}',
+    usageUnavailable: '暂无用量数据',
     callLimitLabel: '最大调用次数',
     callPlaceholder: '0 = 不限',
     callPeriodLabel: '调用周期',

@@ -314,6 +314,9 @@ export default {
     periodMonthly: 'شهري',
     budgetDisplay: '¥{amount} / {period}',
     tableCallCount: 'حد الاستدعاء',
+    usageTooltip:
+      'اليوم {dayReq} طلب / {dayCost}؛ هذا الأسبوع {weekReq} / {weekCost}؛ هذا الشهر {monthReq} / {monthCost}',
+    usageUnavailable: 'لا توجد بيانات استخدام بعد',
     callLimitLabel: 'أقصى استدعاءات',
     callPlaceholder: '0 = غير محدود',
     callPeriodLabel: 'فترة الاستدعاء',

@@ -314,6 +314,9 @@ export default {
     periodMonthly: 'Monthly',
     budgetDisplay: '¥{amount} / {period}',
     tableCallCount: 'Call Limit',
+    usageTooltip:
+      'Today {dayReq} reqs / {dayCost}; this week {weekReq} / {weekCost}; this month {monthReq} / {monthCost}',
+    usageUnavailable: 'No usage data yet',
     callLimitLabel: 'Max Calls',
     callPlaceholder: '0 = Unlimited',
     callPeriodLabel: 'Call Period',
