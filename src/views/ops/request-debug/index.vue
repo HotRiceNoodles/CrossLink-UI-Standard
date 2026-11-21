@@ -40,6 +40,21 @@
               :disabled="!canEditConfig"
               @change="(v: string | number | boolean) => onConfigChange('only_failed', v)"
             />
+            <!-- 只读容量信息：环形缓冲条数与单条报文上限（进程级，改配置需重启） -->
+            <a-tooltip
+              v-if="debugConfig"
+              :content="
+                t('requestDebug.capacityInfo', {
+                  capacity: debugConfig.capacity,
+                  size: debugConfig.max_body_size,
+                })
+              "
+            >
+              <a-tag color="gray" size="small">
+                <template #icon><icon-info-circle /></template>
+                {{ debugConfig.capacity }} · {{ debugConfig.max_body_size }}B
+              </a-tag>
+            </a-tooltip>
           </template>
           <template v-else>
             <a-tooltip :content="t('requestDebug.debugModeHint')">

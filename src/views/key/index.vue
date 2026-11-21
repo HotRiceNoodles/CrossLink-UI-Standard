@@ -451,7 +451,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import dayjs from 'dayjs'
@@ -487,6 +487,7 @@ const copyFailed = ref(false)
 
 const {
   loading,
+  list,
   filteredList,
   drawerVisible,
   isEdit,
@@ -693,6 +694,9 @@ function closeKeyModal() {
 // ---- per-key 用量聚合（GET /keys/usage-summary，与预算/对账同计费口径）----
 const usageSummary = ref<Map<number, KeyUsageSummary>>(new Map())
 
+// CRUD 成功后 useCrud 会重拉 list —— 同步重拉用量聚合，进度列不悬空
+watch(list, () => fetchUsageSummary())
+
 async function fetchUsageSummary() {
   try {
     const res = await usageApi.keyUsageSummary()
@@ -782,7 +786,6 @@ async function fetchModels() {
 onMounted(() => {
   fetchData()
   fetchModels()
-  fetchUsageSummary()
 })
 </script>
 

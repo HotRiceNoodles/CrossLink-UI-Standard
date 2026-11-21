@@ -61,6 +61,10 @@
               <icon-exclamation-circle style="font-size: 14px" />
               {{ errorMessage }}
             </div>
+            <!-- 全链失败：逐行尝试仍可诊断（谁失败/谁被跳过） -->
+            <div v-if="errorMessage && streamErrorFallback" class="error-fallback">
+              <fallback-chain :fallback="streamErrorFallback" />
+            </div>
           </div>
           <chat-input
             :disabled="!selectedModel || modelList.length === 0"
@@ -110,8 +114,14 @@ import { modelApi } from '@/api/model'
 import { playgroundApi } from '@/api/playground'
 import { useLoading } from '@/hooks/loading'
 import { usePlaygroundStream } from '@/composables/use-playground-stream'
-import type { PlaygroundMessage, PlaygroundRequest, ProviderModel } from '@/types'
+import type {
+  PlaygroundFallback,
+  PlaygroundMessage,
+  PlaygroundRequest,
+  ProviderModel,
+} from '@/types'
 import MessageItem from './components/message-item.vue'
+import FallbackChain from './components/fallback-chain.vue'
 import ChatInput from './components/chat-input.vue'
 import ParameterPanel from './components/parameter-panel.vue'
 import ImagePlayground from './components/image-playground.vue'
@@ -160,6 +170,7 @@ const {
   streamedContent,
   streamedReasoning,
   error: streamError,
+  errorFallback: streamErrorFallback,
   startStream,
   abort,
 } = usePlaygroundStream()
@@ -293,10 +304,12 @@ async function handleNonStreamSend() {
   } catch (e) {
     // The error body carries `error` as a message string or as
     // {type, message} (guardrail blocks) — prefer the backend message.
-    const apiError = (e as { response?: { data?: { error?: string | { message?: string } } } })
-      ?.response?.data?.error
+    const body = (e as { response?: { data?: Record<string, unknown> } })?.response?.data
+    const apiError = body?.error as string | { message?: string } | undefined
     errorMessage.value =
       (typeof apiError === 'string' ? apiError : apiError?.message) || t('playground.chatError')
+    // 全链失败时错误体带 fallback（逐行尝试），透出给错误面板
+    streamErrorFallback.value = (body?.fallback as PlaygroundFallback | undefined) ?? null
   } finally {
     sending.value = false
   }
@@ -473,6 +486,10 @@ function handleImageParamChange(key: string, value: unknown) {
   overflow-y: auto;
   padding: 16px 20px;
   min-height: 0;
+}
+
+.error-fallback {
+  margin-top: 4px;
 }
 
 .error-message {

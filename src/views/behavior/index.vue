@@ -92,7 +92,7 @@
             <template #columns>
               <a-table-column :title="t('behavior.colEntity')" :width="110">
                 <template #cell="{ record }">
-                  <span class="mono">{{ record.entity_type }}#{{ record.entity_id }}</span>
+                  <span class="mono">{{ entityLabel(record.entity_type, record.entity_id) }}</span>
                 </template>
               </a-table-column>
               <a-table-column :title="t('behavior.colBand')" :width="100" align="center">
@@ -214,7 +214,7 @@
             <template #columns>
               <a-table-column :title="t('behavior.colEntity')" :width="110">
                 <template #cell="{ record }">
-                  <span class="mono">{{ record.entity_type }}#{{ record.entity_id }}</span>
+                  <span class="mono">{{ entityLabel(record.entity_type, record.entity_id) }}</span>
                 </template>
               </a-table-column>
               <a-table-column :title="t('behavior.colDimensionSet')" :width="240">
@@ -312,7 +312,7 @@
             <template #columns>
               <a-table-column :title="t('behavior.colEntity')" :width="140">
                 <template #cell="{ record }">
-                  <span class="mono">{{ record.entity_type }}#{{ record.entity_id }}</span>
+                  <span class="mono">{{ entityLabel(record.entity_type, record.entity_id) }}</span>
                 </template>
               </a-table-column>
               <a-table-column
@@ -357,6 +357,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { behaviorApi } from '@/api/behavior'
+import { keyApi } from '@/api/key'
+import { orgApi } from '@/api/rbac'
 import { useUserStore } from '@/store'
 import { formatTime } from '@/utils/format'
 import type {
@@ -527,6 +529,30 @@ function showDimensions(record: BehaviorAnomaly | BehaviorFingerprint) {
   dimsVisible.value = true
 }
 
+// ---- 实体名解析：key/org ID → 名称（权限不足或加载失败时回落原始 ID）----
+const keyNames = ref<Map<number, string>>(new Map())
+const orgNames = ref<Map<number, string>>(new Map())
+
+async function loadEntityNames() {
+  try {
+    const res = await keyApi.list()
+    keyNames.value = new Map(res.data.map((k) => [k.id, k.name]))
+  } catch {
+    keyNames.value = new Map()
+  }
+  try {
+    const res = await orgApi.list()
+    orgNames.value = new Map(res.data.map((o) => [o.id, o.display_name || o.name]))
+  } catch {
+    orgNames.value = new Map()
+  }
+}
+
+function entityLabel(type: string, id: number): string {
+  const name = type === 'key' ? keyNames.value.get(id) : orgNames.value.get(id)
+  return name ? `${name} (#${id})` : `${type}#${id}`
+}
+
 function bandColor(band: string): string {
   const map: Record<string, string> = { suspicious: 'gold', anomalous: 'orange', critical: 'red' }
   return map[band] || 'blue'
@@ -545,6 +571,7 @@ function statusColor(status: string): string {
 onMounted(() => {
   fetchStatus()
   fetchAnomalies()
+  loadEntityNames()
 })
 </script>
 

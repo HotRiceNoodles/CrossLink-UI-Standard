@@ -1265,6 +1265,8 @@ export default {
     retryTag: 'retry ×{n}',
     fallbackTag: 'switch ×{n}',
     chainAbnormal: 'Abnormal chain: succeeded after retries/failover',
+    capacityInfo:
+      'Ring buffer capacity {capacity} entries; max body size {size} bytes (process-level, restart to apply)',
     autoRefresh: 'Auto refresh',
     clear: 'Clear',
     clearConfirm: 'Clear all captured debug entries?',

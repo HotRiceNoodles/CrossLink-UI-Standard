@@ -1241,6 +1241,7 @@ export default {
     retryTag: '重试×{n}',
     fallbackTag: '切换×{n}',
     chainAbnormal: '链路异常：经重试/容灾后才成功',
+    capacityInfo: '环形缓冲容量 {capacity} 条；单条报文上限 {size} 字节（进程级，需重启生效）',
     autoRefresh: '自动刷新',
     clear: '清空',
     clearConfirm: '确定清空所有已捕获的调试记录？',

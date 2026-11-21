@@ -2,6 +2,7 @@ import { ref, readonly } from 'vue'
 import { playgroundApi } from '@/api/playground'
 import { handleUnauthorized } from '@/api/interceptor'
 import type {
+  PlaygroundFallback,
   PlaygroundRequest,
   PlaygroundStreamResult,
   PlaygroundUsage,
@@ -15,6 +16,8 @@ export function usePlaygroundStream() {
   const usage = ref<PlaygroundUsage | null>(null)
   const guardrails = ref<SSEGuardrailEvent[]>([])
   const error = ref<string | null>(null)
+  // 全链失败时错误体随带的容灾链（逐行尝试），供错误面板展示
+  const errorFallback = ref<PlaygroundFallback | null>(null)
 
   let abortController: AbortController | null = null
 
@@ -26,6 +29,7 @@ export function usePlaygroundStream() {
     usage.value = null
     guardrails.value = []
     error.value = null
+    errorFallback.value = null
 
     abortController = new AbortController()
 
@@ -43,6 +47,9 @@ export function usePlaygroundStream() {
         // string or as {type, message} (guardrail blocks) — extract the
         // human-readable message, never "[object Object]".
         const err = errBody?.error
+        if (errBody?.fallback) {
+          errorFallback.value = errBody.fallback as PlaygroundFallback
+        }
         const message =
           typeof err === 'string' ? err : err?.message || err?.type || `HTTP ${response.status}`
         throw new Error(message)
@@ -162,6 +169,7 @@ export function usePlaygroundStream() {
     streamedReasoning: readonly(streamedReasoning),
     usage: readonly(usage),
     guardrails: readonly(guardrails),
+    errorFallback: readonly(errorFallback),
     error: readonly(error),
     startStream,
     abort,
