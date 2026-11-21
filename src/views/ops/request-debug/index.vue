@@ -9,17 +9,37 @@
       </template>
       <template #extra>
         <a-space>
-          <!-- debug_mode switch — only for Pro+ users with system:update -->
-          <template v-if="canToggleDebugMode">
+          <!-- 调试配置（GET/PUT /debug/config）：开关/采样率/仅失败热更新，Pro+ -->
+          <template v-if="canViewConfig">
             <span class="debug-mode-label">{{ t('requestDebug.debugMode') }}</span>
             <a-switch
-              :model-value="debugMode"
+              :model-value="debugConfig?.enabled"
               :loading="debugModeLoading"
-              @change="onToggleDebugMode"
+              :disabled="!canEditConfig"
+              @change="(v: string | number | boolean) => onConfigChange('enabled', v)"
             />
-            <a-tag :color="debugMode ? 'green' : 'gray'" size="small">
-              {{ debugMode ? t('requestDebug.debugModeOn') : t('requestDebug.debugModeOff') }}
-            </a-tag>
+            <a-tooltip :content="t('requestDebug.samplingRateTip')">
+              <span class="debug-mode-label">{{ t('requestDebug.samplingRate') }}</span>
+            </a-tooltip>
+            <a-input-number
+              :model-value="debugConfig?.sampling_rate"
+              :min="0"
+              :max="100"
+              :step="10"
+              size="small"
+              :disabled="!canEditConfig"
+              style="width: 90px"
+              @change="(v: number | undefined) => onConfigChange('sampling_rate', v)"
+            />
+            <a-tooltip :content="t('requestDebug.onlyFailedTip')">
+              <span class="debug-mode-label">{{ t('requestDebug.onlyFailed') }}</span>
+            </a-tooltip>
+            <a-switch
+              :model-value="debugConfig?.only_failed"
+              :loading="debugModeLoading"
+              :disabled="!canEditConfig"
+              @change="(v: string | number | boolean) => onConfigChange('only_failed', v)"
+            />
           </template>
           <template v-else>
             <a-tooltip :content="t('requestDebug.debugModeHint')">
@@ -148,9 +168,25 @@
             align="center"
           >
             <template #cell="{ record }">
-              <span class="cell-status" :class="statusClass(record.status)">
-                {{ record.status }}
-              </span>
+              <div class="status-cell">
+                <span class="cell-status" :class="statusClass(record.status)">
+                  {{ record.status }}
+                </span>
+                <!-- 链路诊断：200 不代表链路无恙（可能经重试/容灾才成功） -->
+                <a-tooltip
+                  v-if="record.retry_count || record.fallback_count"
+                  :content="record.last_upstream_error || t('requestDebug.chainAbnormal')"
+                >
+                  <span class="chain-badge">
+                    <a-tag v-if="record.retry_count" color="orangered" size="small">
+                      {{ t('requestDebug.retryTag', { n: record.retry_count }) }}
+                    </a-tag>
+                    <a-tag v-if="record.fallback_count" color="orange" size="small">
+                      {{ t('requestDebug.fallbackTag', { n: record.fallback_count }) }}
+                    </a-tag>
+                  </span>
+                </a-tooltip>
+              </div>
             </template>
           </a-table-column>
 
@@ -210,11 +246,10 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { debugApi } from '@/api/debug'
-import { settingsApi } from '@/api/settings'
 import { useLoading } from '@/hooks/loading'
 import { useUserStore } from '@/store'
 import { formatTime, formatLatency, statusClass } from '@/utils/format'
-import type { DebugEntrySummary } from '@/types'
+import type { DebugEntrySummary, DebugConfig } from '@/types'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -223,32 +258,48 @@ const { loading, setLoading } = useLoading()
 
 const entries = ref<DebugEntrySummary[]>([])
 
-// --- debug_mode (Pro + system:update only) ---
-const debugMode = ref(false)
+// --- 调试配置（专用 /debug/config 端点：三字段热更新 + 持久化；GET 需 debug:list，
+// PUT 需 debug:clear。旧实现走 Pro 聚合端点 /system/settings 且只覆盖 debug_mode）---
+const debugConfig = ref<DebugConfig | null>(null)
 const { loading: debugModeLoading, setLoading: setDebugModeLoading } = useLoading()
-const canToggleDebugMode = computed(
-  () => userStore.isProOrAbove && userStore.hasPermission('system:update'),
+const canViewConfig = computed(
+  () => userStore.isProOrAbove && userStore.hasPermission('debug:list'),
 )
+const canEditConfig = computed(() => userStore.hasPermission('debug:clear'))
 const canClear = computed(() => userStore.hasPermission('debug:clear'))
 
-async function loadDebugMode() {
-  if (!userStore.isProOrAbove) return
+async function loadDebugConfig() {
+  if (!canViewConfig.value) return
   try {
-    const res = await settingsApi.getSettings()
-    debugMode.value = res.data.debug_mode
+    const res = await debugApi.getConfig()
+    debugConfig.value = res.data
   } catch {
-    // settings may be unavailable; silently ignore
+    // 配置端点不可用时静默降级：仅隐藏控制，列表不受影响
   }
 }
 
-async function onToggleDebugMode(val: string | number | boolean) {
+async function onConfigChange(field: 'enabled' | 'sampling_rate' | 'only_failed', value: unknown) {
+  if (!debugConfig.value) return
+  const next = { ...debugConfig.value }
+  if (field === 'sampling_rate') {
+    if (typeof value !== 'number' || value < 0 || value > 100) return
+    next.sampling_rate = value
+  } else {
+    next[field] = Boolean(value)
+  }
   setDebugModeLoading(true)
   try {
-    await settingsApi.updateSettings({ debug_mode: Boolean(val) })
-    // backend returns { message } only; reflect the requested state on success
-    debugMode.value = Boolean(val)
+    // PUT 三字段全必填——按本地副本整体提交
+    const res = await debugApi.updateConfig({
+      enabled: next.enabled,
+      sampling_rate: next.sampling_rate,
+      only_failed: next.only_failed,
+    })
+    debugConfig.value = res.data
+    Message.success(t('common.updateSuccess'))
   } catch {
     Message.error(t('common.operationFail'))
+    await loadDebugConfig()
   } finally {
     setDebugModeLoading(false)
   }
@@ -339,7 +390,7 @@ function latencyClass(ms: number): string {
 }
 
 onMounted(() => {
-  loadDebugMode()
+  loadDebugConfig()
   fetchList()
 })
 
@@ -363,6 +414,14 @@ onUnmounted(() => stopTimer())
       font-weight: 400;
       margin-top: 2px;
     }
+  }
+
+  .status-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .debug-mode-label {

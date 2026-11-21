@@ -17,6 +17,20 @@ export interface DebugEntrySummary {
   req_body_len: number
   resp_body_len: number
   upstream_count: number
+  // 链路诊断派生字段（9e15fe4）：HTTP 200 不代表链路无恙
+  retry_count?: number
+  fallback_count?: number
+  last_upstream_error?: string
+}
+
+// GET/PUT /debug/config —— enabled/sampling_rate/only_failed 热更新并持久化；
+// capacity/max_body_size 只读（进程级）
+export interface DebugConfig {
+  enabled: boolean
+  sampling_rate: number
+  only_failed: boolean
+  capacity: number
+  max_body_size: number
 }
 
 // GET /debug/entries/:id — upstream call within the chain
