@@ -288,6 +288,7 @@ async function handleNonStreamSend() {
       ...data.tokens,
       latency_ms: data.latency_ms,
       provider: data.provider,
+      fallback: data.fallback,
     }
   } catch (e) {
     // The error body carries `error` as a message string or as

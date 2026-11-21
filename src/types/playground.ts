@@ -21,6 +21,26 @@ export interface PlaygroundUsage {
   output: number
   latency_ms?: number
   provider?: string
+  /** 容灾链执行记录（count>0 = 本次请求发生了路由切换） */
+  fallback?: PlaygroundFallback
+}
+
+/** 容灾链单次尝试（服务端 FallbackEngine 执行记录） */
+export interface PlaygroundFallbackAttempt {
+  provider: string
+  model: string
+  success: boolean
+  skipped?: boolean
+  latency_ms?: number
+  error_type?: string
+  error?: string
+  upstream_status?: number
+  persistent?: boolean
+}
+
+export interface PlaygroundFallback {
+  count: number
+  attempts: PlaygroundFallbackAttempt[]
 }
 
 /** Non-streaming Playground response envelope */
@@ -30,6 +50,8 @@ export interface PlaygroundResponse {
   provider: string
   tokens: PlaygroundUsage
   latency_ms: number
+  /** 容灾链执行记录（与 usage 事件同构） */
+  fallback?: PlaygroundFallback
 }
 
 /** SSE stream result accumulated by the composable */

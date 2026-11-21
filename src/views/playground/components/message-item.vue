@@ -59,6 +59,47 @@
           <icon-storage style="font-size: 12px" />
           {{ usage.provider }}
         </span>
+        <!-- 容灾链：count>0 = 本次请求发生了路由切换，展开可见逐行尝试 -->
+        <a-popover v-if="usage.fallback && usage.fallback.count > 0" position="top">
+          <span class="usage-tag fallback-tag">
+            <icon-exclamation-circle style="font-size: 12px" />
+            {{ t('playground.failoverSwitches', { n: usage.fallback.count }) }}
+          </span>
+          <template #content>
+            <div class="fallback-panel">
+              <div class="fallback-title">{{ t('playground.failoverTitle') }}</div>
+              <table class="fallback-table">
+                <thead>
+                  <tr>
+                    <th>{{ t('playground.failoverProvider') }}</th>
+                    <th>{{ t('playground.failoverModel') }}</th>
+                    <th>{{ t('playground.failoverStatus') }}</th>
+                    <th>{{ t('playground.failoverLatency') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(a, i) in usage.fallback.attempts" :key="i">
+                    <td>{{ a.provider }}</td>
+                    <td>{{ a.model }}</td>
+                    <td>
+                      <span v-if="a.success" class="fb-ok">
+                        {{ t('playground.failoverSuccess') }}
+                      </span>
+                      <span v-else-if="a.skipped" class="fb-skip">
+                        {{ t('playground.failoverSkipped') }}
+                      </span>
+                      <span v-else class="fb-fail">
+                        {{ t('playground.failoverFailed') }}
+                        <span v-if="a.error_type">({{ a.error_type }})</span>
+                      </span>
+                    </td>
+                    <td>{{ a.latency_ms != null ? `${a.latency_ms}ms` : '-' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </a-popover>
       </div>
     </div>
   </div>
@@ -71,11 +112,17 @@ import { Message } from '@arco-design/web-vue'
 import { copyToClipboard } from '@/utils/clipboard'
 import { renderMarkdown } from '@/utils/render-markdown'
 import { splitThinking } from '@/utils/parse-thinking'
-import type { PlaygroundMessage } from '@/types'
+import type { PlaygroundFallback, PlaygroundMessage } from '@/types'
 
 const props = defineProps<{
   message: PlaygroundMessage
-  usage?: { input: number; output: number; latency_ms?: number; provider?: string }
+  usage?: {
+    input: number
+    output: number
+    latency_ms?: number
+    provider?: string
+    fallback?: PlaygroundFallback
+  }
   streaming?: boolean
 }>()
 
@@ -319,6 +366,44 @@ function onCodeClick(e: MouseEvent) {
   border-top: 1px solid var(--color-border-1);
   max-height: 300px;
   overflow-y: auto;
+}
+
+.fallback-tag {
+  color: rgb(var(--orange-6));
+  background: rgba(var(--orange-1), 0.6);
+}
+
+.fallback-panel {
+  max-width: 420px;
+
+  .fallback-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .fallback-table {
+    font-size: 12px;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 3px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--color-fill-2);
+    }
+
+    .fb-ok {
+      color: rgb(var(--green-6));
+    }
+
+    .fb-skip {
+      color: var(--color-text-3);
+    }
+
+    .fb-fail {
+      color: rgb(var(--red-6));
+    }
+  }
 }
 
 .message-usage {
