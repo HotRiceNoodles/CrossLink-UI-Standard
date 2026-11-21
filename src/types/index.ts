@@ -278,6 +278,22 @@ export interface KeyUsageSummary {
   month_cost: number
 }
 
+// GET/PUT /user/profile — 个人中心自助资料（display_name/email 自助修改）
+export interface UserProfile {
+  id: number
+  username: string
+  display_name: string
+  role_name: string
+  email?: string
+  created_at: string | null
+  last_login_at: string | null
+}
+
+export interface UserProfileUpdateRequest {
+  display_name?: string
+  email?: string
+}
+
 // Usage
 // NOTE: the backend `/usage/stats` handler returns far more fields than the
 // dashboard previously modeled. All extended fields are optional so partial

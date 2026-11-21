@@ -41,6 +41,7 @@
         :menu-collapse="menuCollapse"
         :current-locale="currentLocale"
         @language-change="onLanguageChange"
+        @profile="profileVisible = true"
         @change-password="passwordVisible = true"
         @logout="handleLogout"
       />
@@ -57,6 +58,7 @@
     </div>
 
     <change-password-modal v-model:visible="passwordVisible" />
+    <profile-modal v-model:visible="profileVisible" />
 
     <!-- 系统初始设置向导：后端 setup_needed 时触发，或经 'reopen-system-setup' 事件重开 -->
     <system-setup-wizard v-model:visible="showSetup" />
@@ -76,6 +78,7 @@ import { useAppStore, useUserStore } from '@/store'
 import { useMenuVisibility } from '@/hooks/menu-visibility'
 import { changeLanguage, getCurrentLocale } from '@/locale'
 import ChangePasswordModal from './components/change-password-modal.vue'
+import ProfileModal from './components/profile-modal.vue'
 import OnboardingWizard from '@/components/onboarding-wizard.vue'
 import SystemSetupWizard from '@/components/system-setup-wizard.vue'
 import { authApi } from '@/api/auth'
@@ -138,6 +141,7 @@ function reopenOnboarding() {
 const menuCollapse = computed(() => appStore.menuCollapse)
 const device = computed(() => appStore.device)
 const passwordVisible = ref(false)
+const profileVisible = ref(false)
 
 const breakpoints = useBreakpoints({ mobile: 768 })
 const isMobile = breakpoints.smaller('mobile')

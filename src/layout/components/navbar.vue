@@ -38,6 +38,10 @@
           <template #icon><icon-down /></template>
         </a-button>
         <template #content>
+          <a-doption @click="emit('profile')">
+            <template #icon><icon-user /></template>
+            {{ t('profile.profileTitle') }}
+          </a-doption>
           <a-doption @click="emit('changePassword')">
             <template #icon><icon-lock /></template>
             {{ t('profile.changePassword') }}
@@ -75,6 +79,7 @@ defineProps<{
 
 const emit = defineEmits<{
   languageChange: [lang: string]
+  profile: []
   changePassword: []
   logout: []
 }>()
