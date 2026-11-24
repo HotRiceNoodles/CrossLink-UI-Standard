@@ -1881,6 +1881,8 @@ export default {
     errUrlInvalid: 'API 地址不合法（需 http/https 且不可指向内网）。',
     errInvalid: '提交内容有误，请检查必填项。',
     errSubmit: '提交失败，请稍后重试。',
+    errPermission: '当前角色缺少向导所需权限（如 provider:create / key:create），请联系管理员。',
+    errAuthDegraded: '权限数据暂不可用，请稍后重试。',
   },
 
   systemConfig: {

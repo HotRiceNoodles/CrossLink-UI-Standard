@@ -330,6 +330,9 @@ export function useOnboardingWizard() {
       if (code === 'conflict') submitError.value = t('onboarding.errConflict')
       else if (code === 'provider_url_invalid') submitError.value = t('onboarding.errUrlInvalid')
       else if (code === 'invalid_request') submitError.value = t('onboarding.errInvalid')
+      // 3fb43d2：向导各步现在会做动作位鉴权/权限数据降级检查
+      else if (code === 'permission_denied') submitError.value = t('onboarding.errPermission')
+      else if (code === 'auth_degraded') submitError.value = t('onboarding.errAuthDegraded')
       else submitError.value = e.response?.data?.error || t('onboarding.errSubmit')
     } finally {
       setSubmitting(false)
