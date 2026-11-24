@@ -59,7 +59,7 @@
           {{ t('common.refresh') }}
         </a-button>
       </template>
-      <a-table :data="circuits" :pagination="false" row-key="provider" size="small">
+      <a-table :data="circuits" :pagination="false" :row-key="circuitRowKey" size="small">
         <template #columns>
           <a-table-column title="Provider" data-index="provider" :width="140">
             <template #cell="{ record }">
@@ -607,6 +607,11 @@ async function fetchData() {
 // ---- 运行时熔断（/providers/health）----
 const circuits = ref<ProviderCircuit[]>([])
 const userStore = useUserStore()
+
+// 同一供应商可同时存在账号级 + 多个模型级电路——用组合键避免 row-key 重复
+function circuitRowKey(record: ProviderCircuit): string {
+  return `${record.provider}/${record.model || '_account'}`
+}
 
 async function fetchCircuits() {
   try {
