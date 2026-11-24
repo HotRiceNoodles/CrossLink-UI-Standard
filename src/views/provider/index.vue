@@ -45,6 +45,97 @@
       </a-row>
     </a-card>
 
+    <!-- 运行时熔断（进程内存态快照；仅活跃电路，closed 不返回） -->
+    <a-card v-if="circuits.length" class="general-card circuit-card">
+      <template #title>
+        <a-space>
+          <span>{{ t('provider.circuitTitle') }}</span>
+          <a-badge :count="circuits.length" color="orangered" />
+        </a-space>
+      </template>
+      <template #extra>
+        <a-button size="small" @click="fetchCircuits">
+          <template #icon><icon-refresh /></template>
+          {{ t('common.refresh') }}
+        </a-button>
+      </template>
+      <a-table :data="circuits" :pagination="false" row-key="provider" size="small">
+        <template #columns>
+          <a-table-column title="Provider" data-index="provider" :width="140">
+            <template #cell="{ record }">
+              <span class="mono">{{ record.provider }}</span>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('provider.circuitModel')" :width="160">
+            <template #cell="{ record }">
+              <span v-if="record.model" class="mono">{{ record.model }}</span>
+              <a-tag v-else color="gray" size="small">
+                {{ t('provider.circuitAccountLevel') }}
+              </a-tag>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('provider.circuitState')" :width="100" align="center">
+            <template #cell="{ record }">
+              <a-tag :color="record.state === 'open' ? 'red' : 'orange'" size="small">
+                {{
+                  record.state === 'open'
+                    ? t('provider.circuitOpen')
+                    : t('provider.circuitHalfOpen')
+                }}
+              </a-tag>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('provider.circuitKind')" :width="100" align="center">
+            <template #cell="{ record }">
+              <a-tag :color="record.kind === 'persistent' ? 'red' : 'blue'" size="small">
+                {{
+                  record.kind === 'persistent'
+                    ? t('provider.circuitPersistent')
+                    : t('provider.circuitTransient')
+                }}
+              </a-tag>
+            </template>
+          </a-table-column>
+          <a-table-column :title="t('provider.circuitRecover')" :width="130" align="right">
+            <template #cell="{ record }">
+              <span v-if="record.state === 'half_open'">{{ t('provider.circuitProbing') }}</span>
+              <span v-else>{{ t('provider.circuitSeconds', [record.recover_in_seconds]) }}</span>
+            </template>
+          </a-table-column>
+          <a-table-column
+            :title="t('provider.circuitOpenCount')"
+            data-index="open_count"
+            :width="90"
+            align="right"
+          />
+          <a-table-column :title="t('provider.circuitError')" :width="220" ellipsis tooltip>
+            <template #cell="{ record }">
+              <span v-if="record.error_type" class="mono">
+                {{ record.error_type }}: {{ record.error_message }}
+              </span>
+              <span v-else>-</span>
+            </template>
+          </a-table-column>
+          <a-table-column
+            v-if="userStore.hasPermission('provider:update')"
+            :title="t('common.actions')"
+            :width="110"
+            align="center"
+          >
+            <template #cell="{ record }">
+              <a-popconfirm
+                :content="t('provider.circuitResetConfirm')"
+                type="warning"
+                @ok="resetCircuit(record)"
+              >
+                <a-button type="text" size="small">{{ t('provider.circuitReset') }}</a-button>
+              </a-popconfirm>
+            </template>
+          </a-table-column>
+        </template>
+      </a-table>
+    </a-card>
+
     <!-- 卡片列表 -->
     <a-spin :loading="loading" style="width: 100%">
       <div class="card-list">
@@ -60,6 +151,7 @@
           @edit-provider="openProviderEdit"
           @delete-provider="handleDeleteProvider"
           @add-model="openModelCreate"
+          @remote-models="openRemoteModels"
           @edit-model="openModelEdit"
           @delete-model="handleDeleteModel"
         />
@@ -120,6 +212,52 @@
       @update:visible="modelFormVisible = $event"
       @success="onModelFormSuccess"
     />
+
+    <!-- 远端模型目录导入：拉取上游列表，勾选后批量创建映射 -->
+    <a-modal
+      v-model:visible="remoteVisible"
+      :title="
+        t('provider.remoteTitle', [remoteProvider?.display_name || remoteProvider?.name || ''])
+      "
+      :width="560"
+      :mask-closable="false"
+      :ok-loading="importing"
+      :ok-text="t('provider.remoteImport', [selectedRemoteIds.length])"
+      :disabled-ok="!selectedRemoteIds.length"
+      @ok="importRemoteModels"
+      @cancel="remoteVisible = false"
+    >
+      <a-spin :loading="remoteLoading" style="width: 100%">
+        <a-space direction="vertical" fill style="width: 100%">
+          <a-alert v-if="remoteError" type="error">{{ remoteError }}</a-alert>
+          <a-alert v-else-if="remoteResult && !remoteResult.models_supported" type="info">
+            {{ t('provider.remoteUnsupported') }}
+          </a-alert>
+          <template v-if="remoteModels.length">
+            <a-input
+              v-model="remoteFilter"
+              :placeholder="t('provider.remoteFilterPh')"
+              allow-clear
+            />
+            <div class="remote-model-list">
+              <a-checkbox-group v-model="selectedRemoteIds" direction="vertical">
+                <a-checkbox v-for="m in filteredRemoteModels" :key="m.id" :value="m.id">
+                  <span class="mono">{{ m.id }}</span>
+                  <span v-if="m.owned_by" class="remote-owned">{{ m.owned_by }}</span>
+                </a-checkbox>
+              </a-checkbox-group>
+            </div>
+            <a-space>
+              <a-link @click="selectAllRemote">{{ t('provider.remoteSelectAll') }}</a-link>
+              <a-link @click="selectedRemoteIds = []">{{ t('provider.remoteSelectNone') }}</a-link>
+              <span v-if="remoteResult?.latency_ms" class="remote-latency">
+                {{ remoteResult.latency_ms }}ms
+              </span>
+            </a-space>
+          </template>
+        </a-space>
+      </a-spin>
+    </a-modal>
 
     <!-- 连通性测试模型选择弹窗。
          注意：点确定必须走 on-before-ok 并返回 false——@ok 触发后 v-model 会
@@ -186,10 +324,18 @@ import { Message, Modal } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
 import { providerApi } from '@/api/provider'
+import { useUserStore } from '@/store'
 import type { TestResult } from '@/api/provider'
 import { modelApi } from '@/api/model'
 import { useLoading } from '@/hooks/loading'
-import type { Provider, ProviderModel, Adapter } from '@/types'
+import type {
+  Provider,
+  ProviderModel,
+  Adapter,
+  ProviderCircuit,
+  RemoteModelItem,
+  RemoteModelsResult,
+} from '@/types'
 import ProviderCard from './components/provider-card.vue'
 import EmptyState from '@/components/empty-state.vue'
 import ProviderForm from './components/provider-form.vue'
@@ -458,6 +604,112 @@ async function fetchData() {
   }
 }
 
+// ---- 运行时熔断（/providers/health）----
+const circuits = ref<ProviderCircuit[]>([])
+const userStore = useUserStore()
+
+async function fetchCircuits() {
+  try {
+    const res = await providerApi.circuits()
+    circuits.value = res.data.circuits ?? []
+  } catch {
+    // 熔断视图不可用（如 health tracker 未接线）不阻塞供应商页
+    circuits.value = []
+  }
+}
+
+async function resetCircuit(record: ProviderCircuit) {
+  try {
+    await providerApi.resetCircuit(record.provider, record.model)
+    Message.success(t('common.updateSuccess'))
+    await fetchCircuits()
+  } catch {
+    Message.error(t('common.operationFail'))
+  }
+}
+
+// ---- 远端模型目录导入（/providers/:id/models/remote）----
+const remoteVisible = ref(false)
+const remoteLoading = ref(false)
+const remoteError = ref('')
+const remoteProvider = ref<Provider | null>(null)
+const remoteResult = ref<RemoteModelsResult | null>(null)
+const remoteModels = ref<RemoteModelItem[]>([])
+const remoteFilter = ref('')
+const selectedRemoteIds = ref<string[]>([])
+const importing = ref(false)
+
+const filteredRemoteModels = computed(() => {
+  const kw = remoteFilter.value.trim().toLowerCase()
+  if (!kw) return remoteModels.value
+  return remoteModels.value.filter((m) => m.id.toLowerCase().includes(kw))
+})
+
+function openRemoteModels(provider: Provider) {
+  remoteProvider.value = provider
+  remoteVisible.value = true
+  remoteError.value = ''
+  remoteResult.value = null
+  remoteModels.value = []
+  remoteFilter.value = ''
+  selectedRemoteIds.value = []
+  loadRemoteModels()
+}
+
+async function loadRemoteModels() {
+  if (!remoteProvider.value) return
+  remoteLoading.value = true
+  try {
+    // 失败路径也返回 200 + success:false —— 按字段呈现
+    const res = await providerApi.remoteModels(remoteProvider.value.id)
+    remoteResult.value = res.data
+    if (res.data.success && res.data.models) {
+      remoteModels.value = res.data.models
+      selectedRemoteIds.value = res.data.models.map((m) => m.id)
+    } else if (res.data.error) {
+      remoteError.value = res.data.error
+    }
+  } catch {
+    remoteError.value = t('provider.remoteFetchFail')
+  } finally {
+    remoteLoading.value = false
+  }
+}
+
+function selectAllRemote() {
+  selectedRemoteIds.value = filteredRemoteModels.value.map((m) => m.id)
+}
+
+async function importRemoteModels() {
+  if (!remoteProvider.value || !selectedRemoteIds.value.length) return
+  importing.value = true
+  let created = 0
+  let failed = 0
+  try {
+    for (const id of selectedRemoteIds.value) {
+      try {
+        // 默认参数创建映射：weight=1 / priority=1 / 无定价，后续在模型表里精调
+        await modelApi.create({
+          provider_id: remoteProvider.value.id,
+          model_name: id,
+          provider_model: id,
+        })
+        created++
+      } catch {
+        failed++
+      }
+    }
+    if (created) Message.success(t('provider.remoteImported', [created]))
+    if (failed) Message.warning(t('provider.remoteImportFailed', [failed]))
+    if (created) {
+      remoteVisible.value = false
+      await fetchData()
+    }
+  } finally {
+    importing.value = false
+  }
+}
+
 async function fetchModels() {
   try {
     const res = await modelApi.list()
@@ -469,10 +721,39 @@ async function fetchModels() {
 
 onMounted(() => {
   fetchData()
+  fetchCircuits()
 })
 </script>
 
 <style scoped lang="less">
+.circuit-card {
+  margin-bottom: 16px;
+}
+
+.mono {
+  font-family: var(--cl-font-mono);
+  font-size: 12px;
+}
+
+.remote-model-list {
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px 12px;
+  border: 1px solid var(--color-fill-2);
+  border-radius: 4px;
+
+  .remote-owned {
+    margin-left: 8px;
+    color: var(--color-text-3);
+    font-size: 12px;
+  }
+}
+
+.remote-latency {
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
 .provider-page {
   display: flex;
   flex-direction: column;

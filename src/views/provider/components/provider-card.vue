@@ -37,6 +37,9 @@
             <template #icon><icon-more /></template>
           </a-button>
           <template #content>
+            <a-doption @click="emit('remote-models', provider)">
+              {{ t('provider.remoteModels') }}
+            </a-doption>
             <a-doption @click="emit('delete-provider', provider)">
               <span style="color: rgb(var(--danger-6))">{{ t('provider.deleteProvider') }}</span>
             </a-doption>
@@ -159,6 +162,7 @@ interface Emits {
   (e: 'edit-provider', provider: Provider): void
   (e: 'delete-provider', provider: Provider): void
   (e: 'add-model', provider: Provider): void
+  (e: 'remote-models', provider: Provider): void
   (e: 'edit-model', model: ProviderModel, provider: Provider): void
   (e: 'delete-model', model: ProviderModel): void
 }

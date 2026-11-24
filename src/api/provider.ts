@@ -1,5 +1,11 @@
 import { get, post, put, del } from './interceptor'
-import type { Provider, ProviderCreateRequest, Adapter } from '@/types'
+import type {
+  Provider,
+  ProviderCreateRequest,
+  Adapter,
+  ProviderCircuits,
+  RemoteModelsResult,
+} from '@/types'
 
 export interface TestResult {
   success: boolean
@@ -16,6 +22,18 @@ export const providerApi = {
   delete: (id: number) => del<void>(`/providers/${id}`),
   test: (id: number, model?: string) =>
     post<TestResult>(`/providers/${id}/test`, model ? { model } : undefined),
+
+  // 活跃熔断快照（open/half_open；closed 是常态不返回）
+  circuits: () => get<ProviderCircuits>('/providers/health'),
+  // 管理员强制闭合电路（绕过冷却；下一次真实失败会立刻重新打开）
+  resetCircuit: (provider: string, model: string) =>
+    post<{ reset: boolean; provider: string; model: string }>('/providers/health/reset', {
+      provider,
+      model,
+    }),
+
+  // 保存态供应商的远端模型目录（服务端解析已存密钥；失败也返回 200）
+  remoteModels: (id: number) => post<RemoteModelsResult>(`/providers/${id}/models/remote`),
   adapters: async () => {
     const res = await get<Record<string, unknown>[]>('/adapters')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

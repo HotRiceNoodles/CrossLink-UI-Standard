@@ -120,6 +120,43 @@ export interface ProviderCreateRequest {
   extra_config?: Record<string, unknown>
 }
 
+// 运行时熔断（GET /providers/health 只读快照；closed 不返回——无运营意义）
+export interface ProviderCircuit {
+  provider: string
+  /** "" = 账号级电路（整供应商）；非空 = 模型级 */
+  model: string
+  state: 'open' | 'half_open'
+  kind: 'persistent' | 'transient'
+  open_until?: string | null
+  /** 半开预计自动恢复剩余秒数；half_open = 0（已可被试探） */
+  recover_in_seconds: number
+  open_count: number
+  error_type?: string
+  error_message?: string
+}
+
+export interface ProviderCircuits {
+  /** 进程时钟，多实例下供无偏倒计时 */
+  server_now: string
+  circuits: ProviderCircuit[]
+}
+
+// POST /providers/:id/models/remote — 保存态供应商的远端目录枚举
+// （失败路径也返回 200 + success:false，需按字段判断）
+export interface RemoteModelsResult {
+  success: boolean
+  /** false = 适配器无目录端点（如 azure），回落手动映射 */
+  models_supported: boolean
+  latency_ms?: number
+  error?: string
+  models?: RemoteModelItem[]
+}
+
+export interface RemoteModelItem {
+  id: string
+  owned_by?: string
+}
+
 // Model
 export interface ProviderModel {
   id: number
