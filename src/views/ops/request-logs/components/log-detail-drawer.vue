@@ -366,6 +366,15 @@
                 <a-tag v-else color="gray" size="small">{{ t('common.no') }}</a-tag>
               </span>
             </div>
+            <div v-if="viewLog.cache_creation_tokens" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.cacheCreation') }}</span>
+              <span class="detail-value">
+                {{ viewLog.cache_creation_tokens }}
+                <a-tooltip :content="t('logDetail.cacheCreationTip')">
+                  <icon-info-circle style="font-size: 12px; color: var(--color-text-4)" />
+                </a-tooltip>
+              </span>
+            </div>
           </a-card>
 
           <!-- 调用尝试（fallback 时间线；null = 干净单次成功，整卡隐藏） -->

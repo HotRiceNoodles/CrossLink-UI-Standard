@@ -574,6 +574,8 @@ export interface UsageLog {
   /** 部分覆盖标志：内容超过大小上限被截断后检查，并非干净通过。 */
   guardrail_truncated?: boolean
   cache_hit: boolean
+  /** Anthropic prompt-cache 写入 token（1.25× 输入价计费、已折入成本，单列作可观测） */
+  cache_creation_tokens?: number
   agent_type?: string
   security_events?: Record<string, unknown>[]
   // 内容 — 仅 GET /usage/:id 详情返回（列表已移除）；null = 内容日志未开启
