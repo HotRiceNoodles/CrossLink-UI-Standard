@@ -31,6 +31,9 @@ export const guardrailApi = {
   rollback: (id: number, data: GuardrailRollbackRequest) =>
     post<GuardrailRule>(`/guardrails/${id}/rollback`, data),
 
+  // 复制规则：服务端快照重建（含未脱敏配置），副本默认禁用、版本从 1 起
+  copy: (id: number, name: string) => post<GuardrailRule>(`/guardrails/${id}/copy`, { name }),
+
   // 规则测试
   test: (id: number, text: string) => post<GuardrailTestResult>(`/guardrails/${id}/test`, { text }),
 

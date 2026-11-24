@@ -36,6 +36,9 @@ export interface GuardrailRule {
   severity: GuardrailSeverity
   action: GuardrailAction
   model_filter?: string
+  /** Key 作用域：all = 全部 Key；api_keys = 仅选中的 Key（服务端校验同组织可管理） */
+  scope_mode?: GuardrailScopeMode
+  api_key_ids?: number[]
   /** 版本化写路径维护的单调递增版本号；并发修改会返回 409 version_conflict。 */
   version: number
   /** 流式能力标注（后端按引擎类型与配置静态推导，只读；旧后端不返回）。 */
@@ -85,6 +88,8 @@ export interface GuardrailRollbackRequest {
   to_version: number
 }
 
+export type GuardrailScopeMode = 'all' | 'api_keys'
+
 // 创建规则请求
 export interface GuardrailCreateRequest {
   name: string
@@ -95,6 +100,8 @@ export interface GuardrailCreateRequest {
   severity?: GuardrailSeverity
   action?: GuardrailAction
   model_filter?: string
+  scope_mode?: GuardrailScopeMode
+  api_key_ids?: number[]
 }
 
 // 护栏全局配置

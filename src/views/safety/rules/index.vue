@@ -342,7 +342,7 @@
             </template>
           </a-table-column>
 
-          <a-table-column :title="t('common.actions')" :width="250" fixed="right">
+          <a-table-column :title="t('common.actions')" :width="310" fixed="right">
             <template #cell="{ record }">
               <a-space :size="4">
                 <a-button type="text" size="small" @click="handleEdit(record)">
@@ -350,6 +350,9 @@
                 </a-button>
                 <a-button type="text" size="small" @click="handleTest(record)">
                   {{ t('safety.rules.testName') }}
+                </a-button>
+                <a-button type="text" size="small" @click="openCopyModal(record)">
+                  {{ t('safety.rules.copy') }}
                 </a-button>
                 <a-button type="text" size="small" @click="handleHistory(record)">
                   {{ t('safety.rules.history') }}
@@ -446,6 +449,37 @@
           />
         </a-form-item>
 
+        <a-form-item field="scope_mode" :label="t('safety.rules.formScope')">
+          <a-radio-group v-model="formData.scope_mode">
+            <a-radio value="all">{{ t('safety.rules.scopeAll') }}</a-radio>
+            <a-radio value="api_keys">{{ t('safety.rules.scopeKeys') }}</a-radio>
+          </a-radio-group>
+        </a-form-item>
+
+        <a-form-item
+          v-if="formData.scope_mode === 'api_keys'"
+          field="api_key_ids"
+          :label="t('safety.rules.formScopeKeys')"
+          :rules="[{ required: true, message: t('safety.rules.scopeKeysRequired') }]"
+        >
+          <a-select
+            v-model="formData.api_key_ids"
+            :placeholder="t('safety.rules.scopeKeysPlaceholder')"
+            multiple
+            allow-clear
+            allow-search
+            :loading="keysLoading"
+          >
+            <a-option
+              v-for="k in scopeKeyOptions"
+              :key="k.id"
+              :value="k.id"
+              :label="`${k.name} (${k.key_prefix}…)`"
+            />
+          </a-select>
+          <template #extra>{{ t('safety.rules.scopeKeysTip') }}</template>
+        </a-form-item>
+
         <a-form-item field="model_filter" :label="t('safety.rules.formModelFilter')">
           <a-select
             v-model="modelFilterTags"
@@ -507,6 +541,21 @@
           </a-descriptions>
         </a-card>
       </a-space>
+    </a-modal>
+
+    <!-- Copy modal: server-side snapshot rebuild, copy starts disabled at v1 -->
+    <a-modal
+      v-model:visible="copyVisible"
+      :title="t('safety.rules.copyTitle')"
+      :width="460"
+      :ok-loading="copyLoading"
+      :mask-closable="false"
+      @ok="executeCopy"
+    >
+      <a-form-item :label="t('safety.rules.formName')" required>
+        <a-input v-model="copyName" :max-length="255" :placeholder="t('safety.rules.copyNamePh')" />
+      </a-form-item>
+      <a-alert type="info">{{ t('safety.rules.copyTip') }}</a-alert>
     </a-modal>
 
     <!-- Version History Drawer (append-only snapshots; rollback restores as a NEW version) -->
@@ -598,6 +647,7 @@ import { useI18n } from 'vue-i18n'
 import { Message } from '@arco-design/web-vue'
 import { guardrailApi } from '@/api/safety'
 import { modelApi } from '@/api/model'
+import { keyApi } from '@/api/key'
 import { useCrud } from '@/composables/use-crud'
 import PageCardTitle from '@/components/page-card-title.vue'
 import EmptyState from '@/components/empty-state.vue'
@@ -605,6 +655,7 @@ import { logger } from '@/logger'
 import { useLoading } from '@/hooks/loading'
 import { getDefaultsForEngine } from './engine-schema'
 import type {
+  APIKey,
   GuardrailRule,
   GuardrailRuleVersion,
   GuardrailConfig,
@@ -761,6 +812,8 @@ const {
     severity: 'medium',
     action: 'block',
     model_filter: '',
+    scope_mode: 'all',
+    api_key_ids: [],
   }),
   filterFn: (item, f) => {
     let pass = true
@@ -818,6 +871,52 @@ async function handleToggleEnabled(record: GuardrailRule) {
     } else {
       Message.error(t('common.operationFail'))
     }
+  }
+}
+
+// ---- Key 作用域（a60a274）：api_keys 模式的可选 Key（服务端还会校验可管理性）----
+const scopeKeyOptions = ref<APIKey[]>([])
+const keysLoading = ref(false)
+
+async function fetchScopeKeys() {
+  keysLoading.value = true
+  try {
+    const res = await keyApi.list()
+    scopeKeyOptions.value = res.data
+  } catch {
+    scopeKeyOptions.value = []
+  } finally {
+    keysLoading.value = false
+  }
+}
+
+// ---- 复制规则（服务端快照重建，副本默认禁用）----
+const copyVisible = ref(false)
+const copyLoading = ref(false)
+const copyName = ref('')
+let copySource: GuardrailRule | null = null
+
+function openCopyModal(record: GuardrailRule) {
+  copySource = record
+  copyName.value = `${record.name} ${t('safety.rules.copySuffix')}`
+  copyVisible.value = true
+}
+
+async function executeCopy() {
+  if (!copySource || !copyName.value.trim()) {
+    Message.warning(t('safety.rules.copyNamePh'))
+    return
+  }
+  copyLoading.value = true
+  try {
+    await guardrailApi.copy(copySource.id, copyName.value.trim())
+    Message.success(t('common.createSuccess'))
+    copyVisible.value = false
+    await fetchData()
+  } catch {
+    Message.error(t('common.operationFail'))
+  } finally {
+    copyLoading.value = false
   }
 }
 
@@ -967,6 +1066,7 @@ onMounted(() => {
   fetchData()
   fetchConfig()
   fetchModels()
+  fetchScopeKeys()
 })
 </script>
 
