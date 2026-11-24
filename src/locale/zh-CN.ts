@@ -252,6 +252,7 @@ export default {
     priorityLabel: '优先级',
     maxContext: '最大上下文',
     maxContextPlaceholder: '请输入最大上下文长度',
+    maxContextHint: '上游模型的上下文窗口（token）；留空 = 未知（编辑时留空 = 保持不变）',
     inputPriceLabel: '输入价格',
     outputPriceLabel: '输出价格',
     currencyLabel: '币种',
@@ -1338,6 +1339,9 @@ export default {
     fallbackCount: 'Fallback 次数',
     retryCount: '重试次数',
     cacheHit: '缓存命中',
+    cacheCreation: '缓存写入 Token',
+    cacheCreationTip:
+      'Anthropic prompt-cache 写入 token；按 1.25× 输入价计费，已计入总成本，此处单列作可观测',
     security: '安全与内容',
     guardrailTriggered: 'Guardrail 触发',
     guardrailRule: 'Guardrail 规则',

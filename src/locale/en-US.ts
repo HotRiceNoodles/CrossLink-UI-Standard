@@ -254,6 +254,7 @@ export default {
     priorityLabel: 'Priority',
     maxContext: 'Max Context',
     maxContextPlaceholder: 'Enter max context length',
+    maxContextHint: 'Upstream context window (tokens); empty = unknown (unchanged when editing)',
     inputPriceLabel: 'Input Price',
     outputPriceLabel: 'Output Price',
     currencyLabel: 'Currency',
@@ -926,6 +927,20 @@ export default {
       formAction: 'Action',
       formConfig: 'Engine Config',
       formModelFilter: 'Model Filter',
+      formScope: 'Key scope',
+      scopeAll: 'All keys',
+      scopeKeys: 'Selected keys',
+      formScopeKeys: 'Keys in scope',
+      scopeKeysPlaceholder: 'Pick the API keys this rule applies to',
+      scopeKeysRequired: 'Select at least one key',
+      scopeKeysTip:
+        'Applies only to the selected keys; the server validates they belong to your org and are manageable by you',
+      copy: 'Copy',
+      copyTitle: 'Copy rule',
+      copyNamePh: 'Enter the copy name',
+      copySuffix: 'copy',
+      copyTip:
+        'Full copy from the server snapshot (engine config and scope); the copy starts disabled at version 1.',
       formModelFilterPh: 'Select or type model names',
       formEnabled: 'Enabled',
       filterType: 'Engine Type',
@@ -1363,6 +1378,9 @@ export default {
     fallbackCount: 'Fallback Count',
     retryCount: 'Retry Count',
     cacheHit: 'Cache Hit',
+    cacheCreation: 'Cache write tokens',
+    cacheCreationTip:
+      'Anthropic prompt-cache write tokens; billed at 1.25× input price and already folded into cost — listed separately for observability',
     security: 'Security',
     guardrailTriggered: 'Guardrail Triggered',
     guardrailRule: 'Guardrail Rule',
@@ -1904,6 +1922,9 @@ export default {
     errUrlInvalid: 'Invalid API URL (must be http/https and not point to an internal address).',
     errInvalid: 'Some fields are invalid. Check the required items.',
     errSubmit: 'Submit failed. Please retry later.',
+    errPermission:
+      'Your role lacks a permission the wizard needs (e.g. provider:create / key:create). Contact an administrator.',
+    errAuthDegraded: 'Permission data is temporarily unavailable. Retry shortly.',
   },
 
   systemConfig: {

@@ -60,7 +60,7 @@
           <a-form-item field="weight" :label="t('model.weightLabel')">
             <a-input-number
               v-model="formData.weight"
-              :min="1"
+              :min="0"
               :max="100"
               :default-value="1"
               style="width: 100%"
@@ -80,7 +80,18 @@
         </a-grid-item>
       </a-grid>
 
-      <!-- max_context 暂不暴露：后端 Create/Update 均未接收该字段，运行时恒为 null -->
+      <!-- max_context（bdbfe11 起后端消费）：上游上下文窗口，供上下文分析与预算估算；
+           正整数；留空 = 未知（编辑时留空 = 保持不变） -->
+      <a-form-item field="max_context" :label="t('model.maxContext')">
+        <a-input-number
+          v-model="formData.max_context"
+          :min="1"
+          :placeholder="t('model.maxContextPlaceholder')"
+          allow-clear
+          style="width: 100%"
+        />
+        <template #extra>{{ t('model.maxContextHint') }}</template>
+      </a-form-item>
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
@@ -203,6 +214,7 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
     provider_model: '',
     weight: 1,
     priority: 1,
+    max_context: undefined,
     input_price: undefined,
     output_price: undefined,
     currency: 'CNY',
@@ -230,6 +242,7 @@ watch(
         provider_model: props.model.provider_model,
         weight: props.model.weight,
         priority: props.model.priority,
+        max_context: props.model.max_context ?? undefined,
         input_price: props.model.input_price,
         output_price: props.model.output_price,
         currency: props.model.currency,
@@ -269,6 +282,8 @@ async function handleSubmit() {
       provider_model: formData.provider_model,
       weight: formData.weight,
       priority: formData.priority,
+      // null = 未设置（创建）/ 保持不变（更新）
+      max_context: formData.max_context ?? null,
       input_price: formData.input_price ?? null,
       output_price: formData.output_price ?? null,
       currency: formData.currency,

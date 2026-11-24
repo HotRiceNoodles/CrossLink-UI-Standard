@@ -254,6 +254,7 @@ export default {
     priorityLabel: 'الأولوية',
     maxContext: 'أقصى سياق',
     maxContextPlaceholder: 'أدخل أقصى طول للسياق',
+    maxContextHint: 'نافذة سياق النموذج الخارجي (token)؛ فارغ = غير معروف (دون تغيير عند التحرير)',
     inputPriceLabel: 'سعر الإدخال',
     outputPriceLabel: 'سعر الإخراج',
     currencyLabel: 'العملة',
@@ -1357,6 +1358,9 @@ export default {
     fallbackCount: 'عدد مرات التراجع',
     retryCount: 'عدد مرات إعادة المحاولة',
     cacheHit: 'إصابة التخزين المؤقت',
+    cacheCreation: 'رموز كتابة التخزين المؤقت',
+    cacheCreationTip:
+      'رموز كتابة Anthropic prompt-cache؛ تُحسب بسعر الإدخال × 1.25 ومضمّنة في التكلفة — تُعرض منفصلة للرصد',
     security: 'الأمان',
     guardrailTriggered: 'تم تفعيل الحماية',
     guardrailRule: 'قاعدة الحماية',
@@ -1891,6 +1895,9 @@ export default {
     errUrlInvalid: 'عنوان API غير صالح (يجب أن يكون http/https وألا يشير إلى عنوان داخلي).',
     errInvalid: 'بعض الحقول غير صالحة. تحقق من العناصر المطلوبة.',
     errSubmit: 'فشل الإرسال. يرجى إعادة المحاولة لاحقًا.',
+    errPermission:
+      'دورك يفتقر إلى صلاحية يحتاجها المعالج (مثل provider:create / key:create). تواصل مع المسؤول.',
+    errAuthDegraded: 'بيانات الصلاحيات غير متاحة مؤقتًا. أعد المحاولة بعد قليل.',
   },
 
   systemConfig: {
