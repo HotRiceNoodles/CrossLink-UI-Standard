@@ -1553,6 +1553,13 @@ export default {
     licenseStatus: '授权状态',
     licenseExpiry: '授权到期时间',
     connectionStatus: '连接状态',
+    capabilitiesTitle: '网关协议能力',
+    capabilitiesUnavailable: '协议能力信息暂不可用',
+    capBetaTokens: 'Beta Tokens',
+    capDialectParams: '方言扩展参数',
+    capEffortVersions: 'Effort 版本（Anthropic）',
+    capabilitiesTip:
+      '运行中网关准入的协议面只读镜像（beta 头、请求扩展参数、支持 effort 的 api_versions），与代码级真值同源，永不漂移。',
     database: '数据库',
     cache: '缓存（Redis）',
     featureSettings: '功能设置',

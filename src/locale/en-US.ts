@@ -1588,6 +1588,13 @@ export default {
     licenseStatus: 'License Status',
     licenseExpiry: 'License Expiry',
     connectionStatus: 'Connection Status',
+    capabilitiesTitle: 'Gateway Protocol Capabilities',
+    capabilitiesUnavailable: 'Protocol capability info is unavailable',
+    capBetaTokens: 'Beta tokens',
+    capDialectParams: 'Dialect extension params',
+    capEffortVersions: 'Effort versions (Anthropic)',
+    capabilitiesTip:
+      "A read-only mirror of the RUNNING gateway's admitted protocol surface (beta headers, request extension params, effort-supporting api_versions) — sourced from the code-level tables, so it never drifts.",
     database: 'Database',
     cache: 'Cache (Redis)',
     featureSettings: 'Feature Settings',

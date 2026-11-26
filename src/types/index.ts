@@ -75,6 +75,13 @@ export interface SwitchOrgResponse {
   org_display_name: string
 }
 
+// GET /gateway/capabilities — 运行中网关准入的协议面（代码级表只读镜像）
+export interface GatewayCapabilities {
+  beta_tokens: string[]
+  dialect_params: string[]
+  anthropic_effort_versions: string[]
+}
+
 // Provider
 export interface Adapter {
   type: string

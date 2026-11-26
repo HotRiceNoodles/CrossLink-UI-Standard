@@ -1580,6 +1580,13 @@ export default {
     licenseStatus: 'حالة الترخيص',
     licenseExpiry: 'انتهاء الترخيص',
     connectionStatus: 'حالة الاتصال',
+    capabilitiesTitle: 'قدرات بروتوكول البوابة',
+    capabilitiesUnavailable: 'معلومات قدرات البروتوكول غير متاحة',
+    capBetaTokens: 'رموز Beta',
+    capDialectParams: 'معاملات الامتداد اللهجية',
+    capEffortVersions: 'إصدارات Effort (Anthropic)',
+    capabilitiesTip:
+      'مرآة قراءة فقط لسطح البروتوكول الذي تسمح به البوابة العاملة (ترويسات beta، معاملات الامتداد، إصدارات api التي تدعم effort) — مصدرها جداول الكود فلا تنحرف أبدًا.',
     database: 'قاعدة البيانات',
     cache: 'التخزين المؤقت (Redis)',
     featureSettings: 'إعدادات الميزات',

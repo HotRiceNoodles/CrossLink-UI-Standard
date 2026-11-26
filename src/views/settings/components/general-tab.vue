@@ -86,6 +86,53 @@
         </a-grid>
       </a-card>
 
+      <!-- 网关协议能力：运行中网关准入的 beta tokens / 方言扩展参数 / effort 版本 -->
+      <a-card class="general-card" :title="t('settings.capabilitiesTitle')">
+        <a-spin :loading="capLoading" style="width: 100%">
+          <a-alert v-if="capError" type="warning">
+            {{ t('settings.capabilitiesUnavailable') }}
+          </a-alert>
+          <template v-else-if="capabilities">
+            <div class="cap-row">
+              <span class="cap-label">{{ t('settings.capBetaTokens') }}</span>
+              <div class="cap-values">
+                <a-tag v-for="b in capabilities.beta_tokens" :key="b" class="mono" size="small">
+                  {{ b }}
+                </a-tag>
+                <span v-if="!capabilities.beta_tokens.length" class="cap-empty">-</span>
+              </div>
+            </div>
+            <div class="cap-row">
+              <span class="cap-label">{{ t('settings.capDialectParams') }}</span>
+              <div class="cap-values">
+                <a-tag v-for="p in capabilities.dialect_params" :key="p" class="mono" size="small">
+                  {{ p }}
+                </a-tag>
+                <span v-if="!capabilities.dialect_params.length" class="cap-empty">-</span>
+              </div>
+            </div>
+            <div class="cap-row">
+              <span class="cap-label">{{ t('settings.capEffortVersions') }}</span>
+              <div class="cap-values">
+                <a-tag
+                  v-for="v in capabilities.anthropic_effort_versions"
+                  :key="v"
+                  class="mono"
+                  size="small"
+                  color="arcoblue"
+                >
+                  {{ v }}
+                </a-tag>
+                <span v-if="!capabilities.anthropic_effort_versions.length" class="cap-empty">
+                  -
+                </span>
+              </div>
+            </div>
+            <div class="cap-tip">{{ t('settings.capabilitiesTip') }}</div>
+          </template>
+        </a-spin>
+      </a-card>
+
       <!-- Feature Settings -->
       <a-card class="general-card" :title="t('settings.featureSettings')">
         <div class="feature-item">
@@ -136,7 +183,7 @@ import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
 import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 import { SETUP_REOPEN_EVENT } from '@/composables/use-system-setup'
-import type { SystemInfo } from '@/types'
+import type { GatewayCapabilities, SystemInfo } from '@/types'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -179,7 +226,26 @@ async function handleLogContentChange(value: boolean | number | string) {
   }
 }
 
+// ---- 网关协议能力（只读镜像，永不漂移）----
+const capabilities = ref<GatewayCapabilities | null>(null)
+const capLoading = ref(false)
+const capError = ref(false)
+
+async function fetchCapabilities() {
+  capLoading.value = true
+  capError.value = false
+  try {
+    const res = await systemApi.gatewayCapabilities()
+    capabilities.value = res.data
+  } catch {
+    capError.value = true
+  } finally {
+    capLoading.value = false
+  }
+}
+
 onMounted(async () => {
+  fetchCapabilities()
   setLoading(true)
   try {
     const [sysRes, contentLogRes, versionRes] = await Promise.allSettled([
@@ -205,6 +271,40 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="less">
+.cap-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+
+  .cap-label {
+    width: 140px;
+    flex-shrink: 0;
+    color: var(--color-text-2);
+    font-size: 13px;
+    padding-top: 2px;
+  }
+
+  .cap-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .cap-empty {
+    color: var(--color-text-4);
+  }
+
+  .mono {
+    font-family: var(--cl-font-mono);
+  }
+}
+
+.cap-tip {
+  margin-top: 4px;
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
 .page-content {
   display: flex;
   flex-direction: column;
