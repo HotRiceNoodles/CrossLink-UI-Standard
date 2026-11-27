@@ -1393,6 +1393,9 @@ export default {
     cacheHit: '缓存命中',
     serviceTier: '服务档位',
     toolsUsed: '使用的工具',
+    toolsRequested: '请求的工具',
+    toolsExecuted: '执行的工具',
+    toolsCost: '工具计价',
     cacheCreation: '缓存写入 Token',
     cacheCreationTip:
       'Anthropic prompt-cache 写入 token；按 1.25× 输入价计费，已计入总成本，此处单列作可观测',

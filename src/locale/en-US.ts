@@ -1424,6 +1424,9 @@ export default {
     cacheHit: 'Cache Hit',
     serviceTier: 'Service tier',
     toolsUsed: 'Tools used',
+    toolsRequested: 'Requested',
+    toolsExecuted: 'Executed',
+    toolsCost: 'Tool pricing',
     cacheCreation: 'Cache write tokens',
     cacheCreationTip:
       'Anthropic prompt-cache write tokens; billed at 1.25× input price and already folded into cost — listed separately for observability',

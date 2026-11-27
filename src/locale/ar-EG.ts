@@ -1416,6 +1416,9 @@ export default {
     cacheHit: 'إصابة التخزين المؤقت',
     serviceTier: 'مستوى الخدمة',
     toolsUsed: 'الأدوات المستخدمة',
+    toolsRequested: 'المطلوبة',
+    toolsExecuted: 'المنفَّذة',
+    toolsCost: 'تسعير الأدوات',
     cacheCreation: 'رموز كتابة التخزين المؤقت',
     cacheCreationTip:
       'رموز كتابة Anthropic prompt-cache؛ تُحسب بسعر الإدخال × 1.25 ومضمّنة في التكلفة — تُعرض منفصلة للرصد',

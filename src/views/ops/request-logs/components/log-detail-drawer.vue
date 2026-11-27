@@ -372,12 +372,52 @@
                 <a-tag color="purple" size="small">{{ viewLog.service_tier }}</a-tag>
               </span>
             </div>
-            <div v-if="viewLog.tools_used?.length" class="detail-row">
+            <div v-if="hasToolsUsed" class="detail-row">
               <span class="detail-label">{{ t('logDetail.toolsUsed') }}</span>
               <span class="detail-value">
-                <a-tag v-for="tool in viewLog.tools_used" :key="tool" size="small" class="tool-tag">
-                  {{ tool }}
-                </a-tag>
+                <!-- 社区版：字符串数组 -->
+                <template v-if="Array.isArray(viewLog.tools_used)">
+                  <a-tag
+                    v-for="tool in viewLog.tools_used"
+                    :key="tool"
+                    size="small"
+                    class="tool-tag"
+                  >
+                    {{ tool }}
+                  </a-tag>
+                </template>
+                <!-- 完整版：{requested, executed, cost} 审计对象 -->
+                <template v-else-if="viewLog.tools_used">
+                  <div v-if="viewLog.tools_used.requested?.length" class="tools-line">
+                    <span class="tools-label">{{ t('logDetail.toolsRequested') }}:</span>
+                    <a-tag v-for="tool in viewLog.tools_used.requested" :key="tool" size="small">
+                      {{ tool }}
+                    </a-tag>
+                  </div>
+                  <div v-if="viewLog.tools_used.executed?.length" class="tools-line">
+                    <span class="tools-label">{{ t('logDetail.toolsExecuted') }}:</span>
+                    <a-tag
+                      v-for="tool in viewLog.tools_used.executed"
+                      :key="tool"
+                      size="small"
+                      color="green"
+                    >
+                      {{ tool }}
+                    </a-tag>
+                  </div>
+                  <!-- 工具计价：每工具单价 -->
+                  <div v-if="toolCostEntries.length" class="tools-line">
+                    <span class="tools-label">{{ t('logDetail.toolsCost') }}:</span>
+                    <a-tag
+                      v-for="[tool, cost] in toolCostEntries"
+                      :key="tool"
+                      size="small"
+                      color="arcoblue"
+                    >
+                      {{ tool }} × {{ cost }}
+                    </a-tag>
+                  </div>
+                </template>
               </span>
             </div>
             <div v-if="viewLog.cache_creation_tokens" class="detail-row">
@@ -506,7 +546,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import { Message } from '@arco-design/web-vue'
-import type { UsageLog } from '@/types'
+import type { ToolsUsedAudit, UsageLog } from '@/types'
 import { getCurrencySymbol } from '@/utils/currency'
 import { copyToClipboard } from '@/utils/clipboard'
 import { formatLatency, formatTokensLocale, statusClass } from '@/utils/format'
@@ -610,6 +650,20 @@ const tokenBuckets = computed(() => [
   { label: t('logDetail.tokenTool'), value: viewLog.value?.tool_tokens },
   { label: t('logDetail.tokenToolOutput'), value: viewLog.value?.tool_output_tokens },
 ])
+// 工具审计：社区版字符串数组 / 完整版 {requested, executed, cost} 对象
+const hasToolsUsed = computed(() => {
+  const v = viewLog.value?.tools_used
+  if (!v) return false
+  if (Array.isArray(v)) return v.length > 0
+  return Boolean(v.requested?.length || v.executed?.length || v.cost)
+})
+
+const toolCostEntries = computed<[string, number][]>(() => {
+  const v = viewLog.value?.tools_used as ToolsUsedAudit | string[] | null | undefined
+  if (!v || Array.isArray(v)) return []
+  return Object.entries(v.cost ?? {}).filter(([, c]) => typeof c === 'number')
+})
+
 const hasTokenAnalysis = computed(() => {
   const log = viewLog.value
   if (!log) return false
@@ -756,6 +810,22 @@ function formatTime(val: string) {
 </script>
 
 <style scoped lang="less">
+.tools-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  & + .tools-line {
+    margin-top: 4px;
+  }
+
+  .tools-label {
+    color: var(--color-text-3);
+    font-size: 12px;
+  }
+}
+
 // Drawer header
 .drawer-title-row {
   display: flex;

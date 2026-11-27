@@ -75,6 +75,13 @@ export interface SwitchOrgResponse {
   org_display_name: string
 }
 
+// 工具审计对象（完整版后端形态；cost = 每工具单价）
+export interface ToolsUsedAudit {
+  requested?: string[]
+  executed?: string[]
+  cost?: Record<string, number>
+}
+
 // GET /gateway/capabilities — 运行中网关准入的协议面（代码级表只读镜像）
 export interface GatewayCapabilities {
   beta_tokens: string[]
@@ -622,8 +629,11 @@ export interface UsageLog {
   cache_creation_tokens?: number
   /** /v1/responses 直通请求的有效服务档位；空 = 默认档 / 非 responses 请求 */
   service_tier?: string
-  /** responses 请求实际使用的工具审计数组（工具名） */
-  tools_used?: string[] | null
+  /**
+   * responses 请求的工具审计。完整版后端为对象 {requested, executed, cost}
+   * （仅类型不落载荷，cost 为每工具计价）；社区版为字符串数组。两种形态都兼容。
+   */
+  tools_used?: string[] | ToolsUsedAudit | null
   agent_type?: string
   security_events?: Record<string, unknown>[]
   // 内容 — 仅 GET /usage/:id 详情返回（列表已移除）；null = 内容日志未开启
