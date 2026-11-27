@@ -288,7 +288,7 @@ export default {
     routingStrategyPlaceholder: '请选择路由策略',
     supportsResponsesLabel: '上游原生支持 /v1/responses',
     supportsResponsesHelper:
-      '开启后，/v1/responses 请求将原样透传至上游（适用于 OpenAI、Azure 等）；关闭时，请求会被翻译为 Chat Completions。',
+      '开启后，/v1/responses 请求将原样透传至上游（适用于 OpenAI、Azure 等）；关闭时，请求会被翻译为 Chat Completions。仅支持该协议的供应商可开启，否则保存会被拒绝。',
     statusLabel: '状态',
     statusPlaceholder: '请选择状态',
     providerPlaceholder: '请选择供应商',
@@ -1378,6 +1378,8 @@ export default {
     fallbackCount: 'Fallback 次数',
     retryCount: '重试次数',
     cacheHit: '缓存命中',
+    serviceTier: '服务档位',
+    toolsUsed: '使用的工具',
     cacheCreation: '缓存写入 Token',
     cacheCreationTip:
       'Anthropic prompt-cache 写入 token；按 1.25× 输入价计费，已计入总成本，此处单列作可观测',

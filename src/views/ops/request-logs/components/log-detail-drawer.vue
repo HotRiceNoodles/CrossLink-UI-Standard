@@ -366,6 +366,20 @@
                 <a-tag v-else color="gray" size="small">{{ t('common.no') }}</a-tag>
               </span>
             </div>
+            <div v-if="viewLog.service_tier" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.serviceTier') }}</span>
+              <span class="detail-value">
+                <a-tag color="purple" size="small">{{ viewLog.service_tier }}</a-tag>
+              </span>
+            </div>
+            <div v-if="viewLog.tools_used?.length" class="detail-row">
+              <span class="detail-label">{{ t('logDetail.toolsUsed') }}</span>
+              <span class="detail-value">
+                <a-tag v-for="tool in viewLog.tools_used" :key="tool" size="small" class="tool-tag">
+                  {{ tool }}
+                </a-tag>
+              </span>
+            </div>
             <div v-if="viewLog.cache_creation_tokens" class="detail-row">
               <span class="detail-label">{{ t('logDetail.cacheCreation') }}</span>
               <span class="detail-value">

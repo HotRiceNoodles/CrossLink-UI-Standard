@@ -292,7 +292,7 @@ export default {
     routingStrategyPlaceholder: 'اختر استراتيجية التوجيه',
     supportsResponsesLabel: 'يدعم المنبع /v1/responses بشكل أصلي',
     supportsResponsesHelper:
-      'عند التفعيل، تُمرَّر طلبات /v1/responses إلى المنبع كما هي (مثل OpenAI وAzure). عند التعطيل، تُترجَم الطلبات إلى Chat Completions.',
+      'عند التفعيل، تُمرَّر طلبات /v1/responses إلى المنبع كما هي (مثل OpenAI وAzure). عند التعطيل، تُترجَم الطلبات إلى Chat Completions. يقبل المزوّدون القادرون على البروتوكول هذا الخيار فقط — وإلا يُرفض الحفظ.',
     statusLabel: 'الحالة',
     statusPlaceholder: 'اختر الحالة',
     providerPlaceholder: 'اختر مزوّدًا',
@@ -1400,6 +1400,8 @@ export default {
     fallbackCount: 'عدد مرات التراجع',
     retryCount: 'عدد مرات إعادة المحاولة',
     cacheHit: 'إصابة التخزين المؤقت',
+    serviceTier: 'مستوى الخدمة',
+    toolsUsed: 'الأدوات المستخدمة',
     cacheCreation: 'رموز كتابة التخزين المؤقت',
     cacheCreationTip:
       'رموز كتابة Anthropic prompt-cache؛ تُحسب بسعر الإدخال × 1.25 ومضمّنة في التكلفة — تُعرض منفصلة للرصد',

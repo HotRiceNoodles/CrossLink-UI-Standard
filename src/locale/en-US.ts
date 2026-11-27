@@ -292,7 +292,7 @@ export default {
     routingStrategyPlaceholder: 'Select routing strategy',
     supportsResponsesLabel: 'Upstream natively supports /v1/responses',
     supportsResponsesHelper:
-      'When enabled, /v1/responses requests are passed through to the upstream verbatim (e.g. OpenAI, Azure). When disabled, requests are translated to Chat Completions.',
+      'When enabled, /v1/responses requests are passed through to the upstream verbatim (e.g. OpenAI, Azure). When disabled, requests are translated to Chat Completions. Only providers that can serve the protocol accept the flag — saves are rejected otherwise.',
     statusLabel: 'Status',
     statusPlaceholder: 'Select status',
     providerPlaceholder: 'Select provider',
@@ -1407,6 +1407,8 @@ export default {
     fallbackCount: 'Fallback Count',
     retryCount: 'Retry Count',
     cacheHit: 'Cache Hit',
+    serviceTier: 'Service tier',
+    toolsUsed: 'Tools used',
     cacheCreation: 'Cache write tokens',
     cacheCreationTip:
       'Anthropic prompt-cache write tokens; billed at 1.25× input price and already folded into cost — listed separately for observability',

@@ -304,8 +304,11 @@ async function handleSubmit() {
 
     emit('update:visible', false)
     emit('success')
-  } catch {
-    Message.error(t('common.operationFail'))
+  } catch (err: unknown) {
+    // 写侧能力门控（e79f5df）：不支持 3A 直通的 adapter 上开 supports_responses
+    // 会被 400 model_extension_invalid 拒绝——透出后端原因而非通用文案
+    const e = err as { response?: { data?: { error?: string } } }
+    Message.error(e.response?.data?.error || t('common.operationFail'))
   } finally {
     setSubmitLoading(false)
   }

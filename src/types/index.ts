@@ -620,6 +620,10 @@ export interface UsageLog {
   cache_hit: boolean
   /** Anthropic prompt-cache 写入 token（1.25× 输入价计费、已折入成本，单列作可观测） */
   cache_creation_tokens?: number
+  /** /v1/responses 直通请求的有效服务档位；空 = 默认档 / 非 responses 请求 */
+  service_tier?: string
+  /** responses 请求实际使用的工具审计数组（工具名） */
+  tools_used?: string[] | null
   agent_type?: string
   security_events?: Record<string, unknown>[]
   // 内容 — 仅 GET /usage/:id 详情返回（列表已移除）；null = 内容日志未开启
