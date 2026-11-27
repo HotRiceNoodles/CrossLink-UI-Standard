@@ -151,6 +151,117 @@
         <span class="supports-responses-helper">{{ t('model.supportsResponsesHelper') }}</span>
       </a-form-item>
 
+      <!-- 扩展参数与计价治理（extra_config 治理键，写入时后端校验；默认收起） -->
+      <a-collapse :default-active-key="[]" :bordered="false" class="ext-collapse">
+        <a-collapse-item key="ext" :header="t('model.extSection')">
+          <!-- 允许转发的方言扩展参数：选项来自 /gateway/capabilities（与代码真值同源） -->
+          <a-form-item :label="t('model.extAllowed')">
+            <a-checkbox-group v-model="extAllowed" direction="vertical">
+              <a-checkbox v-for="name in dialectParams" :key="name" :value="name">
+                <span class="mono">{{ name }}</span>
+                <span class="ext-desc">{{ extParamDesc(name) }}</span>
+              </a-checkbox>
+            </a-checkbox-group>
+            <template #extra>{{ t('model.extAllowedTip') }}</template>
+          </a-form-item>
+
+          <!-- 模型级生成参数覆盖：留空 = 不覆盖 -->
+          <a-form-item :label="t('model.extOverrides')">
+            <a-grid :cols="24" :col-gap="12">
+              <a-grid-item :span="8">
+                <a-input-number
+                  v-model="extOverrides.temperature"
+                  :min="0"
+                  :max="2"
+                  :step="0.1"
+                  placeholder="temperature"
+                  allow-clear
+                  style="width: 100%"
+                />
+              </a-grid-item>
+              <a-grid-item :span="8">
+                <a-input-number
+                  v-model="extOverrides.top_p"
+                  :min="0"
+                  :max="1"
+                  :step="0.05"
+                  placeholder="top_p"
+                  allow-clear
+                  style="width: 100%"
+                />
+              </a-grid-item>
+              <a-grid-item :span="8">
+                <a-select
+                  v-model="extOverrides.enable_thinking"
+                  :placeholder="'enable_thinking'"
+                  allow-clear
+                >
+                  <a-option :value="true" label="true" />
+                  <a-option :value="false" label="false" />
+                </a-select>
+              </a-grid-item>
+            </a-grid>
+            <template #extra>{{ t('model.extOverridesTip') }}</template>
+          </a-form-item>
+
+          <!-- responses 计价：档位乘数与工具单价（键值对，可多行） -->
+          <a-form-item :label="t('model.extTierMultipliers')">
+            <div class="kv-editor">
+              <div v-for="(row, i) in extTierRows" :key="i" class="kv-row">
+                <a-input v-model="row.key" :placeholder="t('model.extTierKeyPh')" allow-clear />
+                <a-input-number
+                  v-model="row.value"
+                  :min="0.000001"
+                  :precision="6"
+                  :step="0.1"
+                  placeholder="×1.0"
+                  style="width: 140px"
+                />
+                <a-button
+                  type="text"
+                  status="danger"
+                  size="small"
+                  @click="extTierRows.splice(i, 1)"
+                >
+                  <template #icon><icon-delete /></template>
+                </a-button>
+              </div>
+              <a-button size="small" @click="extTierRows.push({ key: '', value: undefined })">
+                {{ t('common.add') }}
+              </a-button>
+            </div>
+            <template #extra>{{ t('model.extTierTip') }}</template>
+          </a-form-item>
+
+          <a-form-item :label="t('model.extToolPrices')">
+            <div class="kv-editor">
+              <div v-for="(row, i) in extToolRows" :key="i" class="kv-row">
+                <a-input v-model="row.key" :placeholder="t('model.extToolKeyPh')" allow-clear />
+                <a-input-number
+                  v-model="row.value"
+                  :min="0"
+                  :precision="6"
+                  :step="0.001"
+                  placeholder="0.000"
+                  style="width: 140px"
+                />
+                <a-button
+                  type="text"
+                  status="danger"
+                  size="small"
+                  @click="extToolRows.splice(i, 1)"
+                >
+                  <template #icon><icon-delete /></template>
+                </a-button>
+              </div>
+              <a-button size="small" @click="extToolRows.push({ key: '', value: undefined })">
+                {{ t('common.add') }}
+              </a-button>
+            </div>
+          </a-form-item>
+        </a-collapse-item>
+      </a-collapse>
+
       <a-form-item v-if="isEdit" field="status" :label="t('model.statusLabel')">
         <a-select v-model="formData.status" :placeholder="t('model.statusPlaceholder')">
           <a-option :value="1" :label="t('common.enabled')" />
@@ -166,6 +277,7 @@ import { ref, reactive, computed, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { modelApi } from '@/api/model'
+import { systemApi } from '@/api/system'
 import { useLoading } from '@/hooks/loading'
 import type { ProviderModel, Provider, ModelCreateRequest } from '@/types'
 
@@ -205,6 +317,100 @@ const formRef = ref()
 const { loading: submitLoading, setLoading: setSubmitLoading } = useLoading()
 const supportsResponses = ref(false)
 
+// ---- 扩展参数与计价治理（extra_config 治理键，后端写入时校验）----
+interface KvRow {
+  key: string
+  value?: number
+}
+const dialectParams = ref<string[]>([])
+const extAllowed = ref<string[]>([])
+const extOverrides = ref<{ temperature?: number; top_p?: number; enable_thinking?: boolean }>({})
+const extTierRows = ref<KvRow[]>([])
+const extToolRows = ref<KvRow[]>([])
+
+// 选项清单来自 /gateway/capabilities（与运行中网关的准入表同源，永不漂移）
+async function loadDialectParams() {
+  try {
+    const res = await systemApi.gatewayCapabilities()
+    dialectParams.value = res.data.dialect_params ?? []
+  } catch {
+    dialectParams.value = []
+  }
+}
+
+function extParamDesc(name: string): string {
+  const map: Record<string, string> = {
+    enable_thinking: t('model.extDescThinking'),
+    output_config: t('model.extDescOutputConfig'),
+  }
+  return map[name] || ''
+}
+
+function resetExtGovernance() {
+  extAllowed.value = []
+  extOverrides.value = {}
+  extTierRows.value = []
+  extToolRows.value = []
+}
+
+function fillExtGovernance(extra?: Record<string, unknown>) {
+  resetExtGovernance()
+  if (!extra) return
+  extAllowed.value = Array.isArray(extra.allowed_extensions)
+    ? [...(extra.allowed_extensions as string[])]
+    : []
+  const ov = extra.request_overrides as Record<string, unknown> | undefined
+  if (ov && typeof ov === 'object') {
+    extOverrides.value = {
+      temperature: typeof ov.temperature === 'number' ? ov.temperature : undefined,
+      top_p: typeof ov.top_p === 'number' ? ov.top_p : undefined,
+      enable_thinking: typeof ov.enable_thinking === 'boolean' ? ov.enable_thinking : undefined,
+    }
+  }
+  const tiers = extra.service_tier_multipliers as Record<string, number> | undefined
+  if (tiers && typeof tiers === 'object') {
+    extTierRows.value = Object.entries(tiers).map(([key, value]) => ({ key, value }))
+  }
+  const tools = extra.tool_prices as Record<string, number> | undefined
+  if (tools && typeof tools === 'object') {
+    extToolRows.value = Object.entries(tools).map(([key, value]) => ({ key, value }))
+  }
+}
+
+function kvRowsToMap(rows: KvRow[]): Record<string, number> | undefined {
+  const out: Record<string, number> = {}
+  for (const row of rows) {
+    const key = row.key.trim()
+    if (key && typeof row.value === 'number') out[key] = row.value
+  }
+  return Object.keys(out).length ? out : undefined
+}
+
+// 治理键从 base 剥离后按本地编辑态重建——清空即删除，不留旧值残留
+function buildExtGovernance(): Record<string, unknown> {
+  const governance: Record<string, unknown> = {}
+  if (extAllowed.value.length) governance.allowed_extensions = [...extAllowed.value]
+  const overrides: Record<string, unknown> = {}
+  if (typeof extOverrides.value.temperature === 'number')
+    overrides.temperature = extOverrides.value.temperature
+  if (typeof extOverrides.value.top_p === 'number') overrides.top_p = extOverrides.value.top_p
+  if (typeof extOverrides.value.enable_thinking === 'boolean')
+    overrides.enable_thinking = extOverrides.value.enable_thinking
+  if (Object.keys(overrides).length) governance.request_overrides = overrides
+  const tiers = kvRowsToMap(extTierRows.value)
+  if (tiers) governance.service_tier_multipliers = tiers
+  const tools = kvRowsToMap(extToolRows.value)
+  if (tools) governance.tool_prices = tools
+  return governance
+}
+
+const EXT_GOVERNANCE_KEYS = [
+  'allowed_extensions',
+  'request_overrides',
+  'service_tier_multipliers',
+  'tool_prices',
+]
+
 const isProviderLocked = computed(() => !props.isEdit && !!props.defaultProviderId)
 
 function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
@@ -224,6 +430,8 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
 }
 
 const formData = reactive(createEmptyForm())
+
+loadDialectParams()
 
 const formRules = {
   provider_id: [{ required: true, message: t('model.providerRequired') }],
@@ -250,9 +458,11 @@ watch(
         status: props.model.status,
       })
       supportsResponses.value = Boolean(props.model.extra_config?.supports_responses)
+      fillExtGovernance(props.model.extra_config)
     } else {
       Object.assign(formData, createEmptyForm())
       supportsResponses.value = false
+      resetExtGovernance()
     }
   },
 )
@@ -269,10 +479,14 @@ async function handleSubmit() {
   try {
     // Preserve any pre-existing extra_config keys and surface the
     // /v1/responses passthrough flag the gateway reads (supports_responses).
-    const baseExtraConfig =
-      (props.isEdit && props.model?.extra_config) || formData.extra_config || {}
+    const baseExtraConfig: Record<string, unknown> = {
+      ...((props.isEdit && props.model?.extra_config) || formData.extra_config || {}),
+    }
+    // 治理键以表单编辑态为准重建（清空即删除），其余键原样保留
+    for (const k of EXT_GOVERNANCE_KEYS) delete baseExtraConfig[k]
     const extra_config: Record<string, unknown> = {
       ...baseExtraConfig,
+      ...buildExtGovernance(),
       supports_responses: supportsResponses.value,
     }
 
@@ -316,6 +530,36 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
+.ext-collapse {
+  margin-top: 4px;
+
+  :deep(.arco-collapse-item-content) {
+    padding-top: 0;
+  }
+}
+
+.ext-desc {
+  margin-left: 8px;
+  color: var(--color-text-3);
+  font-size: 12px;
+}
+
+.mono {
+  font-family: var(--cl-font-mono);
+  font-size: 12px;
+}
+
+.kv-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .kv-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
 .supports-responses-helper {
   display: block;
   margin-top: 4px;

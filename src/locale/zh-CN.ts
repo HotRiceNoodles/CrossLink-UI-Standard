@@ -287,6 +287,20 @@ export default {
     routingStrategyLabel: '路由策略',
     routingStrategyPlaceholder: '请选择路由策略',
     supportsResponsesLabel: '上游原生支持 /v1/responses',
+    extSection: '扩展参数与计价（高级）',
+    extAllowed: '允许转发的扩展参数',
+    extAllowedTip:
+      '勾选后，请求里对应的方言扩展参数才会转发到该上游（未勾选 = 拦截不下发）；计费型参数必须显式授权',
+    extDescThinking: 'Qwen3 思考开关（bool）；思考输出按输出 token 计费',
+    extDescOutputConfig:
+      'Anthropic effort 档位；anthropic 上游原生转发，openai 上游翻译为 reasoning_effort',
+    extOverrides: '生成参数覆盖',
+    extOverridesTip: '模型级固定覆盖，留空 = 不覆盖；仅 temperature / top_p / enable_thinking',
+    extTierMultipliers: '服务档位计价乘数',
+    extTierKeyPh: '档位名，如 priority',
+    extTierTip: 'responses 请求按档位乘数计价；默认 1（中性）；须为正数',
+    extToolPrices: '工具计价（每工具单价）',
+    extToolKeyPh: '工具名',
     supportsResponsesHelper:
       '开启后，/v1/responses 请求将原样透传至上游（适用于 OpenAI、Azure 等）；关闭时，请求会被翻译为 Chat Completions。仅支持该协议的供应商可开启，否则保存会被拒绝。',
     statusLabel: '状态',

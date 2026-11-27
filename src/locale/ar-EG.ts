@@ -291,6 +291,21 @@ export default {
     routingStrategyLabel: 'استراتيجية التوجيه',
     routingStrategyPlaceholder: 'اختر استراتيجية التوجيه',
     supportsResponsesLabel: 'يدعم المنبع /v1/responses بشكل أصلي',
+    extSection: 'معاملات الامتداد والتسعير (متقدم)',
+    extAllowed: 'معاملات الامتداد المُمرَّرة',
+    extAllowedTip:
+      'فقط معاملات اللهجة المحددة من الطلبات تُمرَّر إلى هذا المصدر (غير المحدد = يُقبل لكن لا يُمرَّر)؛ المعاملات ذات التكلفة تتطلب موافقة صريحة',
+    extDescThinking: 'مفتاح تفكير Qwen3 (bool)؛ يُحتسب مخرج التفكير ضمن رموز الإخراج',
+    extDescOutputConfig:
+      'مستوى effort في Anthropic؛ يُمرَّر كما هو لمصادر anthropic ويُترجم إلى reasoning_effort لمصادر openai',
+    extOverrides: 'تجاوزات معاملات التوليد',
+    extOverridesTip:
+      'تجاوزات ثابتة على مستوى النموذج؛ فارغ = بلا تجاوز. فقط temperature / top_p / enable_thinking',
+    extTierMultipliers: 'مضاعفات تسعير مستويات الخدمة',
+    extTierKeyPh: 'اسم المستوى، مثل priority',
+    extTierTip: 'تُسعَّر طلبات responses بمضاعف المستوى؛ الافتراضي 1 (محايد)؛ يجب أن يكون موجبًا',
+    extToolPrices: 'أسعار الأدوات (لكل أداة)',
+    extToolKeyPh: 'اسم الأداة',
     supportsResponsesHelper:
       'عند التفعيل، تُمرَّر طلبات /v1/responses إلى المنبع كما هي (مثل OpenAI وAzure). عند التعطيل، تُترجَم الطلبات إلى Chat Completions. يقبل المزوّدون القادرون على البروتوكول هذا الخيار فقط — وإلا يُرفض الحفظ.',
     statusLabel: 'الحالة',

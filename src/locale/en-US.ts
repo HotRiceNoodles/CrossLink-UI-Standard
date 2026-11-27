@@ -291,6 +291,22 @@ export default {
     routingStrategyLabel: 'Routing Strategy',
     routingStrategyPlaceholder: 'Select routing strategy',
     supportsResponsesLabel: 'Upstream natively supports /v1/responses',
+    extSection: 'Extension params & pricing (advanced)',
+    extAllowed: 'Forwarded extension params',
+    extAllowedTip:
+      'Only the checked dialect params from requests are forwarded to this upstream (unchecked = admitted but not forwarded); cost-bearing params require explicit consent',
+    extDescThinking: 'Qwen3 thinking switch (bool); thinking output is billed as output tokens',
+    extDescOutputConfig:
+      'Anthropic effort tier; forwarded natively on anthropic upstreams, translated to reasoning_effort on openai upstreams',
+    extOverrides: 'Generation param overrides',
+    extOverridesTip:
+      'Model-level fixed overrides; empty = no override. Only temperature / top_p / enable_thinking',
+    extTierMultipliers: 'Service-tier price multipliers',
+    extTierKeyPh: 'tier name, e.g. priority',
+    extTierTip:
+      'responses requests are priced by tier multiplier; default 1 (neutral); must be positive',
+    extToolPrices: 'Tool prices (per tool)',
+    extToolKeyPh: 'tool name',
     supportsResponsesHelper:
       'When enabled, /v1/responses requests are passed through to the upstream verbatim (e.g. OpenAI, Azure). When disabled, requests are translated to Chat Completions. Only providers that can serve the protocol accept the flag — saves are rejected otherwise.',
     statusLabel: 'Status',
