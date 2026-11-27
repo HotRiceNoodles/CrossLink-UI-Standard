@@ -61,7 +61,7 @@
       </template>
       <a-table :data="circuits" :pagination="false" :row-key="circuitRowKey" size="small">
         <template #columns>
-          <a-table-column title="Provider" data-index="provider" :width="140">
+          <a-table-column :title="t('model.providerLabel')" data-index="provider" :width="140">
             <template #cell="{ record }">
               <span class="mono">{{ record.provider }}</span>
             </template>
