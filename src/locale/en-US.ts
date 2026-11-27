@@ -179,7 +179,6 @@ export default {
     addModel: 'Add Model',
     probeConnectivity: 'Test Connection',
     deleteProvider: 'Delete Provider',
-    deleteProvider: 'Delete Provider',
     circuitTitle: 'Runtime Circuits',
     circuitModel: 'Model',
     circuitAccountLevel: 'Account-level',

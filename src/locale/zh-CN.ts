@@ -177,7 +177,6 @@ export default {
     addModel: '添加模型',
     probeConnectivity: '探测连通性',
     deleteProvider: '删除供应商',
-    deleteProvider: '删除供应商',
     circuitTitle: '运行时熔断',
     circuitModel: '模型',
     circuitAccountLevel: '账号级',

@@ -179,7 +179,6 @@ export default {
     addModel: 'إضافة نموذج',
     probeConnectivity: 'اختبار الاتصال',
     deleteProvider: 'حذف المزوّد',
-    deleteProvider: 'حذف المزوّد',
     circuitTitle: 'قواطع التشغيل',
     circuitModel: 'النموذج',
     circuitAccountLevel: 'على مستوى الحساب',
