@@ -144,6 +144,7 @@
           :key="provider.id"
           :provider="provider"
           :models="getModelsForProvider(provider.id)"
+          :platform-currency="platformCurrency"
           :adapter="getAdapter(provider.adapter_type)"
           :testing-id="testingId"
           :probe-status="probeStatusMap[provider.id]"
@@ -320,6 +321,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { systemConfigApi } from '@/api/system-config'
 import { Message, Modal } from '@arco-design/web-vue'
 import { useI18n } from 'vue-i18n'
 import { useDebounceFn } from '@vueuse/core'
@@ -604,6 +606,19 @@ async function fetchData() {
   }
 }
 
+// ---- 平台结算币种（单币种设计：system_settings.billing_currency，首装一次写入）----
+const platformCurrency = ref('')
+
+async function fetchPlatformCurrency() {
+  try {
+    const res = await systemConfigApi.get()
+    const v = res.data.settings?.billing_currency
+    platformCurrency.value = typeof v === 'string' ? v : ''
+  } catch {
+    platformCurrency.value = ''
+  }
+}
+
 // ---- 运行时熔断（/providers/health）----
 const circuits = ref<ProviderCircuit[]>([])
 const userStore = useUserStore()
@@ -727,6 +742,7 @@ async function fetchModels() {
 onMounted(() => {
   fetchData()
   fetchCircuits()
+  fetchPlatformCurrency()
 })
 </script>
 

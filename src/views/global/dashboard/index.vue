@@ -133,7 +133,6 @@ const usageStats = ref<UsageStats>({
   total_tokens: 0,
   total_cost: 0,
   avg_latency_ms: 0,
-  cost_by_currency: {},
 })
 const dailyTrend = ref<DailyTrend[]>([])
 
@@ -151,12 +150,10 @@ const displayKeyCount = computed(
 )
 
 const currencySymbol = computed(() => {
-  const currencies = Object.keys(usageStats.value.cost_by_currency || {})
-  if (currencies.length === 0) return '¥'
+  // 单币种设计：stats.currency 即部署唯一结算币种
+  const cur = usageStats.value.currency
   const map: Record<string, string> = { USD: '$', CNY: '¥', EUR: '€', GBP: '£' }
-  const symbol = map[currencies[0]]
-  // Use mapped symbol if known, otherwise fallback to ¥
-  return symbol || '¥'
+  return (cur && map[cur]) || cur || '¥'
 })
 
 // Formatters

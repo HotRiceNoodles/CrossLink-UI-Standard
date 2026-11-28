@@ -66,6 +66,9 @@
           <a-table-column :title="t('provider.modelTableName')" :width="160">
             <template #cell="{ record }">
               <span style="font-weight: 600">{{ record.model_name }}</span>
+              <a-tag v-if="record.modality" size="small" color="cyan">
+                {{ t(`model.modality_${record.modality}`) || record.modality }}
+              </a-tag>
             </template>
           </a-table-column>
 
@@ -98,13 +101,13 @@
 
           <a-table-column :title="t('provider.modelTableInputPrice')" :width="110" align="right">
             <template #cell="{ record }">
-              {{ formatPrice(record.input_price, record.currency) }}
+              {{ formatPrice(record.input_price) }}
             </template>
           </a-table-column>
 
           <a-table-column :title="t('provider.modelTableOutputPrice')" :width="110" align="right">
             <template #cell="{ record }">
-              {{ formatPrice(record.output_price, record.currency) }}
+              {{ formatPrice(record.output_price) }}
             </template>
           </a-table-column>
 
@@ -155,6 +158,8 @@ interface Props {
   adapter?: Adapter
   testingId: number | null
   probeStatus?: 'success' | 'fail' | 'testing'
+  /** 部署唯一结算币种（单币种设计；空 = 未知回落默认符号） */
+  platformCurrency?: string
 }
 
 interface Emits {
@@ -204,10 +209,10 @@ function getStrategyColor(key: string): string {
   return strategyColorMap[key] ?? '#86909C'
 }
 
-function formatPrice(price: number | null | undefined, currency?: string): string {
+function formatPrice(price: number | null | undefined): string {
   if (price === null || price === undefined) return '-'
-  const prefix = currency === 'CNY' ? '¥' : '$'
-  return `${prefix}${price.toFixed(6)}`
+  // 单币种设计：价格一律以部署结算币种计（首装一次写入）
+  return `${getCurrencySymbol(props.platformCurrency)}${price.toFixed(6)}`
 }
 </script>
 

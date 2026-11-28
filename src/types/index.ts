@@ -82,6 +82,17 @@ export interface ToolsUsedAudit {
   cost?: Record<string, number>
 }
 
+// GET /system/install-summary — 安装期参数摘要（system:view 只读）
+export interface InstallSummaryItem {
+  param: string
+  label: string
+  status: string
+  /** 该参数如何被部署锁定（如"一次写入,改需重新部署"） */
+  locked: string
+  source: string
+  fix?: string
+}
+
 // GET /gateway/capabilities — 运行中网关准入的协议面（代码级表只读镜像）
 export interface GatewayCapabilities {
   beta_tokens: string[]
@@ -183,7 +194,13 @@ export interface ProviderModel {
   max_context: number | null
   input_price: number | null
   output_price: number | null
-  currency: string
+  /**
+   * 单币种设计：价格以部署唯一结算币种计价（system_settings.billing_currency，
+   * 首装一次写入）——不再有按模型的币种列。
+   * modality：该映射服务的端点族；'' = 未分类（端点无关，兼容语义），
+   * 显式值为硬门禁——不兼容端点以 modality_mismatch 拒绝。
+   */
+  modality?: string
   routing_strategy: string
   extra_config: Record<string, unknown>
   created_at: string
@@ -201,7 +218,7 @@ export interface ModelCreateRequest {
   max_context?: number | null
   input_price?: number | null
   output_price?: number | null
-  currency?: string
+  modality?: string
   routing_strategy?: string
   extra_config?: Record<string, unknown>
 }
@@ -355,7 +372,8 @@ export interface UsageStats {
   total_tokens: number
   total_cost: number
   avg_latency_ms: number
-  cost_by_currency: Record<string, number>
+  /** 部署唯一结算币种（单币种设计，替代原 cost_by_currency） */
+  currency: string
   organization_count?: number
   member_count?: number
   total_api_keys?: number

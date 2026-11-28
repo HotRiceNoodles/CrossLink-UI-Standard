@@ -107,11 +107,9 @@ const series = computed(() => ({
 const CURRENCY_SYMBOL: Record<string, string> = { USD: '$', CNY: '¥', EUR: '€', GBP: '£' }
 
 const currencySymbol = computed(() => {
+  // 单币种设计：stats.currency 即部署唯一结算币种
   const explicit = props.stats.currency
-  if (explicit && CURRENCY_SYMBOL[explicit]) return CURRENCY_SYMBOL[explicit]
-  const currencies = Object.keys(props.stats.cost_by_currency || {})
-  if (currencies.length > 0) return CURRENCY_SYMBOL[currencies[0]] || currencies[0]
-  return '$'
+  return (explicit && CURRENCY_SYMBOL[explicit]) || explicit || '¥'
 })
 
 function fmtNum(v: number | undefined | null): string {

@@ -209,7 +209,6 @@ const usageStats = ref<UsageStats>({
   total_tokens: 0,
   total_cost: 0,
   avg_latency_ms: 0,
-  cost_by_currency: {},
 })
 const dailyTrend = ref<DailyTrend[]>([])
 const modelDistribution = ref<ModelDistribution[]>([])
@@ -305,11 +304,10 @@ const topModels = computed<TopNRow[]>(() =>
 )
 
 const currencySymbol = computed(() => {
+  // 单币种设计：stats.currency 即部署唯一结算币种
   const cur = usageStats.value.currency
   const map: Record<string, string> = { USD: '$', CNY: '¥', EUR: '€', GBP: '£' }
-  if (cur && map[cur]) return map[cur]
-  const currencies = Object.keys(usageStats.value.cost_by_currency || {})
-  return currencies.length ? map[currencies[0]] || currencies[0] : '$'
+  return (cur && map[cur]) || cur || '¥'
 })
 
 const rangeLabel = computed(() =>

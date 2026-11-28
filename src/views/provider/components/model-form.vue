@@ -122,11 +122,17 @@
 
       <a-grid :cols="24" :col-gap="16">
         <a-grid-item :span="12">
-          <a-form-item field="currency" :label="t('model.currencyLabel')">
-            <a-select v-model="formData.currency" :placeholder="t('model.currencyPlaceholder')">
-              <a-option value="CNY" label="CNY" />
-              <a-option value="USD" label="USD" />
+          <a-form-item field="modality" :label="t('model.modalityLabel')">
+            <a-select v-model="formData.modality" :placeholder="t('model.modalityPh')">
+              <a-option value="" :label="t('model.modalityNone')" />
+              <a-option
+                v-for="m in MODALITIES"
+                :key="m"
+                :value="m"
+                :label="t(`model.modality_${m}`)"
+              />
             </a-select>
+            <template #extra>{{ t('model.modalityTip') }}</template>
           </a-form-item>
         </a-grid-item>
         <a-grid-item :span="12">
@@ -324,6 +330,16 @@ const formRef = ref()
 const { loading: submitLoading, setLoading: setSubmitLoading } = useLoading()
 const supportsResponses = ref(false)
 
+// 后端 ValidModalities（图片方案 P3 §5.1）；'' = 未分类不列出（始终可选）
+const MODALITIES = [
+  'text',
+  'image',
+  'video',
+  'audio_speech',
+  'audio_transcription',
+  'embedding',
+] as const
+
 // ---- 扩展参数与计价治理（extra_config 治理键，后端写入时校验）----
 interface KvRow {
   key: string
@@ -453,7 +469,7 @@ function createEmptyForm(): Partial<ModelCreateRequest> & { status?: number } {
     max_context: undefined,
     input_price: undefined,
     output_price: undefined,
-    currency: 'CNY',
+    modality: '',
     routing_strategy: 'weighted_random',
     status: 1,
   }
@@ -483,7 +499,7 @@ watch(
         max_context: props.model.max_context ?? undefined,
         input_price: props.model.input_price,
         output_price: props.model.output_price,
-        currency: props.model.currency,
+        modality: props.model.modality || '',
         routing_strategy: props.model.routing_strategy,
         status: props.model.status,
       })
@@ -530,7 +546,7 @@ async function handleSubmit() {
       max_context: formData.max_context ?? null,
       input_price: formData.input_price ?? null,
       output_price: formData.output_price ?? null,
-      currency: formData.currency,
+      modality: formData.modality || undefined,
       routing_strategy: formData.routing_strategy,
       extra_config,
     }
