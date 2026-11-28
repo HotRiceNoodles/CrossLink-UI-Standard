@@ -133,6 +133,49 @@
         </a-spin>
       </a-card>
 
+      <!-- 安装期参数摘要：首装一次性锁定项（币种/加密/JWT 等），只读 -->
+      <a-card class="general-card" :title="t('settings.installSummaryTitle')">
+        <a-spin :loading="installLoading" style="width: 100%">
+          <a-alert v-if="installError" type="warning">
+            {{ t('settings.installSummaryUnavailable') }}
+          </a-alert>
+          <a-table
+            v-else-if="installItems.length"
+            :data="installItems"
+            :pagination="false"
+            row-key="param"
+            size="small"
+          >
+            <template #columns>
+              <a-table-column :title="t('settings.installParam')" :width="220">
+                <template #cell="{ record }">
+                  <span class="mono">{{ record.param }}</span>
+                </template>
+              </a-table-column>
+              <a-table-column :title="t('settings.installLabel')" data-index="label" :width="180" />
+              <a-table-column :title="t('common.status')" :width="90" align="center">
+                <template #cell="{ record }">
+                  <a-tag
+                    :color="
+                      record.status === 'ok' ? 'green' : record.status === 'warn' ? 'orange' : 'red'
+                    "
+                    size="small"
+                  >
+                    {{ record.status }}
+                  </a-tag>
+                </template>
+              </a-table-column>
+              <a-table-column :title="t('settings.installLocked')" :width="260" ellipsis tooltip>
+                <template #cell="{ record }">{{ record.locked || '-' }}</template>
+              </a-table-column>
+              <a-table-column :title="t('settings.installSource')" :width="200" ellipsis tooltip>
+                <template #cell="{ record }">{{ record.source || '-' }}</template>
+              </a-table-column>
+            </template>
+          </a-table>
+        </a-spin>
+      </a-card>
+
       <!-- Feature Settings -->
       <a-card class="general-card" :title="t('settings.featureSettings')">
         <div class="feature-item">
@@ -183,7 +226,7 @@ import { settingsApi } from '@/api/settings'
 import { useUserStore } from '@/store/modules/user'
 import { ONBOARDING_EVENT, useOnboardingGuard } from '@/composables/use-onboarding-wizard'
 import { SETUP_REOPEN_EVENT } from '@/composables/use-system-setup'
-import type { GatewayCapabilities, SystemInfo } from '@/types'
+import type { GatewayCapabilities, InstallSummaryItem, SystemInfo } from '@/types'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -231,6 +274,24 @@ const capabilities = ref<GatewayCapabilities | null>(null)
 const capLoading = ref(false)
 const capError = ref(false)
 
+// ---- 安装期参数摘要（只读）----
+const installItems = ref<InstallSummaryItem[]>([])
+const installLoading = ref(false)
+const installError = ref(false)
+
+async function fetchInstallSummary() {
+  installLoading.value = true
+  installError.value = false
+  try {
+    const res = await systemApi.installSummary()
+    installItems.value = res.data ?? []
+  } catch {
+    installError.value = true
+  } finally {
+    installLoading.value = false
+  }
+}
+
 async function fetchCapabilities() {
   capLoading.value = true
   capError.value = false
@@ -246,6 +307,7 @@ async function fetchCapabilities() {
 
 onMounted(async () => {
   fetchCapabilities()
+  fetchInstallSummary()
   setLoading(true)
   try {
     const [sysRes, contentLogRes, versionRes] = await Promise.allSettled([
