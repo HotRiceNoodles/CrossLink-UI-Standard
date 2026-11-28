@@ -82,6 +82,11 @@ export interface OnboardingRequest {
   provider: OnboardingProviderInput
   models?: OnboardingModelInput[]
   key: OnboardingKeyInput
+  /**
+   * 平台唯一结算币种（单币种设计）：首次 Commit 必填（ISO 4217，3 字母，
+   * 服务端归一化）；已写入后再改返回 409 billing_currency_locked。
+   */
+  currency?: string
 }
 
 export interface OnboardingResult {

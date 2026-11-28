@@ -1,6 +1,16 @@
 <template>
   <div class="step-key">
     <a-form :model="keyForm" layout="vertical">
+      <!-- 平台结算币种（单币种设计）：首装一次性写入，之后不可更改 -->
+      <a-form-item field="currency" :label="t('onboarding.currencyLabel')" required>
+        <a-input
+          v-model="currency"
+          :placeholder="t('onboarding.currencyPh')"
+          :max-length="3"
+          style="width: 160px; text-transform: uppercase"
+        />
+        <template #extra>{{ t('onboarding.currencyTip') }}</template>
+      </a-form-item>
       <a-form-item field="name" :label="t('onboarding.keyName')" required>
         <a-input
           v-model="keyForm.name"
@@ -68,7 +78,7 @@ import { useI18n } from 'vue-i18n'
 import { OnboardingWizardKey } from '@/composables/use-onboarding-wizard'
 
 const { t } = useI18n()
-const { keyForm } = inject(OnboardingWizardKey)!
+const { keyForm, currency } = inject(OnboardingWizardKey)!
 </script>
 
 <style scoped lang="less">

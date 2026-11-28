@@ -1944,6 +1944,11 @@ export default {
     errSubmit: '提交失败，请稍后重试。',
     errPermission: '当前角色缺少向导所需权限（如 provider:create / key:create），请联系管理员。',
     errAuthDegraded: '权限数据暂不可用，请稍后重试。',
+    errCurrencyInvalid: '币种须为 3 字母 ISO 4217 代码（如 CNY、USD）。',
+    errCurrencyLocked: '结算币种已在首次安装时写入，不可更改；如需变更需重新部署。',
+    currencyLabel: '平台结算币种',
+    currencyPh: 'CNY',
+    currencyTip: '单币种设计：全平台唯一的结算币种，首次提交时一次性写入，之后不可更改。',
   },
 
   systemConfig: {

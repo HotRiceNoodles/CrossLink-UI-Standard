@@ -1990,6 +1990,13 @@ export default {
     errPermission:
       'Your role lacks a permission the wizard needs (e.g. provider:create / key:create). Contact an administrator.',
     errAuthDegraded: 'Permission data is temporarily unavailable. Retry shortly.',
+    errCurrencyInvalid: 'Currency must be a 3-letter ISO 4217 code (e.g. CNY, USD).',
+    errCurrencyLocked:
+      'The settlement currency was written at first install and is locked; changing it requires redeployment.',
+    currencyLabel: 'Platform settlement currency',
+    currencyPh: 'CNY',
+    currencyTip:
+      'Single-currency design: the one settlement currency for the whole platform, written once at first commit and locked afterwards.',
   },
 
   systemConfig: {

@@ -130,6 +130,8 @@ export function useOnboardingWizard() {
 
   const provider = reactive<ProviderForm>(defaultProvider())
   const keyForm = reactive<KeyForm>(defaultKey())
+  // 平台结算币种（单币种设计）：首装一次性写入；默认 CNY
+  const currency = ref('CNY')
 
   const probeResult = ref<ProbeResult | null>(null)
   const probeError = ref('') // 人性化后的错误文案（已翻译）
@@ -297,6 +299,7 @@ export function useOnboardingWizard() {
     }))
     const k = keyForm
     return {
+      currency: currency.value.trim().toUpperCase() || undefined,
       provider: {
         name: provider.name.trim(),
         display_name: provider.display_name.trim() || provider.name.trim(),
@@ -333,6 +336,10 @@ export function useOnboardingWizard() {
       // 3fb43d2：向导各步现在会做动作位鉴权/权限数据降级检查
       else if (code === 'permission_denied') submitError.value = t('onboarding.errPermission')
       else if (code === 'auth_degraded') submitError.value = t('onboarding.errAuthDegraded')
+      // 单币种设计：首装写入后锁定
+      else if (code === 'currency_invalid') submitError.value = t('onboarding.errCurrencyInvalid')
+      else if (code === 'billing_currency_locked')
+        submitError.value = t('onboarding.errCurrencyLocked')
       else submitError.value = e.response?.data?.error || t('onboarding.errSubmit')
     } finally {
       setSubmitting(false)
@@ -344,6 +351,7 @@ export function useOnboardingWizard() {
     currentStep.value = 0
     Object.assign(provider, defaultProvider())
     Object.assign(keyForm, defaultKey())
+    currency.value = 'CNY'
     probeResult.value = null
     probeError.value = ''
     selectedModels.value = []
@@ -387,6 +395,7 @@ export function useOnboardingWizard() {
     toggleModel,
     addManualModel,
     removeManualModel,
+    currency,
     buildPayload,
     submit,
     resetState,

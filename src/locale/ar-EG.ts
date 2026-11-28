@@ -1975,6 +1975,12 @@ export default {
     errPermission:
       'دورك يفتقر إلى صلاحية يحتاجها المعالج (مثل provider:create / key:create). تواصل مع المسؤول.',
     errAuthDegraded: 'بيانات الصلاحيات غير متاحة مؤقتًا. أعد المحاولة بعد قليل.',
+    errCurrencyInvalid: 'يجب أن تكون العملة برمز ISO 4217 من 3 أحرف (مثل CNY أو USD).',
+    errCurrencyLocked: 'كُتبت عملة التسوية عند التثبيت الأول ومقفلة؛ تغييرها يتطلب إعادة النشر.',
+    currencyLabel: 'عملة التسوية للمنصة',
+    currencyPh: 'CNY',
+    currencyTip:
+      'تصميم أحادي العملة: عملة التسوية الوحيدة للمنصة، تُكتب مرة عند أول إرسال ثم تُقفل.',
   },
 
   systemConfig: {
