@@ -152,8 +152,15 @@
       </a-form-item>
 
       <!-- 扩展参数与计价治理（extra_config 治理键，写入时后端校验；默认收起） -->
-      <a-collapse :default-active-key="[]" :bordered="false" class="ext-collapse">
-        <a-collapse-item key="ext" :header="t('model.extSection')">
+      <a-collapse v-model:active-key="extActiveKeys" :bordered="false" class="ext-collapse">
+        <a-collapse-item key="ext">
+          <template #header>
+            <a-space :size="8">
+              <span>{{ t('model.extSection') }}</span>
+              <!-- 已配置项计数徽标：收起时也可见，避免“藏着找不到” -->
+              <a-badge v-if="extConfiguredCount > 0" :count="extConfiguredCount" color="arcoblue" />
+            </a-space>
+          </template>
           <!-- 允许转发的方言扩展参数：选项来自 /gateway/capabilities（与代码真值同源） -->
           <a-form-item :label="t('model.extAllowed')">
             <a-checkbox-group v-model="extAllowed" direction="vertical">
@@ -346,7 +353,26 @@ function extParamDesc(name: string): string {
   return map[name] || ''
 }
 
+// 折叠区默认收起，但编辑已带治理配置的模型时自动展开（可发现性）
+const extActiveKeys = ref<string[]>([])
+
+const extConfiguredCount = computed(() => {
+  const ov = extOverrides.value
+  const overrideCount = [
+    typeof ov.temperature === 'number',
+    typeof ov.top_p === 'number',
+    typeof ov.enable_thinking === 'boolean',
+  ].filter(Boolean).length
+  return (
+    (extAllowed.value.length ? 1 : 0) +
+    overrideCount +
+    (kvRowsToMap(extTierRows.value) ? 1 : 0) +
+    (kvRowsToMap(extToolRows.value) ? 1 : 0)
+  )
+})
+
 function resetExtGovernance() {
+  extActiveKeys.value = []
   extAllowed.value = []
   extOverrides.value = {}
   extTierRows.value = []
@@ -356,6 +382,10 @@ function resetExtGovernance() {
 function fillExtGovernance(extra?: Record<string, unknown>) {
   resetExtGovernance()
   if (!extra) return
+  // 编辑态带治理配置 → 自动展开，让已有配置一眼可见
+  const hasAny =
+    Array.isArray(extra.allowed_extensions) && (extra.allowed_extensions as string[]).length
+  if (hasAny) extActiveKeys.value = ['ext']
   extAllowed.value = Array.isArray(extra.allowed_extensions)
     ? [...(extra.allowed_extensions as string[])]
     : []
